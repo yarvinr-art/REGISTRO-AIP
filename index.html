@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>AIP PRO</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+body {
+  font-family: Arial;
+  background:#020617;
+  color:white;
+  text-align:center;
+}
+.container { max-width:800px; margin:auto; }
+
+input, select, textarea {
+  width:90%;
+  padding:10px;
+  margin:5px;
+  border-radius:8px;
+  border:none;
+}
+
+button {
+  background:#22c55e;
+  color:white;
+  padding:12px;
+  border:none;
+  border-radius:10px;
+  cursor:pointer;
+}
+
+.card {
+  background:#1e293b;
+  padding:15px;
+  border-radius:12px;
+  margin:10px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>📊 AIP</h1>
+
+<!-- LOGIN ADMIN -->
+<div class="card">
+<input type="password" id="clave" placeholder="Clave admin">
+<button onclick="verDashboard()">Entrar como admin</button>
+</div>
+
+<!-- FORMULARIO -->
+<div class="card" id="formulario">
+<h2>📝 Registro</h2>
+
+<input id="nombre" placeholder="Nombre docente">
+
+<select id="area">
+<option>Matemática</option>
+<option>Comunicación</option>
+<option>Ciencia y Tecnología</option>
+<option>Inglés</option>
+<option>DPCC</option>
+</select>
+
+<select id="grado">
+<option value="">Grado</option>
+<option>1</option>
+<option>2</option>
+<option>3</option>
+<option>4</option>
+<option>5</option>
+</select>
+
+<select id="seccion">
+<option value="">Sección</option>
+<option>A</option>
+<option>B</option>
+<option>C</option>
+<option>D</option>
+<option>E</option>
+</select>
+
+<input id="tema" placeholder="Tema">
+<textarea id="recursos" placeholder="Recursos"></textarea>
+<input id="horas" type="number" placeholder="Horas">
+
+<button onclick="enviar()">Registrar</button>
+
+<p id="msg"></p>
+</div>
+
+<!-- DASHBOARD OCULTO -->
+<div id="dashboard" style="display:none">
+
+<div class="card">
+<h2>📈 Uso por grado</h2>
+<canvas id="graficoGrado"></canvas>
+</div>
+
+<div class="card">
+<h2>📊 Uso por área</h2>
+<canvas id="graficoArea"></canvas>
+</div>
+
+</div>
+
+</div>
+
+<script>
+const URL = "PEGA_AQUI_TU_SCRIPT";
+const SHEET_ID = "PEGA_AQUI_TU_ID";
+const PASSWORD = "1234"; // cambia esto
+
+function enviar() {
+  let data = {
+    nombre: nombre.value,
+    area: area.value,
+    grado: grado.value,
+    seccion: seccion.value,
+    tema: tema.value,
+    recursos: recursos.value,
+    horas: horas.value
+  };
+
+  if(!data.nombre || !data.grado || !data.seccion){
+    alert("Completa datos obligatorios");
+    return;
+  }
+
+  fetch(URL, {
+    method: "POST",
+    body: JSON.stringify(data)
+  }).then(()=>{
+    msg.innerText = "✅ Registrado";
+  });
+}
+
+function verDashboard(){
+  if(clave.value === PASSWORD){
+    document.getElementById("formulario").style.display = "none";
+    document.getElementById("dashboard").style.display = "block";
+    cargarDatos();
+  } else {
+    alert("Clave incorrecta");
+  }
+}
+
+async function cargarDatos(){
+  const url = `https://opensheet.elk.sh/${SHEET_ID}/Sheet1`;
+  let res = await fetch(url);
+  let data = await res.json();
+
+  let grados = {1:0,2:0,3:0,4:0,5:0};
+  let areas = {};
+
+  data.forEach(d => {
+    grados[d.Grado]++;
+
+    if(!areas[d["Área"]]) areas[d["Área"]] = 0;
+    areas[d["Área"]]++;
+  });
+
+  new Chart(document.getElementById('graficoGrado'), {
+    type: 'bar',
+    data: {
+      labels: Object.keys(grados),
+      datasets: [{ label:'Uso por grado', data:Object.values(grados) }]
+    }
+  });
+
+  new Chart(document.getElementById('graficoArea'), {
+    type: 'bar',
+    data: {
+      labels: Object.keys(areas),
+      datasets: [{ label:'Uso por área', data:Object.values(areas) }]
+    }
+  });
+}
+</script>
+
+</body>
+</html>
