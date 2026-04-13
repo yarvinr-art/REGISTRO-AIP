@@ -323,6 +323,26 @@
         .gen-total-bar .tot-num { font-family:'Space Mono',monospace; font-size:28px; font-weight:800; color:var(--gen-accent); }
         .gen-total-bar .tot-label { font-size:12px; opacity:0.8; text-transform:uppercase; letter-spacing:1px; }
 
+
+
+        /* === CRT TIPO PERSONA === */
+        .crt-tipo-row { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:14px; }
+        .tipo-chip { display:inline-flex; align-items:center; padding:8px 16px; border-radius:50px; font-size:12px; font-weight:700; cursor:pointer; transition:all 0.2s ease; user-select:none; border:2px solid; }
+        .tipo-chip input[type=radio] { display:none; }
+        .tipo-chip.crt-tipo { border-color:var(--crt-border); color:var(--crt-mid); background:white; }
+        .tipo-chip.crt-tipo:hover { border-color:var(--crt-light); background:var(--crt-bg); }
+        .tipo-chip.crt-tipo.selected { background:linear-gradient(135deg,var(--crt-mid),var(--crt-light)); border-color:var(--crt-light); color:white; box-shadow:0 4px 12px rgba(21,87,36,0.3); }
+        .campo-condicional { transition:all 0.3s ease; overflow:hidden; }
+        /* === HORAS SELECTOR === */
+        .horas-selector { margin-bottom:14px; }
+        .horas-selector label.horas-title { font-size:12px; font-weight:800; text-transform:uppercase; letter-spacing:1px; display:block; margin-bottom:8px; }
+        .horas-selector.aip .horas-title { color:var(--aip-mid); }
+        .horas-grid { display:flex; flex-wrap:wrap; gap:8px; }
+        .hora-chip { display:inline-flex; align-items:center; gap:6px; padding:7px 14px; border-radius:50px; font-size:12px; font-weight:700; cursor:pointer; transition:all 0.2s ease; user-select:none; border:2px solid; }
+        .hora-chip input[type=checkbox] { display:none; }
+        .hora-chip.aip-chip { border-color:var(--aip-border); color:var(--aip-mid); background:white; }
+        .hora-chip.aip-chip:hover { border-color:var(--aip-light); background:var(--aip-bg); }
+        .hora-chip.aip-chip.selected { background:linear-gradient(135deg,var(--aip-mid),var(--aip-light)); border-color:var(--aip-light); color:white; box-shadow:0 4px 12px rgba(26,48,128,0.3); }
         /* === TOAST === */
         #toast { position:fixed; bottom:32px; left:50%; transform:translateX(-50%) translateY(10px); background:linear-gradient(135deg,#1a1f3a,#2d3565); color:white; padding:15px 36px; border-radius:50px; display:none; z-index:9999; font-weight:700; font-size:14px; box-shadow:0 8px 32px rgba(0,0,0,0.35); border:1px solid rgba(255,255,255,0.12); backdrop-filter:blur(10px); white-space:nowrap; }
         #toast.show { display:block; animation:toastIn 0.4s cubic-bezier(0.22,1,0.36,1) forwards; }
@@ -434,6 +454,18 @@
                     <input type="text" id="aip-tema" class="aip-input" placeholder="Tema trabajado *" maxlength="200">
                     <input type="text" id="aip-recursos" class="aip-input" placeholder="Recursos usados" maxlength="200">
                 </div>
+                <div class="horas-selector aip">
+                    <label class="horas-title">🕐 Horas de uso del AIP <span style="font-weight:500;color:#9aa0b8;font-size:10px">(selecciona las horas utilizadas)</span></label>
+                    <div class="horas-grid" id="aip-horas-grid">
+                        <label class="hora-chip aip-chip" onclick="toggleHora(this)"><input type="checkbox" value="1ERA">1ERA</label>
+                        <label class="hora-chip aip-chip" onclick="toggleHora(this)"><input type="checkbox" value="2DA">2DA</label>
+                        <label class="hora-chip aip-chip" onclick="toggleHora(this)"><input type="checkbox" value="3ERA">3ERA</label>
+                        <label class="hora-chip aip-chip" onclick="toggleHora(this)"><input type="checkbox" value="4TA">4TA</label>
+                        <label class="hora-chip aip-chip" onclick="toggleHora(this)"><input type="checkbox" value="5TA">5TA</label>
+                        <label class="hora-chip aip-chip" onclick="toggleHora(this)"><input type="checkbox" value="6TA">6TA</label>
+                        <label class="hora-chip aip-chip" onclick="toggleHora(this)"><input type="checkbox" value="7MA">7MA</label>
+                    </div>
+                </div>
                 <button class="btn-main btn-aip" id="btnAIP" onclick="registrarAIP()">✔ Registrar Asistencia — AIP</button>
             </div>
             <div style="margin-top:40px;border-top:1px solid #e8eaf0;padding-top:20px;text-align:center;">
@@ -458,7 +490,7 @@
                     <div class="tabla-container">
                         <table><thead class="aip"><tr>
                             <th style="width:110px">Fecha/Hora</th><th>Área</th><th>Nombre</th>
-                            <th style="width:100px">Grado/Secc.</th><th>Tema</th><th>Recursos</th>
+                            <th style="width:100px">Grado/Secc.</th><th>Horas</th><th>Tema</th><th>Recursos</th>
                             <th style="width:80px;text-align:center">Acción</th>
                         </tr></thead><tbody id="aip-tablaCuerpo"></tbody></table>
                     </div>
@@ -470,28 +502,56 @@
         <!-- ======== SECCIÓN CRT ======== -->
         <div id="seccionCRT" style="display:none;">
             <div class="panel-asistencia panel-crt">
+                <!-- Tipo de persona -->
+                <div style="margin-bottom:10px;">
+                    <label style="font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--crt-mid);display:block;margin-bottom:8px;">👤 Tipo de persona</label>
+                    <div class="crt-tipo-row" id="crt-tipo-row">
+                        <label class="tipo-chip crt-tipo selected" onclick="selectTipoCRT(this,'DOCENTE')"><input type="radio" name="crt-tipo" value="DOCENTE" checked>DOCENTE</label>
+                        <label class="tipo-chip crt-tipo" onclick="selectTipoCRT(this,'DIRECTIVO')"><input type="radio" name="crt-tipo" value="DIRECTIVO">DIRECTIVO</label>
+                        <label class="tipo-chip crt-tipo" onclick="selectTipoCRT(this,'AUXILIAR')"><input type="radio" name="crt-tipo" value="AUXILIAR">AUXILIAR</label>
+                        <label class="tipo-chip crt-tipo" onclick="selectTipoCRT(this,'UGEL')"><input type="radio" name="crt-tipo" value="UGEL">UGEL</label>
+                        <label class="tipo-chip crt-tipo" onclick="selectTipoCRT(this,'OTRO')"><input type="radio" name="crt-tipo" value="OTRO">OTRO</label>
+                    </div>
+                </div>
                 <div class="form-grid">
-                    <input type="text" id="crt-docente" class="crt-input" placeholder="Nombre del docente *" maxlength="100">
-                    <select id="crt-grado" class="crt-input">
-                        <option value="">Grado...</option>
-                        <option>1°</option><option>2°</option><option>3°</option><option>4°</option><option>5°</option>
+                    <select id="crt-area" class="crt-input">
+                        <option value="">Área / Cargo...</option>
+                        <option>COMUNICACIÓN</option><option>MATEMÁTICA</option>
+                        <option>CIENCIA Y TECNOLOGÍA</option><option>CIENCIAS SOCIALES</option>
+                        <option>INGLÉS</option><option>EDUCACIÓN FÍSICA</option>
+                        <option>ARTE Y CULTURA</option><option>EDUCACIÓN RELIGIOSA</option>
+                        <option>DESARROLLO PERSONAL, CIUDADANÍA Y CÍVICA</option>
+                        <option>EDUCACIÓN PARA EL TRABAJO</option><option>TUTORÍA</option>
+                        <option>DIRECCIÓN</option><option>SUBDIRECCIÓN</option>
+                        <option>AUXILIAR DE EDUCACIÓN</option><option>UGEL / EXTERNO</option>
+                        <option>OTRO</option>
                     </select>
-                    <select id="crt-seccion" class="crt-input">
-                        <option value="">Sección...</option>
-                        <option>A</option><option>B</option><option>C</option><option>D</option><option>E</option>
-                    </select>
+                    <input type="text" id="crt-nombre" class="crt-input" placeholder="Nombre completo *" maxlength="100">
                     <select id="crt-actividad" class="crt-input">
                         <option value="">Tipo de actividad...</option>
                         <option>USO DE COMPUTADORAS</option><option>PROYECCIÓN MULTIMEDIA</option>
                         <option>IMPRESIÓN / ESCANEO</option><option>INSTALACIÓN DE SOFTWARE</option>
                         <option>MANTENIMIENTO DE EQUIPOS</option><option>SOPORTE TÉCNICO</option>
                         <option>PRÉSTAMO DE EQUIPOS</option><option>CAPACITACIÓN DOCENTE</option>
-                        <option>OTRO</option>
+                        <option>REUNIÓN / COORDINACIÓN</option><option>OTRO</option>
                     </select>
                 </div>
+                <!-- Grado/Sección solo para DOCENTE -->
+                <div class="campo-condicional" id="crt-grado-seccion-wrap" style="max-height:80px;opacity:1;">
+                    <div class="form-grid" style="grid-template-columns:1fr 1fr;margin-bottom:14px;">
+                        <select id="crt-grado" class="crt-input">
+                            <option value="">Grado...</option>
+                            <option>1°</option><option>2°</option><option>3°</option><option>4°</option><option>5°</option>
+                        </select>
+                        <select id="crt-seccion" class="crt-input">
+                            <option value="">Sección...</option>
+                            <option>A</option><option>B</option><option>C</option><option>D</option><option>E</option>
+                        </select>
+                    </div>
+                </div>
                 <div class="form-grid" style="grid-template-columns:1fr 1fr;">
-                    <input type="text" id="crt-tema" class="crt-input" placeholder="Tema trabajado *" maxlength="200">
-                    <input type="text" id="crt-recursos" class="crt-input" placeholder="Recursos usados" maxlength="200">
+                    <input type="text" id="crt-tema" class="crt-input" placeholder="Tema / Motivo *" maxlength="200">
+                    <input type="text" id="crt-recursos" class="crt-input" placeholder="Recursos usados / Observaciones" maxlength="200">
                 </div>
                 <button class="btn-main btn-crt" id="btnCRT" onclick="registrarCRT()">✔ Registrar Asistencia — CRT</button>
             </div>
@@ -516,7 +576,8 @@
                     <div class="grafico-wrap"><canvas id="crt-grafico"></canvas></div>
                     <div class="tabla-container">
                         <table><thead class="crt"><tr>
-                            <th style="width:110px">Fecha/Hora</th><th>Docente</th>
+                            <th style="width:110px">Fecha/Hora</th><th style="width:90px">Tipo</th>
+                            <th>Nombre</th><th>Área/Cargo</th>
                             <th style="width:100px">Grado/Secc.</th><th>Actividad</th>
                             <th>Tema</th><th>Recursos</th>
                             <th style="width:80px;text-align:center">Acción</th>
@@ -697,38 +758,44 @@ function registrarAIP() {
     const sec=document.getElementById("aip-seccion").value.trim();
     const tem=document.getElementById("aip-tema").value.trim();
     const rec=document.getElementById("aip-recursos").value.trim();
+    const horas=[...document.querySelectorAll('#aip-horas-grid input[type=checkbox]:checked')].map(c=>c.value);
     if (!area){toast("Seleccione el área");return;}
     if (!nom){toast("Ingrese el nombre del docente");return;}
     if (!gra){toast("Seleccione el grado");return;}
     if (!sec){toast("Seleccione la sección");return;}
     if (!tem){toast("Ingrese el tema trabajado");return;}
+    if (horas.length===0){toast("Seleccione al menos una hora de uso");return;}
     const btn=document.getElementById("btnAIP");
     btn.disabled=true; btn.innerHTML='<span class="spinner"></span> Guardando...';
     const {mes,fecha,hora,timestamp}=getFechaHoy();
-    db.ref('atenciones_aip').push({docente:area,nombre:nom,grado:gra,seccion:sec,tema:tem,observaciones:rec||"—",fecha,hora,mes,timestamp})
-    .then(()=>{ toast("✓ Asistencia AIP registrada"); ["aip-nombre","aip-tema","aip-recursos"].forEach(id=>document.getElementById(id).value=""); })
+    db.ref('atenciones_aip').push({docente:area,nombre:nom,grado:gra,seccion:sec,tema:tem,horas:horas.join(', '),observaciones:rec||"—",fecha,hora,mes,timestamp})
+    .then(()=>{ toast("✓ Asistencia AIP registrada"); ["aip-nombre","aip-tema","aip-recursos"].forEach(id=>document.getElementById(id).value=""); document.querySelectorAll('#aip-horas-grid .hora-chip').forEach(c=>{c.classList.remove('selected');c.querySelector('input').checked=false;}); })
     .catch(()=>toast("Error al guardar. Revise su conexión."))
     .finally(()=>{ btn.disabled=false; btn.innerHTML="✔ Registrar Asistencia — AIP"; });
 }
 
 // ===== REGISTRAR CRT =====
 function registrarCRT() {
-    const doc=document.getElementById("crt-docente").value.trim();
-    const gra=document.getElementById("crt-grado").value.trim();
-    const sec=document.getElementById("crt-seccion").value.trim();
+    const tipoEl=document.querySelector('input[name="crt-tipo"]:checked');
+    const tipo=tipoEl?tipoEl.value:'DOCENTE';
+    const area=document.getElementById("crt-area").value.trim();
+    const nom=document.getElementById("crt-nombre").value.trim();
     const act=document.getElementById("crt-actividad").value.trim();
     const tem=document.getElementById("crt-tema").value.trim();
     const rec=document.getElementById("crt-recursos").value.trim();
-    if (!doc){toast("Ingrese el nombre del docente");return;}
-    if (!gra){toast("Seleccione el grado");return;}
-    if (!sec){toast("Seleccione la sección");return;}
+    const esDocente=tipo==='DOCENTE';
+    const gra=esDocente?document.getElementById("crt-grado").value.trim():'—';
+    const sec=esDocente?document.getElementById("crt-seccion").value.trim():'—';
+    if (!nom){toast("Ingrese el nombre completo");return;}
     if (!act){toast("Seleccione el tipo de actividad");return;}
-    if (!tem){toast("Ingrese el tema trabajado");return;}
+    if (!tem){toast("Ingrese el tema o motivo");return;}
+    if (esDocente && !gra){toast("Seleccione el grado");return;}
+    if (esDocente && !sec){toast("Seleccione la sección");return;}
     const btn=document.getElementById("btnCRT");
     btn.disabled=true; btn.innerHTML='<span class="spinner"></span> Guardando...';
     const {mes,fecha,hora,timestamp}=getFechaHoy();
-    db.ref('atenciones_crt').push({docente:doc,grado:gra,seccion:sec,actividad:act,tema:tem,observaciones:rec||"—",fecha,hora,mes,timestamp})
-    .then(()=>{ toast("✓ Asistencia CRT registrada"); ["crt-docente","crt-tema","crt-recursos"].forEach(id=>document.getElementById(id).value=""); })
+    db.ref('atenciones_crt').push({tipo,docente:nom,area:area||'—',grado:gra,seccion:sec,actividad:act,tema:tem,observaciones:rec||"—",fecha,hora,mes,timestamp})
+    .then(()=>{ toast("✓ Registro CRT guardado"); ["crt-nombre","crt-tema","crt-recursos"].forEach(id=>document.getElementById(id).value=""); document.getElementById("crt-area").value=""; document.getElementById("crt-actividad").value=""; if(esDocente){document.getElementById("crt-grado").value="";document.getElementById("crt-seccion").value="";} })
     .catch(()=>toast("Error al guardar. Revise su conexión."))
     .finally(()=>{ btn.disabled=false; btn.innerHTML="✔ Registrar Asistencia — CRT"; });
 }
@@ -753,6 +820,29 @@ function registrarATP() {
     .finally(()=>{ btn.disabled=false; btn.innerHTML="✔ Registrar Atención Personalizada"; });
 }
 
+
+// ===== TOGGLE HORA AIP =====
+function toggleHora(label) {
+    const cb = label.querySelector('input[type=checkbox]');
+    cb.checked = !cb.checked;
+    label.classList.toggle('selected', cb.checked);
+}
+
+// ===== TIPO PERSONA CRT =====
+function selectTipoCRT(label, tipo) {
+    document.querySelectorAll('.tipo-chip.crt-tipo').forEach(c => c.classList.remove('selected'));
+    label.classList.add('selected');
+    const wrap = document.getElementById('crt-grado-seccion-wrap');
+    if (tipo === 'DOCENTE') {
+        wrap.style.maxHeight = '80px';
+        wrap.style.opacity = '1';
+    } else {
+        wrap.style.maxHeight = '0';
+        wrap.style.opacity = '0';
+        document.getElementById('crt-grado').value = '';
+        document.getElementById('crt-seccion').value = '';
+    }
+}
 // ===== ADMIN =====
 function checkAdmin(modulo) {
     if (modulo === 'gen') {
@@ -819,7 +909,15 @@ function generarReporte(modulo) {
         statsEl.innerHTML=Object.keys(porPersona).length===0?'<span style="color:#9aa0b8;font-size:13px">Sin registros</span>':Object.entries(porPersona).sort((a,b)=>b[1]-a[1]).map(([lbl,cnt])=>`<div class="stat-persona-badge ${modulo}">${lbl}<span class="cnt ${modulo}">${cnt}</span></div>`).join('');
 
         tabla.innerHTML=registros.length===0?`<tr><td colspan="7"><div class="empty-state">📭 No hay registros para este mes.</div></td></tr>`:registros.map(reg=>{
-            const cols=modulo==='aip'?`<td><b>${reg.docente}</b></td><td>${reg.nombre||'—'}</td><td><span class="badge-grado aip">${reg.grado} ${reg.seccion}</span></td>`:`<td><b>${reg.docente}</b></td><td><span class="badge-grado crt">${reg.grado} ${reg.seccion}</span></td><td>${reg.actividad||'—'}</td>`;
+            let cols;
+            if(modulo==='aip'){
+                const horasBadge=reg.horas?`<span style="font-size:11px;font-weight:700;color:var(--aip-mid);background:var(--aip-bg);padding:3px 10px;border-radius:50px;border:1px solid var(--aip-border)">${reg.horas}</span>`:'<span style="color:#9aa0b8">—</span>';
+                cols=`<td><b>${reg.docente}</b></td><td>${reg.nombre||'—'}</td><td><span class="badge-grado aip">${reg.grado} ${reg.seccion}</span></td><td>${horasBadge}</td>`;
+            } else {
+                const tipoCls=reg.tipo==='DIRECTIVO'?'directivo':reg.tipo==='DOCENTE'?'docente':'otros';
+                const gradoSec=(reg.grado&&reg.grado!=='—')?`<span class="badge-grado crt">${reg.grado} ${reg.seccion}</span>`:'<span style="color:#9aa0b8;font-size:11px">—</span>';
+                cols=`<td><span class="badge-tipo ${tipoCls}">${reg.tipo||'—'}</span></td><td><b>${reg.docente}</b></td><td>${reg.area||'—'}</td><td>${gradoSec}</td><td>${reg.actividad||'—'}</td>`;
+            }
             return `<tr><td><b>${reg.fecha}</b><br><small style="color:#9aa0b8">${reg.hora}</small></td>${cols}<td>${reg.tema}</td><td style="color:#6b7280">${reg.observaciones}</td><td style="text-align:center"><button class="btn-eliminar" onclick="eliminarRegistro('${modulo}','${reg._key}','${reg.docente.replace(/'/g,"\\'")} — ${reg.fecha}')">Eliminar</button></td></tr>`;
         }).join('');
 
@@ -911,8 +1009,8 @@ async function generarReporteGeneral() {
                 <div class="gen-resumen-card"><div class="gen-resumen-num aip">${new Set(aip.map(r=>r.fecha)).size}</div><div class="gen-resumen-label">Días</div></div>
             </div>
             <div class="gen-tabla-wrap"><table>
-                <thead class="aip"><tr><th>Fecha</th><th>Área</th><th>Nombre</th><th>Grado/Secc.</th><th>Tema</th></tr></thead>
-                <tbody>${aip.length===0?'<tr><td colspan="5"><div class="empty-state">Sin registros</div></td></tr>':aip.map(r=>`<tr><td><b>${r.fecha}</b> <small style="color:#9aa0b8">${r.hora}</small></td><td>${r.docente}</td><td>${r.nombre||'—'}</td><td><span class="badge-grado aip">${r.grado} ${r.seccion}</span></td><td>${r.tema}</td></tr>`).join('')}</tbody>
+                <thead class="aip"><tr><th>Fecha</th><th>Área</th><th>Nombre</th><th>Grado/Secc.</th><th>Horas</th><th>Tema</th></tr></thead>
+                <tbody>${aip.length===0?'<tr><td colspan="5"><div class="empty-state">Sin registros</div></td></tr>':aip.map(r=>`<tr><td><b>${r.fecha}</b> <small style="color:#9aa0b8">${r.hora}</small></td><td>${r.docente}</td><td>${r.nombre||'—'}</td><td><span class="badge-grado aip">${r.grado} ${r.seccion}</span></td><td><span style="font-size:11px;font-weight:700;color:var(--aip-mid)">${r.horas||'—'}</span></td><td>${r.tema}</td></tr>`).join('')}</tbody>
             </table></div>
         </div>`;
 
@@ -925,8 +1023,8 @@ async function generarReporteGeneral() {
                 <div class="gen-resumen-card"><div class="gen-resumen-num crt">${new Set(crt.map(r=>r.fecha)).size}</div><div class="gen-resumen-label">Días</div></div>
             </div>
             <div class="gen-tabla-wrap"><table>
-                <thead class="crt"><tr><th>Fecha</th><th>Docente</th><th>Grado/Secc.</th><th>Actividad</th><th>Tema</th></tr></thead>
-                <tbody>${crt.length===0?'<tr><td colspan="5"><div class="empty-state">Sin registros</div></td></tr>':crt.map(r=>`<tr><td><b>${r.fecha}</b> <small style="color:#9aa0b8">${r.hora}</small></td><td>${r.docente}</td><td><span class="badge-grado crt">${r.grado} ${r.seccion}</span></td><td>${r.actividad||'—'}</td><td>${r.tema}</td></tr>`).join('')}</tbody>
+                <thead class="crt"><tr><th>Fecha</th><th>Tipo</th><th>Nombre</th><th>Área</th><th>Grado/Secc.</th><th>Actividad</th><th>Tema</th></tr></thead>
+                <tbody>${crt.length===0?'<tr><td colspan="5"><div class="empty-state">Sin registros</div></td></tr>':crt.map(r=>{const tc=r.tipo==='DIRECTIVO'?'directivo':r.tipo==='DOCENTE'?'docente':'otros';const gs=(r.grado&&r.grado!=='—')?`<span class="badge-grado crt">${r.grado} ${r.seccion}</span>`:'—';return `<tr><td><b>${r.fecha}</b> <small style="color:#9aa0b8">${r.hora}</small></td><td><span class="badge-tipo ${tc}">${r.tipo||'—'}</span></td><td>${r.docente}</td><td>${r.area||'—'}</td><td>${gs}</td><td>${r.actividad||'—'}</td><td>${r.tema}</td></tr>`;}).join('')}</tbody>
             </table></div>
         </div>`;
 
