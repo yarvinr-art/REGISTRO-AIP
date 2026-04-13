@@ -938,11 +938,9 @@ function selectTipoCRT(label, tipo) {
 }
 // ===== ADMIN =====
 function checkAdmin(modulo) {
-    if (modulo === 'gen') {
-        const pass = prompt('Clave de administrador — INFORME GENERAL:');
-        if (!pass) return;
-        if (pass !== "YARVIN2026") { alert("Clave incorrecta"); return; }
-    }
+    const pass = prompt('Clave de administrador:');
+    if (!pass) return;
+    if (pass !== "YARVIN2026") { alert("Clave incorrecta"); return; }
     const panelIds={aip:'panelAdminAIP',crt:'panelAdminCRT',atp:'panelAdminATP',gen:'panelAdminGEN'};
     const filtroIds={aip:'mesFiltroAIP',crt:'mesFiltroCRT',atp:'mesFiltroATP',gen:'mesFiltroGEN'};
     document.getElementById(panelIds[modulo]).style.display="block";
