@@ -3,509 +3,621 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registro de Atención Personal 2026 — IE N° 0148</title>
+    <title>Registro de Asistencia 2026 — IE N° 0148</title>
 
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
         :root {
-            --azul:        #1a237e;
-            --azul-medio:  #283593;
-            --azul-claro:  #3949ab;
-            --azul-bg:     #e8eaf6;
-            --azul-borde:  #c5cae9;
-            --acento:      #ff6f00;
-            --acento-suave:#fff3e0;
-            --verde:       #2e7d32;
-            --verde-hover: #1b5e20;
-            --rojo:        #c62828;
-            --rojo-hover:  #b71c1c;
-            --gris-texto:  #37474f;
-            --blanco:      #fff;
-            --sombra:      0 6px 30px rgba(26,35,126,0.13);
+            --aip-dark:#0d1b4b; --aip-mid:#1a3080; --aip-light:#2348c0; --aip-accent:#f4a020;
+            --aip-glow:rgba(244,160,32,0.35); --aip-bg:#eef1fb; --aip-border:#c8d0f0;
+            --crt-dark:#0a2e18; --crt-mid:#155724; --crt-light:#1e7a3a; --crt-accent:#4ade80;
+            --crt-glow:rgba(74,222,128,0.3); --crt-bg:#edfbf2; --crt-border:#a7e8bc;
+            --atp-dark:#3b0764; --atp-mid:#6b21a8; --atp-light:#9333ea; --atp-accent:#f0abfc;
+            --atp-glow:rgba(147,51,234,0.4); --atp-bg:#faf5ff; --atp-border:#d8b4fe;
+            --gen-dark:#1c1917; --gen-mid:#44403c; --gen-light:#78716c; --gen-accent:#fbbf24;
+            --gen-glow:rgba(251,191,36,0.35); --gen-bg:#fffbeb; --gen-border:#fde68a;
+            --surface:#ffffff; --surface-2:#f7f8fc;
+            --text-main:#1a1f3a; --text-muted:#6b7280;
+            --red:#dc2626; --red-hover:#b91c1c;
+            --radius-lg:18px; --radius-md:12px; --radius-sm:8px;
+            --shadow-card:0 8px 40px rgba(13,27,75,0.14),0 2px 8px rgba(13,27,75,0.06);
         }
+
+        html { scroll-behavior: smooth; }
         body {
-            font-family: 'Nunito', sans-serif;
-            background: linear-gradient(135deg, #1a237e 0%, #283593 40%, #3949ab 70%, #1565c0 100%);
-            min-height: 100vh;
-            padding: 28px 20px;
+            font-family: 'DM Sans', sans-serif;
+            background: var(--aip-dark);
+            min-height: 100vh; padding: 32px 20px 48px;
+            position: relative; overflow-x: hidden;
+            transition: background 0.6s ease;
         }
-        .container {
-            max-width: 1100px;
-            margin: auto;
-            background: #ffffff;
-            padding: 0 0 36px 0;
-            border-radius: 16px;
-            box-shadow: var(--sombra);
-            text-align: center;
-            overflow: hidden;
+        body::before {
+            content: ''; position: fixed; inset: 0; z-index: 0; pointer-events: none;
+            background:
+                radial-gradient(ellipse 80% 60% at 20% 10%, rgba(35,72,192,0.55) 0%, transparent 60%),
+                radial-gradient(ellipse 60% 50% at 85% 80%, rgba(13,27,75,0.7) 0%, transparent 55%),
+                radial-gradient(ellipse 50% 40% at 60% 40%, rgba(26,48,128,0.4) 0%, transparent 60%);
+            transition: background 0.6s ease;
+            animation: bgPulse 10s ease-in-out infinite alternate;
         }
-        .container-inner {
-            padding: 32px 32px 0;
+        body::after {
+            content: ''; position: fixed; inset: 0; z-index: 0; pointer-events: none;
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.025'%3E%3Ccircle cx='30' cy='30' r='1.5'/%3E%3C/g%3E%3C/svg%3E");
         }
-        .top-bar {
-            background: linear-gradient(90deg, var(--azul) 0%, var(--acento) 100%);
-            height: 7px;
-            width: 100%;
+        body.crt-mode::before { background: radial-gradient(ellipse 80% 60% at 20% 10%,rgba(30,122,58,0.5) 0%,transparent 60%),radial-gradient(ellipse 60% 50% at 85% 80%,rgba(10,46,24,0.7) 0%,transparent 55%); }
+        body.atp-mode::before { background: radial-gradient(ellipse 80% 60% at 20% 10%,rgba(107,33,168,0.6) 0%,transparent 60%),radial-gradient(ellipse 60% 50% at 85% 80%,rgba(59,7,100,0.8) 0%,transparent 55%); }
+        body.gen-mode::before { background: radial-gradient(ellipse 80% 60% at 20% 10%,rgba(68,64,60,0.6) 0%,transparent 60%),radial-gradient(ellipse 60% 50% at 85% 80%,rgba(28,25,23,0.8) 0%,transparent 55%); }
+        @keyframes bgPulse { 0%{opacity:1} 100%{opacity:0.8} }
+
+        .page-wrap { position: relative; z-index: 1; max-width: 1120px; margin: 0 auto; }
+
+        /* === MODULE SELECTOR === */
+        .modulo-selector {
+            display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;
+            margin-bottom: 28px;
+            animation: slideDown 0.6s cubic-bezier(0.22,1,0.36,1) both;
         }
+        @keyframes slideDown { from{opacity:0;transform:translateY(-24px)} to{opacity:1;transform:translateY(0)} }
+
+        .modulo-btn {
+            flex: 1; min-width: 160px; max-width: 240px;
+            padding: 16px 20px; border-radius: var(--radius-lg);
+            border: 2px solid rgba(255,255,255,0.2);
+            cursor: pointer; font-family: 'DM Sans', sans-serif;
+            font-weight: 700; font-size: 13px;
+            text-transform: uppercase; letter-spacing: 1.5px;
+            text-align: center; color: rgba(255,255,255,0.8);
+            background: rgba(255,255,255,0.07);
+            backdrop-filter: blur(12px);
+            transition: all 0.35s cubic-bezier(0.22,1,0.36,1);
+            position: relative; overflow: hidden;
+        }
+        .modulo-btn::before { content:''; position:absolute; inset:0; background:linear-gradient(135deg,rgba(255,255,255,0.15),rgba(255,255,255,0)); opacity:0; transition:opacity 0.3s; }
+        .modulo-btn:hover { border-color:rgba(255,255,255,0.5); color:white; transform:translateY(-2px); box-shadow:0 8px 32px rgba(0,0,0,0.25); }
+        .modulo-btn:hover::before { opacity:1; }
+        .modulo-btn:active { transform:translateY(0); }
+
+        .modulo-btn.aip.activo  { background:linear-gradient(135deg,var(--aip-mid),var(--aip-light)); border-color:var(--aip-accent); color:white; box-shadow:0 6px 28px rgba(35,72,192,0.5),0 0 0 1px var(--aip-accent); }
+        .modulo-btn.crt.activo  { background:linear-gradient(135deg,var(--crt-mid),var(--crt-light)); border-color:var(--crt-accent); color:white; box-shadow:0 6px 28px rgba(30,122,58,0.5),0 0 0 1px var(--crt-accent); }
+        .modulo-btn.atp.activo  { background:linear-gradient(135deg,var(--atp-mid),var(--atp-light)); border-color:var(--atp-accent); color:white; box-shadow:0 6px 28px rgba(147,51,234,0.5),0 0 0 1px var(--atp-accent); }
+        .modulo-btn.gen.activo  { background:linear-gradient(135deg,var(--gen-mid),var(--gen-light)); border-color:var(--gen-accent); color:white; box-shadow:0 6px 28px rgba(120,113,108,0.5),0 0 0 1px var(--gen-accent); }
+
+        .modulo-btn.aip.activo .mod-name { color:var(--aip-accent); }
+        .modulo-btn.crt.activo .mod-name { color:var(--crt-accent); }
+        .modulo-btn.atp.activo .mod-name { color:var(--atp-accent); }
+        .modulo-btn.gen.activo .mod-name { color:var(--gen-accent); }
+
+        .modulo-btn .mod-icon { font-size:26px; display:block; margin-bottom:4px; filter:drop-shadow(0 2px 4px rgba(0,0,0,0.3)); }
+        .modulo-btn .mod-name { font-size:16px; font-weight:800; letter-spacing:2px; display:block; }
+        .modulo-btn .mod-sub  { font-size:9px; font-weight:500; opacity:0.75; text-transform:none; letter-spacing:0; display:block; margin-top:2px; }
+
+        /* === CONTAINER === */
+        .container { background:var(--surface); border-radius:var(--radius-lg); box-shadow:var(--shadow-card); overflow:hidden; animation:fadeUp 0.7s cubic-bezier(0.22,1,0.36,1) 0.1s both; }
+        @keyframes fadeUp { from{opacity:0;transform:translateY(30px)} to{opacity:1;transform:translateY(0)} }
+        .container-inner { padding:0 36px 40px; }
+
+        .top-bar { height:5px; background:linear-gradient(90deg,var(--aip-dark),var(--aip-light) 40%,var(--aip-accent) 100%); transition:background 0.5s ease; }
+        .top-bar.crt { background:linear-gradient(90deg,var(--crt-dark),var(--crt-light) 40%,var(--crt-accent) 100%); }
+        .top-bar.atp { background:linear-gradient(90deg,var(--atp-dark),var(--atp-light) 40%,var(--atp-accent) 100%); }
+        .top-bar.gen { background:linear-gradient(90deg,var(--gen-dark),var(--gen-light) 40%,var(--gen-accent) 100%); }
+
+        /* === HEADER === */
         .header-institucional {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-            background: linear-gradient(135deg, var(--azul) 0%, var(--azul-claro) 100%);
-            margin: 0 -32px;
-            padding: 24px 32px;
-            margin-bottom: 24px;
-            text-align: left;
+            display:flex; align-items:center; gap:22px;
+            padding:28px 36px; margin:0 -36px 28px;
+            position:relative; overflow:hidden;
+            background:linear-gradient(135deg,var(--aip-dark) 0%,var(--aip-mid) 50%,var(--aip-light) 100%);
+            transition:background 0.5s ease;
         }
-        .header-logo {
-            width: 80px;
-            height: 80px;
-            border-radius: 10px;
-            object-fit: cover;
-            border: 3px solid rgba(255,255,255,0.4);
-            flex-shrink: 0;
-            background: rgba(255,255,255,0.15);
-        }
-        .header-texto { flex: 1; }
-        .ie-nombre {
-            font-family: 'Poppins', sans-serif;
-            font-size: 11px;
-            font-weight: 600;
-            color: rgba(255,255,255,0.75);
-            text-transform: uppercase;
-            letter-spacing: 2.5px;
-            margin-bottom: 4px;
-        }
-        .subtitulo {
-            font-family: 'Poppins', sans-serif;
-            font-size: 19px;
-            color: #ffffff;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-        .subtitulo span {
-            color: #ffcc02;
-        }
-        .semana-info {
-            background: var(--azul-bg);
-            padding: 7px 20px;
-            border-radius: 6px;
-            display: inline-block;
-            margin-top: 0;
-            margin-bottom: 20px;
-            font-size: 13px;
-            color: var(--azul);
-            font-weight: 700;
-            border: 1px solid var(--azul-borde);
-            letter-spacing: 0.3px;
-        }
-        .panel-asistencia {
-            background: linear-gradient(135deg, #f5f7ff 0%, #eef0fb 100%);
-            border: 1px solid var(--azul-borde);
-            border-left: 4px solid var(--acento);
-            border-radius: 10px;
-            padding: 24px;
-            margin-bottom: 16px;
-        }
-        .form-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 14px;
-            margin-bottom: 14px;
-        }
-        select, input[type="text"] {
-            padding: 11px 14px;
-            border-radius: 8px;
-            border: 2px solid var(--azul-borde);
-            font-size: 14px;
-            font-family: 'Nunito', sans-serif;
-            outline: none;
-            background: var(--blanco);
-            width: 100%;
-            transition: border-color 0.2s, box-shadow 0.2s;
-            color: var(--gris-texto);
-        }
-        select:focus, input[type="text"]:focus {
-            border-color: var(--azul-claro);
-            box-shadow: 0 0 0 3px rgba(57,73,171,0.12);
-        }
-        button { font-family: 'Nunito', sans-serif; cursor: pointer; transition: 0.25s; border: none; }
-        .btn-success {
-            background: linear-gradient(135deg, var(--acento) 0%, #e65100 100%);
-            color: var(--blanco);
-            padding: 14px 32px;
-            border-radius: 8px;
-            width: 100%;
-            max-width: 420px;
-            font-size: 15px;
-            font-weight: 800;
-            margin-top: 10px;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-            box-shadow: 0 4px 15px rgba(255,111,0,0.35);
-        }
-        .btn-success:hover { background: linear-gradient(135deg, #e65100 0%, var(--acento) 100%); transform: translateY(-2px); box-shadow: 0 6px 20px rgba(255,111,0,0.45); }
-        .btn-success:disabled { background: #aaa; cursor: not-allowed; transform: none; }
-        .btn-admin {
-            background: none;
-            border: none;
-            color: #999;
-            font-size: 13px;
-            font-weight: 700;
-            margin-top: 40px;
-            padding: 8px;
-        }
-        .btn-admin:hover { color: var(--azul-claro); }
-        #panelAdmin {
-            margin-top: 30px;
-            padding: 0;
-            background: var(--blanco);
-            border-radius: 14px;
-            border: 1px solid var(--azul-borde);
-            box-shadow: 0 4px 24px rgba(26,35,126,0.10);
-            display: none;
-            text-align: left;
-            overflow: hidden;
-        }
-        #panelAdmin h3 {
-            background: linear-gradient(135deg, var(--azul) 0%, var(--azul-claro) 100%);
-            color: white;
-            text-align: center;
-            font-family: 'Poppins', sans-serif;
-            font-size: 15px;
-            font-weight: 700;
-            letter-spacing: 1.5px;
-            text-transform: uppercase;
-            padding: 18px 28px;
-            margin-bottom: 0;
-        }
-        .panel-admin-body {
-            padding: 24px 28px;
-        }
-        .filtro-mensual {
-            margin: 0 0 20px;
-            background: var(--azul-bg);
-            padding: 14px 18px;
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            justify-content: center;
-            flex-wrap: wrap;
-            border: 1px solid var(--azul-borde);
-        }
-        .filtro-mensual label { font-weight: 800; color: var(--azul); font-size: 13px; text-transform: uppercase; letter-spacing: 1px; }
-        .filtro-mensual input[type="month"] {
-            padding: 9px 12px;
-            border-radius: 8px;
-            border: 2px solid #90caf9;
-            font-size: 14px;
-            font-family: 'Nunito', sans-serif;
-            outline: none;
-        }
-        .btn-imprimir {
-            background: linear-gradient(135deg, var(--acento) 0%, #e65100 100%);
-            color: var(--blanco);
-            padding: 9px 20px;
-            border-radius: 8px;
-            font-weight: 700;
-            font-size: 13px;
-            box-shadow: 0 3px 10px rgba(255,111,0,0.3);
-        }
-        .btn-imprimir:hover { background: linear-gradient(135deg, #e65100 0%, var(--acento) 100%); }
+        .header-institucional.crt-header { background:linear-gradient(135deg,var(--crt-dark) 0%,var(--crt-mid) 50%,var(--crt-light) 100%); }
+        .header-institucional.atp-header { background:linear-gradient(135deg,var(--atp-dark) 0%,var(--atp-mid) 50%,var(--atp-light) 100%); }
+        .header-institucional.gen-header { background:linear-gradient(135deg,var(--gen-dark) 0%,var(--gen-mid) 50%,var(--gen-light) 100%); }
+        .header-institucional::after { content:''; position:absolute; right:-60px; top:-60px; width:220px; height:220px; border-radius:50%; background:radial-gradient(circle,rgba(255,255,255,0.06) 0%,transparent 70%); pointer-events:none; }
+        .header-institucional::before { content:''; position:absolute; inset:0; background:url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.03' fill-rule='evenodd'%3E%3Cpath d='M0 40L40 0H20L0 20M40 40V20L20 40'/%3E%3C/g%3E%3C/svg%3E"); pointer-events:none; }
 
-        /* === STATS GENERALES === */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
-            gap: 12px;
-            margin-bottom: 22px;
-        }
-        .stat-card {
-            background: linear-gradient(135deg, var(--azul) 0%, var(--azul-claro) 100%);
-            border-radius: 12px;
-            padding: 16px 10px;
-            text-align: center;
-            color: white;
-        }
-        .stat-card .stat-num {
-            font-size: 30px;
-            font-weight: 800;
-            color: #ffffff;
-            font-family: 'Poppins', sans-serif;
-        }
-        .stat-card .stat-label { font-size: 11px; color: rgba(255,255,255,0.8); font-weight: 600; margin-top: 2px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .header-logo { width:80px; height:80px; border-radius:var(--radius-md); object-fit:cover; border:3px solid rgba(255,255,255,0.3); flex-shrink:0; position:relative; z-index:1; box-shadow:0 4px 20px rgba(0,0,0,0.3); transition:transform 0.3s ease; }
+        .header-logo:hover { transform:scale(1.05) rotate(1deg); }
+        .header-texto { flex:1; position:relative; z-index:1; }
+        .ie-nombre { font-family:'Space Mono',monospace; font-size:9px; font-weight:700; color:rgba(255,255,255,0.6); text-transform:uppercase; letter-spacing:3px; margin-bottom:6px; }
+        .subtitulo { font-family:'DM Sans',sans-serif; font-size:20px; color:#fff; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; text-shadow:0 2px 8px rgba(0,0,0,0.2); }
+        .subtitulo .tag-aip { color:var(--aip-accent); font-weight:800; }
+        .subtitulo .tag-crt { color:var(--crt-accent); font-weight:800; }
+        .subtitulo .tag-atp { color:var(--atp-accent); font-weight:800; }
+        .subtitulo .tag-gen { color:var(--gen-accent); font-weight:800; }
+        .modulo-tag { display:inline-block; margin-top:8px; background:rgba(255,255,255,0.15); color:rgba(255,255,255,0.9); font-size:10px; font-weight:700; padding:4px 12px; border-radius:20px; letter-spacing:1.5px; text-transform:uppercase; border:1px solid rgba(255,255,255,0.2); backdrop-filter:blur(4px); }
 
-        /* === STATS POR PERSONA === */
-        .stats-personal {
-            margin-bottom: 22px;
-            background: linear-gradient(135deg, #f5f7ff 0%, #eef0fb 100%);
-            border-radius: 12px;
-            padding: 16px;
-            border: 1px solid var(--azul-borde);
-        }
-        .stats-personal h4 {
-            color: var(--azul);
-            font-family: 'Poppins', sans-serif;
-            font-size: 12px;
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
-            margin-bottom: 12px;
-            font-weight: 700;
-        }
-        .stats-personal-grid {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-        }
-        .stat-persona-badge {
-            background: white;
-            border: 1.5px solid var(--azul-borde);
-            border-radius: 20px;
-            padding: 6px 12px 6px 10px;
-            font-size: 13px;
-            font-weight: 700;
-            color: var(--azul);
-            display: inline-flex;
-            align-items: center;
-            gap: 7px;
-        }
-        .stat-persona-badge .cnt {
-            background: linear-gradient(135deg, var(--acento) 0%, #e65100 100%);
-            color: white;
-            border-radius: 50%;
-            width: 22px;
-            height: 22px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 11px;
-            font-weight: 800;
-            flex-shrink: 0;
-        }
+        /* === FIREBASE STATUS === */
+        .firebase-status { display:flex; align-items:center; gap:7px; background:rgba(0,0,0,0.25); border-radius:50px; padding:5px 14px 5px 10px; border:1px solid rgba(255,255,255,0.15); backdrop-filter:blur(6px); font-size:11px; font-weight:700; color:rgba(255,255,255,0.85); letter-spacing:0.8px; text-transform:uppercase; flex-shrink:0; }
+        .fb-dot { width:10px; height:10px; border-radius:50%; background:#fbbf24; flex-shrink:0; transition:background 0.4s ease,box-shadow 0.4s ease; }
+        .fb-dot.conectado { background:#4ade80; box-shadow:0 0 0 3px rgba(74,222,128,0.3),0 0 10px rgba(74,222,128,0.5); animation:pulse-green 2s ease-in-out infinite; }
+        .fb-dot.error { background:#f87171; box-shadow:0 0 0 3px rgba(248,113,113,0.3); }
+        .fb-dot.conectando { background:#fbbf24; animation:pulse-yellow 1s ease-in-out infinite; }
+        @keyframes pulse-green { 0%,100%{box-shadow:0 0 0 3px rgba(74,222,128,0.3),0 0 10px rgba(74,222,128,0.4)} 50%{box-shadow:0 0 0 6px rgba(74,222,128,0.15),0 0 18px rgba(74,222,128,0.6)} }
+        @keyframes pulse-yellow { 0%,100%{opacity:1} 50%{opacity:0.4} }
 
-        .grafico-wrap { height: 240px; margin-bottom: 28px; background: #fafafa; border-radius: 10px; padding: 10px; border: 1px solid #eee; }
-        .tabla-container { overflow-x: auto; margin-top: 10px; border-radius: 10px; border: 1px solid #e0e0e0; }
-        table { width: 100%; border-collapse: collapse; font-size: 13px; }
-        thead th {
-            background: linear-gradient(135deg, var(--azul) 0%, var(--azul-claro) 100%);
-            color: var(--blanco);
-            padding: 12px 12px;
-            text-align: left;
-            font-family: 'Poppins', sans-serif;
-            font-weight: 600;
-            font-size: 11px;
-            text-transform: uppercase;
-            letter-spacing: 0.8px;
-        }
-        td { padding: 10px 12px; border-bottom: 1px solid #f0f0f0; color: var(--gris-texto); vertical-align: top; }
-        tr:last-child td { border-bottom: none; }
-        tr:nth-child(even) td { background-color: #f8f9fa; }
-        tr:hover td { background-color: #e8f0fe; transition: 0.15s; }
-        .badge-grado {
-            background: var(--azul-bg);
-            color: var(--azul);
-            padding: 3px 10px;
-            border-radius: 12px;
-            font-size: 11px;
-            font-weight: 700;
-            white-space: nowrap;
-            border: 1px solid var(--azul-borde);
-        }
+        /* === FECHA === */
+        .semana-info { display:inline-flex; align-items:center; gap:8px; padding:8px 20px; border-radius:50px; margin-bottom:24px; font-size:13px; font-weight:600; letter-spacing:0.3px; }
+        .semana-info::before { content:'📅'; font-size:14px; }
+        .semana-info.aip { background:var(--aip-bg); color:var(--aip-mid); border:1px solid var(--aip-border); }
+        .semana-info.crt { background:var(--crt-bg); color:var(--crt-mid); border:1px solid var(--crt-border); }
+        .semana-info.atp { background:var(--atp-bg); color:var(--atp-mid); border:1px solid var(--atp-border); }
+        .semana-info.gen { background:var(--gen-bg); color:var(--gen-mid); border:1px solid var(--gen-border); }
 
-        /* === BOTÓN ELIMINAR === */
-        .btn-eliminar {
-            background: var(--rojo);
-            color: white;
-            border: none;
-            border-radius: 6px;
-            padding: 5px 10px;
-            font-size: 12px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: 0.2s;
-            white-space: nowrap;
-        }
-        .btn-eliminar:hover { background: var(--rojo-hover); transform: scale(1.05); }
+        /* === FORM PANEL === */
+        .panel-asistencia { border-radius:var(--radius-md); padding:28px; margin-bottom:20px; border:1.5px solid; position:relative; }
+        .panel-aip { background:linear-gradient(145deg,#f8f9ff,#eef1fb); border-color:var(--aip-border); border-left:4px solid var(--aip-accent); }
+        .panel-crt { background:linear-gradient(145deg,#f5fbf7,#edfbf2); border-color:var(--crt-border); border-left:4px solid var(--crt-accent); }
+        .panel-atp { background:linear-gradient(145deg,#fdf8ff,#faf5ff); border-color:var(--atp-border); border-left:4px solid var(--atp-light); }
 
-        .empty-state { text-align: center; padding: 40px; color: #aaa; font-size: 15px; }
-        .empty-state .icon { font-size: 40px; display: block; margin-bottom: 8px; }
-        .btn-cerrar {
-            display: block;
-            margin: 24px auto 0;
-            background: var(--azul);
-            color: var(--blanco);
-            padding: 11px 32px;
-            border-radius: 8px;
-            font-weight: 700;
-            font-size: 14px;
-            letter-spacing: 0.5px;
+        /* === INPUTS === */
+        .form-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:14px; margin-bottom:14px; }
+        select, input[type="text"], input[type="number"] {
+            padding:13px 16px; border-radius:var(--radius-sm); font-size:14px;
+            font-family:'DM Sans',sans-serif; outline:none; background:var(--surface);
+            width:100%; color:var(--text-main);
+            transition:border-color 0.2s,box-shadow 0.2s,transform 0.15s; -webkit-appearance:none;
         }
-        .btn-cerrar:hover { background: var(--azul-medio); }
-        #toast {
-            position: fixed;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #222;
-            color: var(--blanco);
-            padding: 14px 32px;
-            border-radius: 50px;
-            display: none;
-            z-index: 2000;
-            font-weight: 700;
-            font-size: 14px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.25);
-            animation: fadeInUp 0.3s ease;
-        }
-        #toast.show { display: block; }
-        @keyframes fadeInUp { from { opacity:0; transform: translateX(-50%) translateY(10px); } to { opacity:1; transform: translateX(-50%) translateY(0); } }
-        .spinner { display: inline-block; width: 18px; height: 18px; border: 3px solid rgba(255,255,255,0.4); border-top-color: #fff; border-radius: 50%; animation: spin 0.7s linear infinite; vertical-align: middle; margin-right: 6px; }
-        @keyframes spin { to { transform: rotate(360deg); } }
+        .aip-input { border:2px solid var(--aip-border); }
+        .aip-input:focus { border-color:var(--aip-light); box-shadow:0 0 0 4px rgba(35,72,192,0.12); transform:translateY(-1px); }
+        .crt-input { border:2px solid var(--crt-border); }
+        .crt-input:focus { border-color:var(--crt-light); box-shadow:0 0 0 4px rgba(30,122,58,0.12); transform:translateY(-1px); }
+        .atp-input { border:2px solid var(--atp-border); }
+        .atp-input:focus { border-color:var(--atp-light); box-shadow:0 0 0 4px rgba(147,51,234,0.12); transform:translateY(-1px); }
+
+        /* === MAIN BUTTONS === */
+        button { font-family:'DM Sans',sans-serif; cursor:pointer; transition:all 0.28s cubic-bezier(0.22,1,0.36,1); border:none; }
+        .btn-main { color:white; padding:16px 36px; border-radius:var(--radius-sm); width:100%; max-width:460px; font-size:15px; font-weight:800; margin-top:12px; letter-spacing:1.5px; text-transform:uppercase; position:relative; overflow:hidden; }
+        .btn-main::before { content:''; position:absolute; top:0; left:-100%; width:100%; height:100%; background:linear-gradient(90deg,transparent,rgba(255,255,255,0.25),transparent); transition:left 0.5s ease; }
+        .btn-main:hover::before { left:100%; }
+        .btn-main:active { transform:translateY(0) scale(0.99); }
+        .btn-main:disabled { background:#b0b8c8; cursor:not-allowed; transform:none; box-shadow:none; }
+
+        .btn-aip { background:linear-gradient(135deg,var(--aip-accent),#c47808); box-shadow:0 6px 24px var(--aip-glow),0 2px 6px rgba(0,0,0,0.15); }
+        .btn-aip:hover { transform:translateY(-3px); box-shadow:0 12px 32px var(--aip-glow),0 4px 12px rgba(0,0,0,0.2); }
+        .btn-crt { background:linear-gradient(135deg,var(--crt-light),var(--crt-dark)); box-shadow:0 6px 24px var(--crt-glow),0 2px 6px rgba(0,0,0,0.15); }
+        .btn-crt:hover { transform:translateY(-3px); box-shadow:0 12px 32px var(--crt-glow),0 4px 12px rgba(0,0,0,0.2); }
+        .btn-atp { background:linear-gradient(135deg,var(--atp-mid),var(--atp-dark)); box-shadow:0 6px 24px var(--atp-glow),0 2px 6px rgba(0,0,0,0.15); }
+        .btn-atp:hover { transform:translateY(-3px); box-shadow:0 12px 32px var(--atp-glow),0 4px 12px rgba(0,0,0,0.2); }
+
+        /* === ADMIN BUTTON === */
+        .btn-admin { background:none; border:none; color:#9aa0b8; font-size:12px; font-weight:700; margin-top:40px; padding:10px 20px; border-radius:50px; letter-spacing:1px; text-transform:uppercase; border:1.5px dashed #d4d8e8; transition:all 0.3s ease; }
+        .btn-admin.aip-admin:hover { color:var(--aip-light); border-color:var(--aip-light); background:var(--aip-bg); }
+        .btn-admin.crt-admin:hover { color:var(--crt-light); border-color:var(--crt-light); background:var(--crt-bg); }
+        .btn-admin.atp-admin:hover { color:var(--atp-light); border-color:var(--atp-light); background:var(--atp-bg); }
+
+        /* === ADMIN PANEL === */
+        .panel-admin { margin-top:32px; background:var(--surface); border-radius:var(--radius-lg); display:none; text-align:left; overflow:hidden; box-shadow:0 8px 40px rgba(13,27,75,0.12),0 2px 8px rgba(13,27,75,0.06); border:1.5px solid; }
+        .panel-admin.aip { border-color:var(--aip-border); }
+        .panel-admin.crt { border-color:var(--crt-border); }
+        .panel-admin.atp { border-color:var(--atp-border); }
+        .panel-admin-header { color:white; text-align:center; font-family:'DM Sans',sans-serif; font-size:13px; font-weight:800; letter-spacing:2px; text-transform:uppercase; padding:20px 28px; }
+        .panel-admin-header.aip { background:linear-gradient(135deg,var(--aip-dark),var(--aip-light)); }
+        .panel-admin-header.crt { background:linear-gradient(135deg,var(--crt-dark),var(--crt-light)); }
+        .panel-admin-header.atp { background:linear-gradient(135deg,var(--atp-dark),var(--atp-light)); }
+        .panel-admin-body { padding:28px 32px; }
+
+        /* === STATS === */
+        .stats-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:14px; margin-bottom:24px; }
+        .stat-card { border-radius:var(--radius-md); padding:20px 14px; text-align:center; color:white; position:relative; overflow:hidden; transition:transform 0.25s ease,box-shadow 0.25s ease; }
+        .stat-card::before { content:''; position:absolute; inset:0; background:linear-gradient(135deg,rgba(255,255,255,0.12),rgba(255,255,255,0)); }
+        .stat-card:hover { transform:translateY(-4px); }
+        .stat-card.aip { background:linear-gradient(135deg,var(--aip-dark),var(--aip-light)); box-shadow:0 6px 20px rgba(26,48,128,0.35); }
+        .stat-card.aip:hover { box-shadow:0 12px 30px rgba(26,48,128,0.45); }
+        .stat-card.crt { background:linear-gradient(135deg,var(--crt-dark),var(--crt-light)); box-shadow:0 6px 20px rgba(21,87,36,0.35); }
+        .stat-card.crt:hover { box-shadow:0 12px 30px rgba(21,87,36,0.45); }
+        .stat-card.atp { background:linear-gradient(135deg,var(--atp-dark),var(--atp-light)); box-shadow:0 6px 20px rgba(107,33,168,0.35); }
+        .stat-card.atp:hover { box-shadow:0 12px 30px rgba(107,33,168,0.45); }
+        .stat-card .stat-num { font-size:34px; font-weight:800; font-family:'Space Mono',monospace; }
+        .stat-card .stat-label { font-size:10px; color:rgba(255,255,255,0.75); font-weight:600; margin-top:4px; text-transform:uppercase; letter-spacing:0.8px; }
+        .stat-accent-aip { color:var(--aip-accent); }
+        .stat-accent-crt { color:var(--crt-accent); }
+        .stat-accent-atp { color:var(--atp-accent); }
+
+        /* === STATS PERSONAL === */
+        .stats-personal { margin-bottom:24px; border-radius:var(--radius-md); padding:18px; }
+        .stats-personal.aip { background:linear-gradient(145deg,#f8f9ff,#eef1fb); border:1.5px solid var(--aip-border); }
+        .stats-personal.crt { background:linear-gradient(145deg,#f5fbf7,#edfbf2); border:1.5px solid var(--crt-border); }
+        .stats-personal.atp { background:linear-gradient(145deg,#fdf8ff,#faf5ff); border:1.5px solid var(--atp-border); }
+        .stats-personal h4 { font-family:'Space Mono',monospace; font-size:10px; text-transform:uppercase; letter-spacing:2px; margin-bottom:14px; font-weight:700; }
+        .stats-personal.aip h4 { color:var(--aip-mid); }
+        .stats-personal.crt h4 { color:var(--crt-mid); }
+        .stats-personal.atp h4 { color:var(--atp-mid); }
+        .stats-personal-grid { display:flex; flex-wrap:wrap; gap:8px; }
+        .stat-persona-badge { background:white; border-radius:50px; padding:6px 14px 6px 10px; font-size:12px; font-weight:700; display:inline-flex; align-items:center; gap:8px; transition:transform 0.2s ease,box-shadow 0.2s ease; }
+        .stat-persona-badge:hover { transform:translateY(-2px); box-shadow:0 4px 12px rgba(0,0,0,0.1); }
+        .stat-persona-badge.aip { border:1.5px solid var(--aip-border); color:var(--aip-mid); }
+        .stat-persona-badge.crt { border:1.5px solid var(--crt-border); color:var(--crt-mid); }
+        .stat-persona-badge.atp { border:1.5px solid var(--atp-border); color:var(--atp-mid); }
+        .stat-persona-badge .cnt { color:white; border-radius:50%; width:22px; height:22px; display:inline-flex; align-items:center; justify-content:center; font-size:11px; font-weight:800; flex-shrink:0; }
+        .cnt.aip { background:linear-gradient(135deg,var(--aip-accent),#c47808); }
+        .cnt.crt { background:linear-gradient(135deg,var(--crt-light),var(--crt-dark)); }
+        .cnt.atp { background:linear-gradient(135deg,var(--atp-light),var(--atp-dark)); }
+
+        /* === FILTRO === */
+        .filtro-mensual { margin:0 0 22px; padding:16px 20px; border-radius:var(--radius-md); display:flex; align-items:center; gap:14px; justify-content:center; flex-wrap:wrap; }
+        .filtro-mensual.aip { background:var(--aip-bg); border:1.5px solid var(--aip-border); }
+        .filtro-mensual.crt { background:var(--crt-bg); border:1.5px solid var(--crt-border); }
+        .filtro-mensual.atp { background:var(--atp-bg); border:1.5px solid var(--atp-border); }
+        .filtro-mensual.gen { background:var(--gen-bg); border:1.5px solid var(--gen-border); }
+        .filtro-mensual label { font-weight:800; font-size:12px; text-transform:uppercase; letter-spacing:1.5px; }
+        .filtro-mensual.aip label { color:var(--aip-mid); }
+        .filtro-mensual.crt label { color:var(--crt-mid); }
+        .filtro-mensual.atp label { color:var(--atp-mid); }
+        .filtro-mensual.gen label { color:var(--gen-mid); }
+        .filtro-mensual input[type="month"] { padding:9px 14px; border-radius:var(--radius-sm); font-size:14px; font-family:'DM Sans',sans-serif; outline:none; background:white; transition:border-color 0.2s,box-shadow 0.2s; }
+        .filtro-mensual.aip input { border:2px solid var(--aip-border); color:var(--aip-dark); }
+        .filtro-mensual.crt input { border:2px solid var(--crt-border); color:var(--crt-dark); }
+        .filtro-mensual.atp input { border:2px solid var(--atp-border); color:var(--atp-dark); }
+        .filtro-mensual.gen input { border:2px solid var(--gen-border); color:var(--gen-dark); }
+
+        .btn-imprimir { color:white; padding:10px 22px; border-radius:var(--radius-sm); font-weight:700; font-size:13px; letter-spacing:0.5px; position:relative; overflow:hidden; }
+        .btn-imprimir.aip { background:linear-gradient(135deg,var(--aip-accent),#c47808); box-shadow:0 4px 14px var(--aip-glow); }
+        .btn-imprimir.aip:hover { transform:translateY(-2px); box-shadow:0 8px 22px var(--aip-glow); }
+        .btn-imprimir.crt { background:linear-gradient(135deg,var(--crt-light),var(--crt-dark)); box-shadow:0 4px 14px var(--crt-glow); }
+        .btn-imprimir.crt:hover { transform:translateY(-2px); box-shadow:0 8px 22px var(--crt-glow); }
+        .btn-imprimir.atp { background:linear-gradient(135deg,var(--atp-mid),var(--atp-dark)); box-shadow:0 4px 14px var(--atp-glow); }
+        .btn-imprimir.atp:hover { transform:translateY(-2px); box-shadow:0 8px 22px var(--atp-glow); }
+        .btn-imprimir.gen { background:linear-gradient(135deg,var(--gen-mid),var(--gen-dark)); box-shadow:0 4px 14px var(--gen-glow); }
+        .btn-imprimir.gen:hover { transform:translateY(-2px); box-shadow:0 8px 22px var(--gen-glow); }
+
+        /* === CHART & TABLE === */
+        .grafico-wrap { height:250px; margin-bottom:28px; background:var(--surface-2); border-radius:var(--radius-md); padding:12px; border:1.5px solid #e8eaf0; }
+        .tabla-container { overflow-x:auto; margin-top:12px; border-radius:var(--radius-md); border:1.5px solid #e8eaf0; box-shadow:0 2px 10px rgba(0,0,0,0.04); }
+        table { width:100%; border-collapse:collapse; font-size:13px; }
+        thead th { color:white; padding:14px 12px; text-align:left; font-family:'Space Mono',monospace; font-weight:700; font-size:10px; text-transform:uppercase; letter-spacing:1px; }
+        thead.aip th { background:linear-gradient(135deg,var(--aip-dark),var(--aip-light)); }
+        thead.crt th { background:linear-gradient(135deg,var(--crt-dark),var(--crt-light)); }
+        thead.atp th { background:linear-gradient(135deg,var(--atp-dark),var(--atp-light)); }
+        thead.gen th { background:linear-gradient(135deg,var(--gen-dark),var(--gen-light)); }
+        td { padding:12px; border-bottom:1px solid #f0f2f8; color:var(--text-main); vertical-align:top; transition:background 0.15s; }
+        tr:last-child td { border-bottom:none; }
+        tr:nth-child(even) td { background-color:#f8f9fc; }
+        tr:hover td { background-color:#f3f0ff; }
+        .badge-grado { padding:4px 12px; border-radius:50px; font-size:11px; font-weight:800; white-space:nowrap; }
+        .badge-grado.aip { background:var(--aip-bg); color:var(--aip-mid); border:1px solid var(--aip-border); }
+        .badge-grado.crt { background:var(--crt-bg); color:var(--crt-mid); border:1px solid var(--crt-border); }
+        .badge-grado.atp { background:var(--atp-bg); color:var(--atp-mid); border:1px solid var(--atp-border); }
+        .badge-tipo { padding:3px 10px; border-radius:50px; font-size:10px; font-weight:800; white-space:nowrap; }
+        .badge-tipo.directivo { background:#fef3c7; color:#92400e; border:1px solid #fde68a; }
+        .badge-tipo.docente   { background:#ede9fe; color:#5b21b6; border:1px solid #ddd6fe; }
+        .badge-tipo.otros     { background:#f0fdf4; color:#166534; border:1px solid #bbf7d0; }
+
+        .btn-eliminar { background:linear-gradient(135deg,#ef4444,var(--red-hover)); color:white; border:none; border-radius:6px; padding:5px 12px; font-size:11px; font-weight:700; cursor:pointer; transition:all 0.2s ease; box-shadow:0 2px 8px rgba(220,38,38,0.3); }
+        .btn-eliminar:hover { transform:scale(1.08) translateY(-1px); box-shadow:0 6px 16px rgba(220,38,38,0.4); }
+        .empty-state { text-align:center; padding:48px; color:#9aa0b8; font-size:15px; }
+
+        .btn-cerrar { display:block; margin:28px auto 0; color:white; padding:12px 36px; border-radius:var(--radius-sm); font-weight:700; font-size:14px; letter-spacing:0.5px; transition:all 0.28s ease; }
+        .btn-cerrar.aip { background:linear-gradient(135deg,var(--aip-dark),var(--aip-mid)); box-shadow:0 4px 16px rgba(13,27,75,0.3); }
+        .btn-cerrar.aip:hover { transform:translateY(-2px); box-shadow:0 8px 24px rgba(13,27,75,0.4); }
+        .btn-cerrar.crt { background:linear-gradient(135deg,var(--crt-dark),var(--crt-mid)); box-shadow:0 4px 16px rgba(10,46,24,0.3); }
+        .btn-cerrar.crt:hover { transform:translateY(-2px); box-shadow:0 8px 24px rgba(10,46,24,0.4); }
+        .btn-cerrar.atp { background:linear-gradient(135deg,var(--atp-dark),var(--atp-mid)); box-shadow:0 4px 16px rgba(59,7,100,0.3); }
+        .btn-cerrar.atp:hover { transform:translateY(-2px); box-shadow:0 8px 24px rgba(59,7,100,0.4); }
+        .btn-cerrar.gen { background:linear-gradient(135deg,var(--gen-dark),var(--gen-mid)); box-shadow:0 4px 16px rgba(28,25,23,0.3); }
+        .btn-cerrar.gen:hover { transform:translateY(-2px); box-shadow:0 8px 24px rgba(28,25,23,0.4); }
+
+        /* === GENERAL REPORT === */
+        .gen-seccion-bloque { border-radius:var(--radius-md); overflow:hidden; margin-bottom:28px; border:1.5px solid #e8eaf0; }
+        .gen-seccion-header { padding:14px 20px; font-family:'Space Mono',monospace; font-size:11px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:white; display:flex; align-items:center; gap:10px; }
+        .gen-seccion-header.aip { background:linear-gradient(135deg,var(--aip-dark),var(--aip-light)); }
+        .gen-seccion-header.crt { background:linear-gradient(135deg,var(--crt-dark),var(--crt-light)); }
+        .gen-seccion-header.atp { background:linear-gradient(135deg,var(--atp-dark),var(--atp-light)); }
+        .gen-seccion-header .gen-count { background:rgba(255,255,255,0.2); border-radius:50px; padding:3px 12px; font-size:12px; margin-left:auto; }
+        .gen-tabla-wrap { overflow-x:auto; }
+        .gen-resumen-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; padding:16px 20px; background:var(--surface-2); }
+        .gen-resumen-card { text-align:center; padding:12px; border-radius:var(--radius-sm); background:white; border:1px solid #e8eaf0; }
+        .gen-resumen-num { font-size:24px; font-weight:800; font-family:'Space Mono',monospace; }
+        .gen-resumen-num.aip { color:var(--aip-light); }
+        .gen-resumen-num.crt { color:var(--crt-light); }
+        .gen-resumen-num.atp { color:var(--atp-light); }
+        .gen-resumen-label { font-size:10px; color:var(--text-muted); text-transform:uppercase; letter-spacing:1px; margin-top:3px; }
+        .gen-total-bar { padding:18px 20px; background:linear-gradient(135deg,var(--gen-dark),var(--gen-mid)); color:white; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; }
+        .gen-total-bar .tot-num { font-family:'Space Mono',monospace; font-size:28px; font-weight:800; color:var(--gen-accent); }
+        .gen-total-bar .tot-label { font-size:12px; opacity:0.8; text-transform:uppercase; letter-spacing:1px; }
+
+        /* === TOAST === */
+        #toast { position:fixed; bottom:32px; left:50%; transform:translateX(-50%) translateY(10px); background:linear-gradient(135deg,#1a1f3a,#2d3565); color:white; padding:15px 36px; border-radius:50px; display:none; z-index:9999; font-weight:700; font-size:14px; box-shadow:0 8px 32px rgba(0,0,0,0.35); border:1px solid rgba(255,255,255,0.12); backdrop-filter:blur(10px); white-space:nowrap; }
+        #toast.show { display:block; animation:toastIn 0.4s cubic-bezier(0.22,1,0.36,1) forwards; }
+        #toast.hide { animation:toastOut 0.3s ease forwards; }
+        @keyframes toastIn { from{opacity:0;transform:translateX(-50%) translateY(20px) scale(0.9)} to{opacity:1;transform:translateX(-50%) translateY(0) scale(1)} }
+        @keyframes toastOut { from{opacity:1;transform:translateX(-50%) translateY(0) scale(1)} to{opacity:0;transform:translateX(-50%) translateY(10px) scale(0.95)} }
+
+        .spinner { display:inline-block; width:16px; height:16px; border:2.5px solid rgba(255,255,255,0.35); border-top-color:#fff; border-radius:50%; animation:spin 0.65s linear infinite; vertical-align:middle; margin-right:8px; }
+        @keyframes spin { to{transform:rotate(360deg)} }
 
         @media print {
-            body { background: white !important; animation: none; padding: 0; }
-            .container { box-shadow: none; padding: 10px; }
-            #panelAdmin { border: none; }
-            .btn-admin, .btn-cerrar, .btn-imprimir, .panel-asistencia, .semana-info, .logo, .subtitulo { display: none !important; }
-            .filtro-mensual button { display: none !important; }
-            #panelAdmin { display: block !important; }
-            .btn-eliminar { display: none !important; }
-            th:last-child, td:last-child { display: none !important; }
+            body { background:white !important; padding:0; }
+            body::before, body::after { display:none; }
+            .modulo-selector,.btn-admin,.btn-cerrar,.btn-imprimir,.panel-asistencia,.semana-info { display:none !important; }
+            .filtro-mensual button { display:none !important; }
+            .panel-admin { display:block !important; border:none !important; box-shadow:none !important; }
+            .btn-eliminar { display:none !important; }
+            th:last-child, td:last-child { display:none !important; }
         }
-        @media (max-width: 600px) {
-            .subtitulo { font-size: 16px; }
-            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+        @media (max-width:640px) {
+            body { padding:16px 12px 32px; }
+            table { min-width: 580px; }
+            .tabla-container, .gen-tabla-wrap { -webkit-overflow-scrolling: touch; }
+            .modulo-selector { flex-direction:column; align-items:center; }
+            .modulo-btn { max-width:100%; width:100%; }
+            .container-inner { padding:0 16px 28px; }
+            .header-institucional { padding:20px; margin:0 -16px 20px; }
+            .stats-grid { grid-template-columns:repeat(2,1fr); }
+            .subtitulo { font-size:15px; }
+            .panel-admin-body { padding:18px 16px; }
+            .gen-resumen-grid { grid-template-columns:repeat(3,1fr); }
         }
     </style>
 </head>
-
 <body>
+
+<div class="page-wrap">
+
+<!-- SELECTOR DE MÓDULO -->
+<div class="modulo-selector">
+    <button class="modulo-btn aip activo" onclick="cambiarModulo('aip')">
+        <span class="mod-icon">💻</span>
+        <span class="mod-name">AIP</span>
+        <span class="mod-sub">Aula de Innovación</span>
+    </button>
+    <button class="modulo-btn crt" onclick="cambiarModulo('crt')">
+        <span class="mod-icon">🖥️</span>
+        <span class="mod-name">CRT</span>
+        <span class="mod-sub">Centro de Recursos</span>
+    </button>
+    <button class="modulo-btn atp" onclick="cambiarModulo('atp')">
+        <span class="mod-icon">🧑‍🏫</span>
+        <span class="mod-name">ATP</span>
+        <span class="mod-sub">Atención Personalizada</span>
+    </button>
+    <button class="modulo-btn gen" id="btnModuloGEN" onclick="cambiarModulo('gen')">
+        <span class="mod-icon">📊</span>
+        <span class="mod-name">GENERAL</span>
+        <span class="mod-sub">Informe consolidado</span>
+    </button>
+</div>
+
 <div class="container">
-<div class="top-bar"></div>
-<div class="container-inner">
-    <div class="header-institucional">
-        <img src="logo.jpeg" alt="Insignia IE" class="header-logo" onerror="this.style.display='none'">
-        <div class="header-texto">
-            <div class="ie-nombre">IE N° 0148 — Maestro Víctor Raúl Haya de la Torre</div>
-            <div class="subtitulo">Registro de <span>Atención Personal</span> 2026</div>
-        </div>
-    </div>
-    <div class="semana-info" id="fecha-actual">Cargando...</div>
+    <div id="topBar" class="top-bar"></div>
+    <div class="container-inner">
 
-    <div class="panel-asistencia">
-        <div class="form-grid">
-            <select id="docente">
-                <option value="">Seleccione el área...</option>
-                <option>COMUNICACIÓN</option>
-                <option>MATEMÁTICA</option>
-                <option>CIENCIA Y TECNOLOGÍA</option>
-                <option>CIENCIAS SOCIALES</option>
-                <option>INGLÉS</option>
-                <option>EDUCACIÓN FÍSICA</option>
-                <option>ARTE Y CULTURA</option>
-                <option>EDUCACIÓN RELIGIOSA</option>
-                <option>DESARROLLO PERSONAL, CIUDADANÍA Y CÍVICA</option>
-                <option>EDUCACIÓN PARA EL TRABAJO</option>
-                <option>TUTORÍA</option>
-                <option>DIRECTIVOS</option>
-                <option>PSICÓLOGO (A)</option>
-                <option>VISITA / PERSONAL EXTERNO</option>
-            </select>
-
-            <input type="text" id="nombre" placeholder="Nombre del docente *" maxlength="100">
-
-            <select id="grado">
-                <option value="">Grado...</option>
-                <option>1°</option>
-                <option>2°</option>
-                <option>3°</option>
-                <option>4°</option>
-                <option>5°</option>
-            </select>
-
-            <select id="seccion">
-                <option value="">Sección...</option>
-                <option>A</option><option>B</option><option>C</option>
-                <option>D</option><option>E</option>
-            </select>
+        <!-- HEADER -->
+        <div class="header-institucional" id="header">
+            <img src="logo.jpeg" alt="Insignia" class="header-logo" onerror="this.style.display='none'">
+            <div class="header-texto">
+                <div class="ie-nombre">IE N° 0148 — Maestro Víctor Raúl Haya de la Torre</div>
+                <div class="subtitulo" id="tituloModulo">Registro de <span class="tag-aip">Asistencia Personal</span> 2026</div>
+                <span class="modulo-tag" id="etiquetaModulo">Aula de Innovación Pedagógica</span>
+            </div>
+            <div class="firebase-status" id="firebaseStatus">
+                <div class="fb-dot conectando" id="fbDot"></div>
+                <span id="fbLabel">Conectando...</span>
+            </div>
         </div>
 
-        <div class="form-grid" style="grid-template-columns: 1fr 1fr;">
-            <input type="text" id="tema" placeholder="Tema trabajado *" maxlength="200">
-            <input type="text" id="recursos" placeholder="Recursos usados" maxlength="200">
+        <div class="semana-info aip" id="fecha-actual">Cargando...</div>
+
+        <!-- ======== SECCIÓN AIP ======== -->
+        <div id="seccionAIP">
+            <div class="panel-asistencia panel-aip">
+                <div class="form-grid">
+                    <select id="aip-area" class="aip-input">
+                        <option value="">Seleccione el área...</option>
+                        <option>COMUNICACIÓN</option><option>MATEMÁTICA</option>
+                        <option>CIENCIA Y TECNOLOGÍA</option><option>CIENCIAS SOCIALES</option>
+                        <option>INGLÉS</option><option>EDUCACIÓN FÍSICA</option>
+                        <option>ARTE Y CULTURA</option><option>EDUCACIÓN RELIGIOSA</option>
+                        <option>DESARROLLO PERSONAL, CIUDADANÍA Y CÍVICA</option>
+                        <option>EDUCACIÓN PARA EL TRABAJO</option><option>TUTORÍA</option>
+                        <option>DIRECTIVOS</option><option>PSICÓLOGO (A)</option>
+                        <option>VISITA / PERSONAL EXTERNO</option>
+                    </select>
+                    <input type="text" id="aip-nombre" class="aip-input" placeholder="Nombre del docente *" maxlength="100">
+                    <select id="aip-grado" class="aip-input">
+                        <option value="">Grado...</option>
+                        <option>1°</option><option>2°</option><option>3°</option><option>4°</option><option>5°</option>
+                    </select>
+                    <select id="aip-seccion" class="aip-input">
+                        <option value="">Sección...</option>
+                        <option>A</option><option>B</option><option>C</option><option>D</option><option>E</option>
+                    </select>
+                </div>
+                <div class="form-grid" style="grid-template-columns:1fr 1fr;">
+                    <input type="text" id="aip-tema" class="aip-input" placeholder="Tema trabajado *" maxlength="200">
+                    <input type="text" id="aip-recursos" class="aip-input" placeholder="Recursos usados" maxlength="200">
+                </div>
+                <button class="btn-main btn-aip" id="btnAIP" onclick="registrarAIP()">✔ Registrar Asistencia — AIP</button>
+            </div>
+            <div style="margin-top:40px;border-top:1px solid #e8eaf0;padding-top:20px;text-align:center;">
+                <button class="btn-admin aip-admin" onclick="checkAdmin('aip')">🔐 Acceso Administrador — Informe AIP</button>
+            </div>
+            <div id="panelAdminAIP" class="panel-admin aip">
+                <div class="panel-admin-header aip">📊 Informe Mensual — Aula de Innovación Pedagógica 2026</div>
+                <div class="panel-admin-body">
+                    <div class="filtro-mensual aip">
+                        <label>📅 Mes:</label>
+                        <input type="month" id="mesFiltroAIP" min="2026-01" max="2026-12" onchange="generarReporte('aip')">
+                        <button class="btn-imprimir aip" onclick="descargarPDF('aip')">⬇ Descargar PDF</button>
+                    </div>
+                    <div class="stats-grid">
+                        <div class="stat-card aip"><div class="stat-num stat-accent-aip" id="aip-statTotal">—</div><div class="stat-label">Total Asistencias</div></div>
+                        <div class="stat-card aip"><div class="stat-num" id="aip-statPersonas">—</div><div class="stat-label">Personas Distintas</div></div>
+                        <div class="stat-card aip"><div class="stat-num" id="aip-statDias">—</div><div class="stat-label">Días con Asistencia</div></div>
+                        <div class="stat-card aip"><div class="stat-num stat-accent-aip" id="aip-statSemana">—</div><div class="stat-label">Prom. por Semana</div></div>
+                    </div>
+                    <div class="stats-personal aip"><h4>Asistencias por persona</h4><div class="stats-personal-grid" id="aip-statsPersonal"></div></div>
+                    <div class="grafico-wrap"><canvas id="aip-grafico"></canvas></div>
+                    <div class="tabla-container">
+                        <table><thead class="aip"><tr>
+                            <th style="width:110px">Fecha/Hora</th><th>Área</th><th>Nombre</th>
+                            <th style="width:100px">Grado/Secc.</th><th>Tema</th><th>Recursos</th>
+                            <th style="width:80px;text-align:center">Acción</th>
+                        </tr></thead><tbody id="aip-tablaCuerpo"></tbody></table>
+                    </div>
+                    <button class="btn-cerrar aip" onclick="cerrarAdmin('aip')">✕ Cerrar Informe</button>
+                </div>
+            </div>
         </div>
 
-        <button class="btn-success" id="btnRegistrar" onclick="registrarAtencion()">Registrar Atención</button>
-    </div>
-
-    <div style="margin-top: 40px; border-top: 1px solid #e0e0e0; padding-top: 18px;">
-        <button class="btn-admin" onclick="checkAdmin()">Acceso Docente PIP — Generar Informe Mensual</button>
-    </div>
-
-    <div id="panelAdmin">
-        <h3>Informe Mensual de Atención Personal — 2026</h3>
-        <div class="panel-admin-body">
-
-        <div class="filtro-mensual">
-            <label>Mes:</label>
-            <input type="month" id="mesFiltro" min="2026-01" max="2026-12" onchange="generarReporteMensual()">
-            <button class="btn-imprimir" onclick="descargarPDF()">Descargar PDF</button>
+        <!-- ======== SECCIÓN CRT ======== -->
+        <div id="seccionCRT" style="display:none;">
+            <div class="panel-asistencia panel-crt">
+                <div class="form-grid">
+                    <input type="text" id="crt-docente" class="crt-input" placeholder="Nombre del docente *" maxlength="100">
+                    <select id="crt-grado" class="crt-input">
+                        <option value="">Grado...</option>
+                        <option>1°</option><option>2°</option><option>3°</option><option>4°</option><option>5°</option>
+                    </select>
+                    <select id="crt-seccion" class="crt-input">
+                        <option value="">Sección...</option>
+                        <option>A</option><option>B</option><option>C</option><option>D</option><option>E</option>
+                    </select>
+                    <select id="crt-actividad" class="crt-input">
+                        <option value="">Tipo de actividad...</option>
+                        <option>USO DE COMPUTADORAS</option><option>PROYECCIÓN MULTIMEDIA</option>
+                        <option>IMPRESIÓN / ESCANEO</option><option>INSTALACIÓN DE SOFTWARE</option>
+                        <option>MANTENIMIENTO DE EQUIPOS</option><option>SOPORTE TÉCNICO</option>
+                        <option>PRÉSTAMO DE EQUIPOS</option><option>CAPACITACIÓN DOCENTE</option>
+                        <option>OTRO</option>
+                    </select>
+                </div>
+                <div class="form-grid" style="grid-template-columns:1fr 1fr;">
+                    <input type="text" id="crt-tema" class="crt-input" placeholder="Tema trabajado *" maxlength="200">
+                    <input type="text" id="crt-recursos" class="crt-input" placeholder="Recursos usados" maxlength="200">
+                </div>
+                <button class="btn-main btn-crt" id="btnCRT" onclick="registrarCRT()">✔ Registrar Asistencia — CRT</button>
+            </div>
+            <div style="margin-top:40px;border-top:1px solid #e8eaf0;padding-top:20px;text-align:center;">
+                <button class="btn-admin crt-admin" onclick="checkAdmin('crt')">🔐 Acceso Administrador — Informe CRT</button>
+            </div>
+            <div id="panelAdminCRT" class="panel-admin crt">
+                <div class="panel-admin-header crt">📊 Informe Mensual — Centro de Recursos Tecnológicos 2026</div>
+                <div class="panel-admin-body">
+                    <div class="filtro-mensual crt">
+                        <label>📅 Mes:</label>
+                        <input type="month" id="mesFiltroCRT" min="2026-01" max="2026-12" onchange="generarReporte('crt')">
+                        <button class="btn-imprimir crt" onclick="descargarPDF('crt')">⬇ Descargar PDF</button>
+                    </div>
+                    <div class="stats-grid">
+                        <div class="stat-card crt"><div class="stat-num stat-accent-crt" id="crt-statTotal">—</div><div class="stat-label">Total Asistencias</div></div>
+                        <div class="stat-card crt"><div class="stat-num" id="crt-statPersonas">—</div><div class="stat-label">Personas Distintas</div></div>
+                        <div class="stat-card crt"><div class="stat-num" id="crt-statDias">—</div><div class="stat-label">Días con Asistencia</div></div>
+                        <div class="stat-card crt"><div class="stat-num stat-accent-crt" id="crt-statSemana">—</div><div class="stat-label">Prom. por Semana</div></div>
+                    </div>
+                    <div class="stats-personal crt"><h4>Asistencias por persona</h4><div class="stats-personal-grid" id="crt-statsPersonal"></div></div>
+                    <div class="grafico-wrap"><canvas id="crt-grafico"></canvas></div>
+                    <div class="tabla-container">
+                        <table><thead class="crt"><tr>
+                            <th style="width:110px">Fecha/Hora</th><th>Docente</th>
+                            <th style="width:100px">Grado/Secc.</th><th>Actividad</th>
+                            <th>Tema</th><th>Recursos</th>
+                            <th style="width:80px;text-align:center">Acción</th>
+                        </tr></thead><tbody id="crt-tablaCuerpo"></tbody></table>
+                    </div>
+                    <button class="btn-cerrar crt" onclick="cerrarAdmin('crt')">✕ Cerrar Informe</button>
+                </div>
+            </div>
         </div>
 
-        <!-- Estadísticas generales -->
-        <div class="stats-grid">
-            <div class="stat-card"><div class="stat-num" id="statTotal">—</div><div class="stat-label">Total Atenciones</div></div>
-            <div class="stat-card"><div class="stat-num" id="statPersonas">—</div><div class="stat-label">Personas Distintas</div></div>
-            <div class="stat-card"><div class="stat-num" id="statDias">—</div><div class="stat-label">Días con Atención</div></div>
-            <div class="stat-card"><div class="stat-num" id="statSemana">—</div><div class="stat-label">Prom. por Semana</div></div>
+        <!-- ======== SECCIÓN ATP ======== -->
+        <div id="seccionATP" style="display:none;">
+            <div class="panel-asistencia panel-atp">
+                <div class="form-grid">
+                    <select id="atp-tipo" class="atp-input">
+                        <option value="">Tipo de persona *</option>
+                        <option>DIRECTIVO</option>
+                        <option>DOCENTE</option>
+                        <option>OTROS</option>
+                    </select>
+                    <input type="text" id="atp-nombre" class="atp-input" placeholder="Nombre completo *" maxlength="120">
+                    <input type="text" id="atp-tema" class="atp-input" placeholder="Tema tratado *" maxlength="250">
+                    <input type="number" id="atp-tiempo" class="atp-input" placeholder="Tiempo de atención (min) *" min="1" max="480">
+                </div>
+                <div class="form-grid" style="grid-template-columns:1fr;">
+                    <input type="text" id="atp-recursos" class="atp-input" placeholder="Recursos usados / Observaciones" maxlength="300">
+                </div>
+                <button class="btn-main btn-atp" id="btnATP" onclick="registrarATP()">✔ Registrar Atención Personalizada</button>
+            </div>
+            <div style="margin-top:40px;border-top:1px solid #e8eaf0;padding-top:20px;text-align:center;">
+                <button class="btn-admin atp-admin" onclick="checkAdmin('atp')">🔐 Acceso Administrador — Informe ATP</button>
+            </div>
+            <div id="panelAdminATP" class="panel-admin atp">
+                <div class="panel-admin-header atp">📊 Informe Mensual — Atención Personalizada 2026</div>
+                <div class="panel-admin-body">
+                    <div class="filtro-mensual atp">
+                        <label>📅 Mes:</label>
+                        <input type="month" id="mesFiltroATP" min="2026-01" max="2026-12" onchange="generarReporte('atp')">
+                        <button class="btn-imprimir atp" onclick="descargarPDF('atp')">⬇ Descargar PDF</button>
+                    </div>
+                    <div class="stats-grid">
+                        <div class="stat-card atp"><div class="stat-num stat-accent-atp" id="atp-statTotal">—</div><div class="stat-label">Total Atenciones</div></div>
+                        <div class="stat-card atp"><div class="stat-num" id="atp-statPersonas">—</div><div class="stat-label">Personas Atendidas</div></div>
+                        <div class="stat-card atp"><div class="stat-num" id="atp-statMinutos">—</div><div class="stat-label">Minutos Totales</div></div>
+                        <div class="stat-card atp"><div class="stat-num stat-accent-atp" id="atp-statPromMin">—</div><div class="stat-label">Prom. Min / Atención</div></div>
+                    </div>
+                    <div class="stats-personal atp"><h4>Atenciones por persona</h4><div class="stats-personal-grid" id="atp-statsPersonal"></div></div>
+                    <div class="grafico-wrap"><canvas id="atp-grafico"></canvas></div>
+                    <div class="tabla-container">
+                        <table><thead class="atp"><tr>
+                            <th style="width:110px">Fecha/Hora</th>
+                            <th style="width:110px">Tipo</th>
+                            <th>Nombre</th>
+                            <th>Tema Tratado</th>
+                            <th style="width:80px">Tiempo</th>
+                            <th>Recursos/Obs.</th>
+                            <th style="width:80px;text-align:center">Acción</th>
+                        </tr></thead><tbody id="atp-tablaCuerpo"></tbody></table>
+                    </div>
+                    <button class="btn-cerrar atp" onclick="cerrarAdmin('atp')">✕ Cerrar Informe</button>
+                </div>
+            </div>
         </div>
 
-        <!-- Estadística por persona: Nombre Grado Sección -->
-        <div class="stats-personal">
-            <h4>Atenciones por persona</h4>
-            <div class="stats-personal-grid" id="statsPersonal"></div>
+        <!-- ======== SECCIÓN GENERAL ======== -->
+        <div id="seccionGEN" style="display:none;">
+            <div style="text-align:center;padding:20px 0 10px;">
+                <p style="color:var(--text-muted);font-size:14px;max-width:560px;margin:0 auto;">
+                    El informe general consolida los registros de <strong>AIP</strong>, <strong>CRT</strong> y <strong>ATP</strong> en un solo documento, organizado por sección.
+                </p>
+            </div>
+            <div style="margin-top:20px;border-top:1px solid #e8eaf0;padding-top:20px;text-align:center;">
+                <button class="btn-admin" style="border-color:#d4d8e8;color:#9aa0b8;" onclick="checkAdmin('gen')">🔐 Acceso Administrador — Informe General</button>
+            </div>
+            <div id="panelAdminGEN" class="panel-admin" style="border-color:var(--gen-border);">
+                <div class="panel-admin-header gen" style="background:linear-gradient(135deg,var(--gen-dark),var(--gen-light));">
+                    📋 Informe General Consolidado 2026
+                </div>
+                <div class="panel-admin-body">
+                    <div class="filtro-mensual gen">
+                        <label>📅 Mes:</label>
+                        <input type="month" id="mesFiltroGEN" min="2026-01" max="2026-12" onchange="generarReporteGeneral()">
+                        <button class="btn-imprimir gen" onclick="descargarPDFGeneral()">⬇ Descargar PDF</button>
+                    </div>
+                    <div class="grafico-wrap" id="genGraficoWrap" style="display:none;margin-bottom:20px;"><canvas id="gen-grafico"></canvas></div>
+                    <div id="genContenido">
+                        <div class="empty-state">📭 Seleccione un mes para generar el informe.</div>
+                    </div>
+                    <button class="btn-cerrar gen" onclick="cerrarAdmin('gen')">✕ Cerrar Informe</button>
+                </div>
+            </div>
         </div>
 
-        <!-- Gráfico -->
-        <div class="grafico-wrap"><canvas id="graficoAsistencia"></canvas></div>
-
-        <!-- Tabla -->
-        <div class="tabla-container">
-            <table>
-                <thead>
-                    <tr>
-                        <th style="width:110px">Fecha / Hora</th>
-                        <th>Área</th>
-                        <th>Nombre</th>
-                        <th style="width:110px">Grado / Secc.</th>
-                        <th>Tema Trabajado</th>
-                        <th>Recursos Usados</th>
-                        <th style="width:90px;text-align:center">Acción</th>
-                    </tr>
-                </thead>
-                <tbody id="tablaCuerpo"></tbody>
-            </table>
-        </div>
-
-        <button class="btn-cerrar" onclick="cerrarAdmin()">Cerrar Informe</button>
-        </div><!-- /panel-admin-body -->
-    </div>
-</div><!-- /container-inner -->
+    </div><!-- /container-inner -->
 </div><!-- /container -->
+</div><!-- /page-wrap -->
 
 <div id="toast"></div>
 
 <script>
-// ✅ FIREBASE CONFIG — Proyecto: asistencia-aip
+// ===== FIREBASE =====
 const firebaseConfig = {
     apiKey: "AIzaSyBPR7HXG0fOnpJQxEP5deFKDb6-olYL4zo",
     authDomain: "asistencia-aip.firebaseapp.com",
@@ -518,295 +630,440 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
-// ===== FECHA ACTUAL =====
-function actualizarFecha() {
+// ===== ESTADO FIREBASE =====
+const fbDot = document.getElementById('fbDot');
+const fbLabel = document.getElementById('fbLabel');
+db.ref('.info/connected').on('value', snap => {
+    if (snap.val() === true) { fbDot.className='fb-dot conectado'; fbLabel.textContent='Firebase OK'; }
+    else { fbDot.className='fb-dot error'; fbLabel.textContent='Sin conexión'; }
+});
+
+let chartAIP=null, chartCRT=null, chartATP=null;
+
+// ===== CAMBIO DE MÓDULO =====
+function cambiarModulo(modulo) {
+    document.querySelectorAll('.modulo-btn').forEach(b => b.classList.remove('activo'));
+    document.querySelector(`.modulo-btn.${modulo}`).classList.add('activo');
+    ['AIP','CRT','ATP','GEN'].forEach(m => document.getElementById('seccion'+m).style.display = m.toLowerCase()===modulo ? 'block' : 'none');
+
+    const topBar = document.getElementById('topBar');
+    topBar.className = 'top-bar' + (modulo!=='aip' ? ' '+modulo : '');
+
+    const header = document.getElementById('header');
+    header.className = 'header-institucional' + (modulo!=='aip' ? ' '+modulo+'-header' : '');
+
+    document.body.className = modulo!=='aip' ? modulo+'-mode' : '';
+    document.getElementById('fecha-actual').className = `semana-info ${modulo}`;
+
+    const titulos = {
+        aip: 'Registro de <span class="tag-aip">Asistencia AIP</span> 2026',
+        crt: 'Registro <span class="tag-crt">Centro de Recursos</span> 2026',
+        atp: 'Registro <span class="tag-atp">Atención Personalizada</span> 2026',
+        gen: 'Informe <span class="tag-gen">General Consolidado</span> 2026'
+    };
+    const etiquetas = {
+        aip: 'Aula de Innovación Pedagógica',
+        crt: 'Centro de Recursos Tecnológicos',
+        atp: 'Atención Personalizada — ATP',
+        gen: 'Todas las secciones'
+    };
+    document.getElementById('tituloModulo').innerHTML = titulos[modulo];
+    document.getElementById('etiquetaModulo').textContent = etiquetas[modulo];
+}
+
+// ===== FECHA =====
+(function() {
     const d = new Date();
-    const opciones = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-    const fechaStr = d.toLocaleDateString('es-PE', opciones);
-    document.getElementById('fecha-actual').textContent = `${fechaStr.charAt(0).toUpperCase() + fechaStr.slice(1)}`;
-}
-actualizarFecha();
+    const s = d.toLocaleDateString('es-PE',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+    document.getElementById('fecha-actual').textContent = s.charAt(0).toUpperCase()+s.slice(1);
+})();
 
-// ===== REGISTRAR ATENCIÓN =====
-function registrarAtencion() {
-    const doc = document.getElementById("docente").value.trim();
-    const nom = document.getElementById("nombre").value.trim();
-    const gra = document.getElementById("grado").value.trim();
-    const sec = document.getElementById("seccion").value.trim();
-    const tem = document.getElementById("tema").value.trim();
-    const rec = document.getElementById("recursos").value.trim();
-
-    if (!doc) { toast("Seleccione el área"); return; }
-    if (!nom) { toast("Ingrese el nombre del docente"); return; }
-    if (!gra) { toast("Seleccione el grado"); return; }
-    if (!sec) { toast("Seleccione la sección"); return; }
-    if (!tem) { toast("Ingrese el tema trabajado"); return; }
-
-    const btn = document.getElementById("btnRegistrar");
-    btn.disabled = true;
-    btn.innerHTML = '<span class="spinner"></span> Guardando...';
-
+// ===== HELPERS =====
+function getFechaHoy() {
     const d = new Date();
-    const mesActual     = d.toISOString().slice(0, 7);
-    const fechaCompleta = `${String(d.getDate()).padStart(2,'0')}-${String(d.getMonth()+1).padStart(2,'0')}-${d.getFullYear()}`;
-    const horaCompleta  = d.toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit' });
-
-    db.ref('atenciones_personales').push({
-        docente: doc, nombre: nom, grado: gra, seccion: sec, tema: tem,
-        observaciones: rec || "—", fecha: fechaCompleta,
-        hora: horaCompleta, mes: mesActual, timestamp: Date.now()
-    })
-    .then(() => {
-        toast("Atención registrada correctamente");
-        document.getElementById("nombre").value = "";
-        document.getElementById("tema").value = "";
-        document.getElementById("recursos").value = "";
-    })
-    .catch(err => { console.error(err); toast("Error al guardar. Revise su conexión."); })
-    .finally(() => { btn.disabled = false; btn.innerHTML = "Registrar Atención"; });
+    return {
+        mes: d.toISOString().slice(0,7),
+        fecha: `${String(d.getDate()).padStart(2,'0')}-${String(d.getMonth()+1).padStart(2,'0')}-${d.getFullYear()}`,
+        hora: d.toLocaleTimeString('es-PE',{hour:'2-digit',minute:'2-digit'}),
+        timestamp: Date.now()
+    };
 }
 
-// ===== ELIMINAR REGISTRO (solo admin) =====
-function eliminarRegistro(key, desc) {
-    const pass = prompt("🔐 Ingrese la clave de administrador para eliminar:");
-    if (!pass) return;
-    if (pass !== "yarvin2026") { alert("Clave incorrecta. No se puede eliminar."); return; }
-    if (!confirm(`¿Está seguro de eliminar este registro?\n\n${desc}`)) return;
-    db.ref('atenciones_personales/' + key).remove()
-        .then(() => { toast("Registro eliminado correctamente"); generarReporteMensual(); })
-        .catch(err => { console.error(err); toast("Error al eliminar"); });
+// ===== REGISTRAR AIP =====
+function registrarAIP() {
+    const area=document.getElementById("aip-area").value.trim();
+    const nom=document.getElementById("aip-nombre").value.trim();
+    const gra=document.getElementById("aip-grado").value.trim();
+    const sec=document.getElementById("aip-seccion").value.trim();
+    const tem=document.getElementById("aip-tema").value.trim();
+    const rec=document.getElementById("aip-recursos").value.trim();
+    if (!area){toast("Seleccione el área");return;}
+    if (!nom){toast("Ingrese el nombre del docente");return;}
+    if (!gra){toast("Seleccione el grado");return;}
+    if (!sec){toast("Seleccione la sección");return;}
+    if (!tem){toast("Ingrese el tema trabajado");return;}
+    const btn=document.getElementById("btnAIP");
+    btn.disabled=true; btn.innerHTML='<span class="spinner"></span> Guardando...';
+    const {mes,fecha,hora,timestamp}=getFechaHoy();
+    db.ref('atenciones_aip').push({docente:area,nombre:nom,grado:gra,seccion:sec,tema:tem,observaciones:rec||"—",fecha,hora,mes,timestamp})
+    .then(()=>{ toast("✓ Asistencia AIP registrada"); ["aip-nombre","aip-tema","aip-recursos"].forEach(id=>document.getElementById(id).value=""); })
+    .catch(()=>toast("Error al guardar. Revise su conexión."))
+    .finally(()=>{ btn.disabled=false; btn.innerHTML="✔ Registrar Asistencia — AIP"; });
 }
 
-// ===== ETIQUETA: Nombre Grado Sección =====
-function etiquetaPersona(r) {
-    const nombre = r.nombre || r.docente;
-    const grado  = r.grado || '';
-    const seccion = r.seccion || '';
-    return `${nombre} ${grado} ${seccion}`.trim();
+// ===== REGISTRAR CRT =====
+function registrarCRT() {
+    const doc=document.getElementById("crt-docente").value.trim();
+    const gra=document.getElementById("crt-grado").value.trim();
+    const sec=document.getElementById("crt-seccion").value.trim();
+    const act=document.getElementById("crt-actividad").value.trim();
+    const tem=document.getElementById("crt-tema").value.trim();
+    const rec=document.getElementById("crt-recursos").value.trim();
+    if (!doc){toast("Ingrese el nombre del docente");return;}
+    if (!gra){toast("Seleccione el grado");return;}
+    if (!sec){toast("Seleccione la sección");return;}
+    if (!act){toast("Seleccione el tipo de actividad");return;}
+    if (!tem){toast("Ingrese el tema trabajado");return;}
+    const btn=document.getElementById("btnCRT");
+    btn.disabled=true; btn.innerHTML='<span class="spinner"></span> Guardando...';
+    const {mes,fecha,hora,timestamp}=getFechaHoy();
+    db.ref('atenciones_crt').push({docente:doc,grado:gra,seccion:sec,actividad:act,tema:tem,observaciones:rec||"—",fecha,hora,mes,timestamp})
+    .then(()=>{ toast("✓ Asistencia CRT registrada"); ["crt-docente","crt-tema","crt-recursos"].forEach(id=>document.getElementById(id).value=""); })
+    .catch(()=>toast("Error al guardar. Revise su conexión."))
+    .finally(()=>{ btn.disabled=false; btn.innerHTML="✔ Registrar Asistencia — CRT"; });
 }
 
-// ===== ACCESO ADMIN =====
-async function checkAdmin() {
-    const pass = prompt("Ingrese clave de administrador:");
-    if (!pass) return;
-    if (pass === "yarvin2026") {
-        document.getElementById("panelAdmin").style.display = "block";
-        const hoy = new Date().toISOString().slice(0, 7);
-        document.getElementById("mesFiltro").value = hoy.startsWith("2026") ? hoy : "2026-01";
-        generarReporteMensual();
-        setTimeout(() => window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' }), 100);
-    } else {
-        alert("❌ Clave incorrecta");
+// ===== REGISTRAR ATP =====
+function registrarATP() {
+    const tipo=document.getElementById("atp-tipo").value.trim();
+    const nom=document.getElementById("atp-nombre").value.trim();
+    const tem=document.getElementById("atp-tema").value.trim();
+    const tpo=document.getElementById("atp-tiempo").value.trim();
+    const rec=document.getElementById("atp-recursos").value.trim();
+    if (!tipo){toast("Seleccione el tipo de persona");return;}
+    if (!nom){toast("Ingrese el nombre completo");return;}
+    if (!tem){toast("Ingrese el tema tratado");return;}
+    if (!tpo||isNaN(tpo)||parseInt(tpo)<1){toast("Ingrese un tiempo de atención válido (minutos)");return;}
+    const btn=document.getElementById("btnATP");
+    btn.disabled=true; btn.innerHTML='<span class="spinner"></span> Guardando...';
+    const {mes,fecha,hora,timestamp}=getFechaHoy();
+    db.ref('atenciones_atp').push({tipo,nombre:nom,tema:tem,tiempo:parseInt(tpo),observaciones:rec||"—",fecha,hora,mes,timestamp})
+    .then(()=>{ toast("✓ Atención personalizada registrada"); ["atp-nombre","atp-tema","atp-tiempo","atp-recursos"].forEach(id=>document.getElementById(id).value=""); document.getElementById("atp-tipo").value=""; })
+    .catch(()=>toast("Error al guardar. Revise su conexión."))
+    .finally(()=>{ btn.disabled=false; btn.innerHTML="✔ Registrar Atención Personalizada"; });
+}
+
+// ===== ADMIN =====
+function checkAdmin(modulo) {
+    if (modulo === 'gen') {
+        const pass = prompt('Clave de administrador — INFORME GENERAL:');
+        if (!pass) return;
+        if (pass !== "YARVIN2026") { alert("Clave incorrecta"); return; }
     }
+    const panelIds={aip:'panelAdminAIP',crt:'panelAdminCRT',atp:'panelAdminATP',gen:'panelAdminGEN'};
+    const filtroIds={aip:'mesFiltroAIP',crt:'mesFiltroCRT',atp:'mesFiltroATP',gen:'mesFiltroGEN'};
+    document.getElementById(panelIds[modulo]).style.display="block";
+    const hoy=new Date().toISOString().slice(0,7);
+    document.getElementById(filtroIds[modulo]).value=hoy.startsWith("2026")?hoy:"2026-01";
+    if (modulo==='gen') generarReporteGeneral();
+    else generarReporte(modulo);
+    setTimeout(()=>window.scrollTo({top:document.body.scrollHeight,behavior:'smooth'}),150);
 }
 
-function cerrarAdmin() {
-    document.getElementById("panelAdmin").style.display = "none";
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+function cerrarAdmin(modulo) {
+    const ids={aip:'panelAdminAIP',crt:'panelAdminCRT',atp:'panelAdminATP',gen:'panelAdminGEN'};
+    document.getElementById(ids[modulo]).style.display="none";
+    window.scrollTo({top:0,behavior:'smooth'});
 }
 
-// ===== GENERAR REPORTE MENSUAL =====
-let miChart = null;
+function eliminarRegistro(modulo,key,desc) {
+    if (!confirm(`¿Eliminar este registro?\n\n${desc}`)) return;
+    const refs={aip:'atenciones_aip',crt:'atenciones_crt',atp:'atenciones_atp'};
+    db.ref(`${refs[modulo]}/${key}`).remove()
+    .then(()=>{ toast("Registro eliminado"); generarReporte(modulo); })
+    .catch(()=>toast("Error al eliminar"));
+}
 
-function generarReporteMensual() {
-    const mes = document.getElementById("mesFiltro").value;
-    if (!mes) return;
-    if (!mes.startsWith("2026")) { toast("Solo se muestran datos del año 2026"); return; }
+// ===== REPORTE AIP / CRT =====
+function generarReporte(modulo) {
+    const filtroIds={aip:'mesFiltroAIP',crt:'mesFiltroCRT',atp:'mesFiltroATP'};
+    const mes=document.getElementById(filtroIds[modulo]).value;
+    if (!mes||!mes.startsWith("2026")){toast("Seleccione un mes de 2026");return;}
 
-    const tabla = document.getElementById("tablaCuerpo");
-    tabla.innerHTML = "<tr><td colspan='7' style='text-align:center;padding:20px;color:#aaa'>Cargando datos...</td></tr>";
-    ["statTotal","statPersonas","statDias","statSemana"].forEach(id => document.getElementById(id).textContent = "—");
-    document.getElementById("statsPersonal").innerHTML = "";
+    if (modulo==='atp') { generarReporteATP(mes); return; }
 
-    db.ref('atenciones_personales').orderByChild('timestamp').once('value', snap => {
-        const data = snap.val() || {};
+    const p = modulo==='aip'
+        ? {tabla:'aip-tablaCuerpo',total:'aip-statTotal',personas:'aip-statPersonas',dias:'aip-statDias',semana:'aip-statSemana',stats:'aip-statsPersonal',grafico:'aip-grafico'}
+        : {tabla:'crt-tablaCuerpo',total:'crt-statTotal',personas:'crt-statPersonas',dias:'crt-statDias',semana:'crt-statSemana',stats:'crt-statsPersonal',grafico:'crt-grafico'};
 
-        const registros = Object.entries(data)
-            .filter(([, r]) => r.mes === mes)
-            .sort((a, b) => b[1].timestamp - a[1].timestamp)
-            .map(([key, r]) => ({ ...r, _key: key }));
+    const tabla=document.getElementById(p.tabla);
+    tabla.innerHTML=`<tr><td colspan="7" style="text-align:center;padding:30px;color:#9aa0b8">Cargando...</td></tr>`;
+    [p.total,p.personas,p.dias,p.semana].forEach(id=>document.getElementById(id).textContent="—");
+    document.getElementById(p.stats).innerHTML="";
 
-        // Estadísticas generales
-        const totalAtenciones = registros.length;
-        const personasUnicas  = new Set(registros.map(r => r.docente)).size;
-        const diasUnicos      = new Set(registros.map(r => r.fecha)).size;
-        const promSemana      = diasUnicos > 0 ? (totalAtenciones / Math.ceil(diasUnicos / 5)).toFixed(1) : 0;
+    db.ref(modulo==='aip'?'atenciones_aip':'atenciones_crt').orderByChild('timestamp').once('value',snap=>{
+        const data=snap.val()||{};
+        const registros=Object.entries(data).filter(([,r])=>r.mes===mes).sort((a,b)=>b[1].timestamp-a[1].timestamp).map(([key,r])=>({...r,_key:key}));
+        const total=registros.length;
+        const persons=new Set(registros.map(r=>r.docente)).size;
+        const dias=new Set(registros.map(r=>r.fecha)).size;
+        const prom=dias>0?(total/Math.ceil(dias/5)).toFixed(1):0;
+        document.getElementById(p.total).textContent=total;
+        document.getElementById(p.personas).textContent=persons;
+        document.getElementById(p.dias).textContent=dias;
+        document.getElementById(p.semana).textContent=prom;
 
-        document.getElementById("statTotal").textContent    = totalAtenciones;
-        document.getElementById("statPersonas").textContent = personasUnicas;
-        document.getElementById("statDias").textContent     = diasUnicos;
-        document.getElementById("statSemana").textContent   = promSemana;
+        const porPersona={};
+        registros.forEach(r=>{ const lbl=modulo==='aip'?`${r.nombre||r.docente} ${r.grado} ${r.seccion}`.trim():`${r.docente} ${r.grado} ${r.seccion}`.trim(); porPersona[lbl]=(porPersona[lbl]||0)+1; });
+        const statsEl=document.getElementById(p.stats);
+        statsEl.innerHTML=Object.keys(porPersona).length===0?'<span style="color:#9aa0b8;font-size:13px">Sin registros</span>':Object.entries(porPersona).sort((a,b)=>b[1]-a[1]).map(([lbl,cnt])=>`<div class="stat-persona-badge ${modulo}">${lbl}<span class="cnt ${modulo}">${cnt}</span></div>`).join('');
 
-        // Estadística por persona (Nombre Grado Sección)
-        const porPersona = {};
-        registros.forEach(r => {
-            const lbl = etiquetaPersona(r);
-            porPersona[lbl] = (porPersona[lbl] || 0) + 1;
-        });
+        tabla.innerHTML=registros.length===0?`<tr><td colspan="7"><div class="empty-state">📭 No hay registros para este mes.</div></td></tr>`:registros.map(reg=>{
+            const cols=modulo==='aip'?`<td><b>${reg.docente}</b></td><td>${reg.nombre||'—'}</td><td><span class="badge-grado aip">${reg.grado} ${reg.seccion}</span></td>`:`<td><b>${reg.docente}</b></td><td><span class="badge-grado crt">${reg.grado} ${reg.seccion}</span></td><td>${reg.actividad||'—'}</td>`;
+            return `<tr><td><b>${reg.fecha}</b><br><small style="color:#9aa0b8">${reg.hora}</small></td>${cols}<td>${reg.tema}</td><td style="color:#6b7280">${reg.observaciones}</td><td style="text-align:center"><button class="btn-eliminar" onclick="eliminarRegistro('${modulo}','${reg._key}','${reg.docente.replace(/'/g,"\\'")} — ${reg.fecha}')">Eliminar</button></td></tr>`;
+        }).join('');
 
-        const statsEl = document.getElementById("statsPersonal");
-        if (Object.keys(porPersona).length === 0) {
-            statsEl.innerHTML = '<span style="color:#aaa;font-size:13px">Sin registros</span>';
-        } else {
-            statsEl.innerHTML = Object.entries(porPersona)
-                .sort((a, b) => b[1] - a[1])
-                .map(([lbl, cnt]) => `
-                    <div class="stat-persona-badge">
-                        ${lbl}
-                        <span class="cnt">${cnt}</span>
-                    </div>
-                `).join('');
-        }
+        const conteo={};
+        registros.forEach(r=>{ const lbl=modulo==='aip'?`${r.nombre||r.docente} ${r.grado}${r.seccion}`.trim():`${r.docente} ${r.grado}${r.seccion}`.trim(); conteo[lbl]=(conteo[lbl]||0)+1; });
+        const etqs=Object.entries(conteo).sort((a,b)=>b[1]-a[1]).map(e=>e[0]);
+        const vals=etqs.map(e=>conteo[e]);
+        const ctx=document.getElementById(p.grafico).getContext('2d');
+        if (modulo==='aip'){if(chartAIP)chartAIP.destroy();}else{if(chartCRT)chartCRT.destroy();}
+        const baseColor=modulo==='aip'?[26,48,128]:[30,122,58];
+        const accentHex=modulo==='aip'?'#f4a020':'#4ade80';
+        const chart=new Chart(ctx,{type:'bar',data:{labels:etqs,datasets:[{label:'Asistencias',data:vals,backgroundColor:etqs.map((_,i)=>`rgba(${baseColor[0]},${baseColor[1]},${baseColor[2]},${0.7+i*0.03})`),hoverBackgroundColor:accentHex,borderRadius:8,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>` ${c.parsed.y} asistencia(s)`}}},scales:{y:{beginAtZero:true,ticks:{stepSize:1},grid:{color:'#f0f2f8'}},x:{grid:{display:false}}}}});
+        if (modulo==='aip')chartAIP=chart;else chartCRT=chart;
+    }).catch(err=>{ console.error(err); document.getElementById(p.tabla).innerHTML=`<tr><td colspan="7" style="text-align:center;color:red">Error al cargar datos</td></tr>`; });
+}
 
-        // Tabla con botón eliminar
-        if (registros.length === 0) {
-            tabla.innerHTML = `<tr><td colspan="7"><div class="empty-state"><span class="icon">—</span>No hay registros para este mes.</div></td></tr>`;
-        } else {
-            tabla.innerHTML = registros.map(reg => `
-                <tr>
-                    <td><b>${reg.fecha}</b><br><small style="color:#888">${reg.hora}</small></td>
-                    <td><b>${reg.docente}</b></td>
-                    <td>${reg.nombre || '—'}</td>
-                    <td><span class="badge-grado">${reg.grado} ${reg.seccion === 'N/A' ? '' : reg.seccion}</span></td>
-                    <td>${reg.tema}</td>
-                    <td style="color:#666">${reg.observaciones}</td>
-                    <td style="text-align:center">
-                        <button class="btn-eliminar"
-                            onclick="eliminarRegistro('${reg._key}', '${reg.docente.replace(/'/g,"\\'")} — ${reg.fecha}')">
-                            Eliminar
-                        </button>
-                    </td>
-                </tr>
-            `).join('');
-        }
+// ===== REPORTE ATP =====
+function generarReporteATP(mes) {
+    const tabla=document.getElementById('atp-tablaCuerpo');
+    tabla.innerHTML=`<tr><td colspan="7" style="text-align:center;padding:30px;color:#9aa0b8">Cargando...</td></tr>`;
+    ['atp-statTotal','atp-statPersonas','atp-statMinutos','atp-statPromMin'].forEach(id=>document.getElementById(id).textContent='—');
+    document.getElementById('atp-statsPersonal').innerHTML='';
 
-        // Gráfico con etiqueta Nombre Grado Sección
-        const conteoGrafico = {};
-        registros.forEach(r => {
-            const lbl = etiquetaPersona(r);
-            conteoGrafico[lbl] = (conteoGrafico[lbl] || 0) + 1;
-        });
+    db.ref('atenciones_atp').orderByChild('timestamp').once('value',snap=>{
+        const data=snap.val()||{};
+        const registros=Object.entries(data).filter(([,r])=>r.mes===mes).sort((a,b)=>b[1].timestamp-a[1].timestamp).map(([key,r])=>({...r,_key:key}));
+        const total=registros.length;
+        const persons=new Set(registros.map(r=>r.nombre)).size;
+        const minutos=registros.reduce((s,r)=>s+(parseInt(r.tiempo)||0),0);
+        const promMin=total>0?(minutos/total).toFixed(0):0;
+        document.getElementById('atp-statTotal').textContent=total;
+        document.getElementById('atp-statPersonas').textContent=persons;
+        document.getElementById('atp-statMinutos').textContent=minutos;
+        document.getElementById('atp-statPromMin').textContent=promMin;
 
-        const etiquetas = Object.entries(conteoGrafico).sort((a,b) => b[1]-a[1]).map(e => e[0]);
-        const valores   = etiquetas.map(e => conteoGrafico[e]);
+        const porPersona={};
+        registros.forEach(r=>{ porPersona[r.nombre]=(porPersona[r.nombre]||0)+1; });
+        const statsEl=document.getElementById('atp-statsPersonal');
+        statsEl.innerHTML=Object.keys(porPersona).length===0?'<span style="color:#9aa0b8;font-size:13px">Sin registros</span>':Object.entries(porPersona).sort((a,b)=>b[1]-a[1]).map(([lbl,cnt])=>`<div class="stat-persona-badge atp">${lbl}<span class="cnt atp">${cnt}</span></div>`).join('');
 
-        const ctx = document.getElementById('graficoAsistencia').getContext('2d');
-        if (miChart) miChart.destroy();
-        miChart = new Chart(ctx, {
+        tabla.innerHTML=registros.length===0?`<tr><td colspan="7"><div class="empty-state">📭 No hay registros para este mes.</div></td></tr>`:registros.map(reg=>{
+            const tipoCls=reg.tipo==='DIRECTIVO'?'directivo':reg.tipo==='DOCENTE'?'docente':'otros';
+            return `<tr><td><b>${reg.fecha}</b><br><small style="color:#9aa0b8">${reg.hora}</small></td><td><span class="badge-tipo ${tipoCls}">${reg.tipo}</span></td><td><b>${reg.nombre}</b></td><td>${reg.tema}</td><td style="text-align:center;font-family:'Space Mono',monospace;font-weight:700;color:var(--atp-mid)">${reg.tiempo} min</td><td style="color:#6b7280">${reg.observaciones}</td><td style="text-align:center"><button class="btn-eliminar" onclick="eliminarRegistro('atp','${reg._key}','${reg.nombre.replace(/'/g,"\\'")} — ${reg.fecha}')">Eliminar</button></td></tr>`;
+        }).join('');
+
+        const conteo={};
+        registros.forEach(r=>{ conteo[r.tipo]=(conteo[r.tipo]||0)+1; });
+        const etqs=Object.keys(conteo);
+        const vals=etqs.map(e=>conteo[e]);
+        const ctx=document.getElementById('atp-grafico').getContext('2d');
+        if (chartATP) chartATP.destroy();
+        chartATP=new Chart(ctx,{type:'doughnut',data:{labels:etqs,datasets:[{data:vals,backgroundColor:['#6b21a8','#9333ea','#c084fc'],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right'},tooltip:{callbacks:{label:c=>` ${c.parsed} atenciones`}}}}});
+    }).catch(err=>{ console.error(err); document.getElementById('atp-tablaCuerpo').innerHTML=`<tr><td colspan="7" style="text-align:center;color:red">Error al cargar datos</td></tr>`; });
+}
+
+// ===== REPORTE GENERAL =====
+async function generarReporteGeneral() {
+    const mes=document.getElementById('mesFiltroGEN').value;
+    if (!mes||!mes.startsWith("2026")){toast("Seleccione un mes de 2026");return;}
+    const contenido=document.getElementById('genContenido');
+    contenido.innerHTML='<div class="empty-state">⏳ Cargando datos de todas las secciones...</div>';
+
+    try {
+        const [snapAIP,snapCRT,snapATP]=await Promise.all([
+            db.ref('atenciones_aip').orderByChild('timestamp').once('value'),
+            db.ref('atenciones_crt').orderByChild('timestamp').once('value'),
+            db.ref('atenciones_atp').orderByChild('timestamp').once('value')
+        ]);
+        const aip=Object.entries(snapAIP.val()||{}).filter(([,r])=>r.mes===mes).sort((a,b)=>b[1].timestamp-a[1].timestamp).map(([k,r])=>({...r,_key:k}));
+        const crt=Object.entries(snapCRT.val()||{}).filter(([,r])=>r.mes===mes).sort((a,b)=>b[1].timestamp-a[1].timestamp).map(([k,r])=>({...r,_key:k}));
+        const atp=Object.entries(snapATP.val()||{}).filter(([,r])=>r.mes===mes).sort((a,b)=>b[1].timestamp-a[1].timestamp).map(([k,r])=>({...r,_key:k}));
+
+        const mesLabel=new Date(mes+'-01').toLocaleDateString('es-PE',{year:'numeric',month:'long'});
+        const totalGlobal=aip.length+crt.length+atp.length;
+
+        let html=`
+        <div class="gen-total-bar">
+            <div><div class="tot-label">Mes reportado</div><div style="font-size:16px;font-weight:800;margin-top:2px">${mesLabel.charAt(0).toUpperCase()+mesLabel.slice(1)}</div></div>
+            <div style="text-align:center"><div class="tot-label">Total global de registros</div><div class="tot-num">${totalGlobal}</div></div>
+            <div style="text-align:right"><div class="tot-label">Secciones incluidas</div><div style="font-size:16px;font-weight:800;margin-top:2px">AIP · CRT · ATP</div></div>
+        </div>`;
+
+        // AIP block
+        html+=`<div class="gen-seccion-bloque" style="margin-top:20px">
+            <div class="gen-seccion-header aip">💻 AIP — Aula de Innovación Pedagógica<span class="gen-count">${aip.length} registros</span></div>
+            <div class="gen-resumen-grid">
+                <div class="gen-resumen-card"><div class="gen-resumen-num aip">${aip.length}</div><div class="gen-resumen-label">Asistencias</div></div>
+                <div class="gen-resumen-card"><div class="gen-resumen-num aip">${new Set(aip.map(r=>r.docente)).size}</div><div class="gen-resumen-label">Personas</div></div>
+                <div class="gen-resumen-card"><div class="gen-resumen-num aip">${new Set(aip.map(r=>r.fecha)).size}</div><div class="gen-resumen-label">Días</div></div>
+            </div>
+            <div class="gen-tabla-wrap"><table>
+                <thead class="aip"><tr><th>Fecha</th><th>Área</th><th>Nombre</th><th>Grado/Secc.</th><th>Tema</th></tr></thead>
+                <tbody>${aip.length===0?'<tr><td colspan="5"><div class="empty-state">Sin registros</div></td></tr>':aip.map(r=>`<tr><td><b>${r.fecha}</b> <small style="color:#9aa0b8">${r.hora}</small></td><td>${r.docente}</td><td>${r.nombre||'—'}</td><td><span class="badge-grado aip">${r.grado} ${r.seccion}</span></td><td>${r.tema}</td></tr>`).join('')}</tbody>
+            </table></div>
+        </div>`;
+
+        // CRT block
+        html+=`<div class="gen-seccion-bloque">
+            <div class="gen-seccion-header crt">🖥️ CRT — Centro de Recursos Tecnológicos<span class="gen-count">${crt.length} registros</span></div>
+            <div class="gen-resumen-grid">
+                <div class="gen-resumen-card"><div class="gen-resumen-num crt">${crt.length}</div><div class="gen-resumen-label">Asistencias</div></div>
+                <div class="gen-resumen-card"><div class="gen-resumen-num crt">${new Set(crt.map(r=>r.docente)).size}</div><div class="gen-resumen-label">Personas</div></div>
+                <div class="gen-resumen-card"><div class="gen-resumen-num crt">${new Set(crt.map(r=>r.fecha)).size}</div><div class="gen-resumen-label">Días</div></div>
+            </div>
+            <div class="gen-tabla-wrap"><table>
+                <thead class="crt"><tr><th>Fecha</th><th>Docente</th><th>Grado/Secc.</th><th>Actividad</th><th>Tema</th></tr></thead>
+                <tbody>${crt.length===0?'<tr><td colspan="5"><div class="empty-state">Sin registros</div></td></tr>':crt.map(r=>`<tr><td><b>${r.fecha}</b> <small style="color:#9aa0b8">${r.hora}</small></td><td>${r.docente}</td><td><span class="badge-grado crt">${r.grado} ${r.seccion}</span></td><td>${r.actividad||'—'}</td><td>${r.tema}</td></tr>`).join('')}</tbody>
+            </table></div>
+        </div>`;
+
+        // ATP block
+        html+=`<div class="gen-seccion-bloque">
+            <div class="gen-seccion-header atp">🧑‍🏫 ATP — Atención Personalizada<span class="gen-count">${atp.length} registros</span></div>
+            <div class="gen-resumen-grid">
+                <div class="gen-resumen-card"><div class="gen-resumen-num atp">${atp.length}</div><div class="gen-resumen-label">Atenciones</div></div>
+                <div class="gen-resumen-card"><div class="gen-resumen-num atp">${new Set(atp.map(r=>r.nombre)).size}</div><div class="gen-resumen-label">Personas</div></div>
+                <div class="gen-resumen-card"><div class="gen-resumen-num atp">${atp.reduce((s,r)=>s+(parseInt(r.tiempo)||0),0)}</div><div class="gen-resumen-label">Minutos</div></div>
+            </div>
+            <div class="gen-tabla-wrap"><table>
+                <thead class="atp"><tr><th>Fecha</th><th>Tipo</th><th>Nombre</th><th>Tema</th><th>Tiempo</th></tr></thead>
+                <tbody>${atp.length===0?'<tr><td colspan="5"><div class="empty-state">Sin registros</div></td></tr>':atp.map(r=>{ const tc=r.tipo==='DIRECTIVO'?'directivo':r.tipo==='DOCENTE'?'docente':'otros'; return `<tr><td><b>${r.fecha}</b> <small style="color:#9aa0b8">${r.hora}</small></td><td><span class="badge-tipo ${tc}">${r.tipo}</span></td><td>${r.nombre}</td><td>${r.tema}</td><td style="font-family:'Space Mono',monospace;font-weight:700;color:var(--atp-mid)">${r.tiempo} min</td></tr>`; }).join('')}</tbody>
+            </table></div>
+        </div>`;
+
+        contenido.innerHTML=html;
+
+        // ===== GRÁFICO CONSOLIDADO GENERAL =====
+        const genGraficoWrap = document.getElementById('genGraficoWrap');
+        genGraficoWrap.style.display = 'block';
+        const ctxGen = document.getElementById('gen-grafico').getContext('2d');
+        if (window._chartGen) window._chartGen.destroy();
+        window._chartGen = new Chart(ctxGen, {
             type: 'bar',
             data: {
-                labels: etiquetas,
+                labels: ['💻 AIP — Aula Innovación', '🖥️ CRT — Centro Recursos', '🧑‍🏫 ATP — Atención Pers.'],
                 datasets: [{
-                    label: 'Atenciones en el mes',
-                    data: valores,
-                    backgroundColor: etiquetas.map((_, i) => `hsl(${210 + i * 15}, 70%, ${55 + i * 2}%)`),
-                    borderRadius: 6,
+                    label: 'Registros del mes',
+                    data: [aip.length, crt.length, atp.length],
+                    backgroundColor: [
+                        'rgba(26,48,128,0.85)',
+                        'rgba(21,87,36,0.85)',
+                        'rgba(107,33,168,0.85)'
+                    ],
+                    hoverBackgroundColor: ['#f4a020','#4ade80','#f0abfc'],
+                    borderRadius: 10,
                     borderSkipped: false
                 }]
             },
             options: {
-                responsive: true,
-                maintainAspectRatio: false,
+                responsive: true, maintainAspectRatio: false,
                 plugins: {
                     legend: { display: false },
-                    tooltip: { callbacks: { label: ctx => ` ${ctx.parsed.y} atención(es)` } }
+                    tooltip: { callbacks: { label: c => ` ${c.parsed.y} registro(s)` } }
                 },
                 scales: {
-                    y: { beginAtZero: true, ticks: { stepSize: 1 }, grid: { color: '#f0f0f0' } },
-                    x: { grid: { display: false } }
+                    y: { beginAtZero: true, ticks: { stepSize: 1 }, grid: { color: '#f0f2f8' } },
+                    x: { grid: { display: false }, ticks: { font: { weight: '700' } } }
                 }
             }
         });
-    })
-    .catch(err => {
-        console.error(err);
-        tabla.innerHTML = "<tr><td colspan='7' style='text-align:center;color:red'>Error al cargar los datos</td></tr>";
-    });
-}
-
-// ===== DESCARGAR PDF =====
-async function descargarPDF() {
-    const mes = document.getElementById("mesFiltro").value;
-    const mesLabel = mes ? new Date(mes + '-01').toLocaleDateString('es-PE', { year: 'numeric', month: 'long' }) : 'informe';
-    const btn = document.querySelector('.btn-imprimir');
-    btn.disabled = true;
-    btn.textContent = 'Generando PDF...';
-
-    // Ocultar botones de eliminar temporalmente
-    document.querySelectorAll('.btn-eliminar').forEach(b => b.style.visibility = 'hidden');
-    // Ocultar columna acción en el thead
-    document.querySelectorAll('thead th:last-child').forEach(th => th.style.visibility = 'hidden');
-    // Ocultar botones que no deben aparecer en el PDF
-    const btnCerrar = document.querySelector('.btn-cerrar');
-    const filtroMensual = document.querySelector('.filtro-mensual');
-    if (btnCerrar) btnCerrar.style.display = 'none';
-    if (filtroMensual) filtroMensual.style.display = 'none';
-
-    const { jsPDF } = window.jspdf;
-    const panel = document.getElementById('panelAdmin');
-
-    try {
-        const canvas = await html2canvas(panel, {
-            scale: 1.8,
-            useCORS: true,
-            backgroundColor: '#ffffff',
-            scrollY: -window.scrollY,
-            windowWidth: panel.scrollWidth,
-            windowHeight: panel.scrollHeight
-        });
-
-        const imgData = canvas.toDataURL('image/jpeg', 0.92);
-        const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-        const pageW = pdf.internal.pageSize.getWidth();
-        const pageH = pdf.internal.pageSize.getHeight();
-        const margin = 10;
-        const usableW = pageW - margin * 2;
-        const imgW = canvas.width;
-        const imgH = canvas.height;
-        const ratio = usableW / imgW;
-        const totalH = imgH * ratio;
-        let posY = 0;
-        let page = 0;
-
-        while (posY < totalH) {
-            if (page > 0) pdf.addPage();
-            const sliceH = Math.min(pageH - margin * 2, totalH - posY);
-            const srcY = posY / ratio;
-            const srcH = sliceH / ratio;
-
-            const sliceCanvas = document.createElement('canvas');
-            sliceCanvas.width = imgW;
-            sliceCanvas.height = srcH;
-            const ctx2 = sliceCanvas.getContext('2d');
-            ctx2.drawImage(canvas, 0, srcY, imgW, srcH, 0, 0, imgW, srcH);
-            const sliceData = sliceCanvas.toDataURL('image/jpeg', 0.92);
-            pdf.addImage(sliceData, 'JPEG', margin, margin, usableW, sliceH);
-
-            posY += sliceH;
-            page++;
-        }
-
-        pdf.save(`Informe_Atenciones_${mesLabel.replace(/ /g,'_')}.pdf`);
-        toast("PDF descargado correctamente");
-    } catch (e) {
+    } catch(e) {
         console.error(e);
-        toast("Error al generar el PDF");
-    } finally {
-        document.querySelectorAll('.btn-eliminar').forEach(b => b.style.visibility = '');
-        document.querySelectorAll('thead th:last-child').forEach(th => th.style.visibility = '');
-        if (btnCerrar) btnCerrar.style.display = '';
-        if (filtroMensual) filtroMensual.style.display = '';
-        btn.disabled = false;
-        btn.textContent = 'Descargar PDF';
+        contenido.innerHTML='<div class="empty-state" style="color:red">Error al cargar los datos del informe general.</div>';
     }
 }
 
+// ===== PDF =====
+async function descargarPDF(modulo) {
+    const filtroIds={aip:'mesFiltroAIP',crt:'mesFiltroCRT',atp:'mesFiltroATP'};
+    const panelIds={aip:'panelAdminAIP',crt:'panelAdminCRT',atp:'panelAdminATP'};
+    const mes=document.getElementById(filtroIds[modulo]).value;
+    const mesLabel=mes?new Date(mes+'-01').toLocaleDateString('es-PE',{year:'numeric',month:'long'}):'informe';
+    const btn=document.querySelector(`#${panelIds[modulo]} .btn-imprimir`);
+    btn.disabled=true; btn.textContent='Generando PDF...';
+    const panel=document.getElementById(panelIds[modulo]);
+    document.querySelectorAll(`#${panelIds[modulo]} .btn-eliminar`).forEach(b=>b.style.visibility='hidden');
+    document.querySelectorAll(`#${panelIds[modulo]} thead th:last-child`).forEach(th=>th.style.visibility='hidden');
+    const bC=panel.querySelector('.btn-cerrar'), fM=panel.querySelector('.filtro-mensual');
+    if(bC)bC.style.display='none'; if(fM)fM.style.display='none';
+    try {
+        const canvas=await html2canvas(panel,{scale:1.8,useCORS:true,backgroundColor:'#fff',scrollY:-window.scrollY,windowWidth:panel.scrollWidth,windowHeight:panel.scrollHeight});
+        const {jsPDF}=window.jspdf;
+        const pdf=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
+        const pW=pdf.internal.pageSize.getWidth(),pH=pdf.internal.pageSize.getHeight(),mg=10,uW=pW-mg*2;
+        const ratio=uW/canvas.width,totalH=canvas.height*ratio;
+        let posY=0,pg=0;
+        while(posY<totalH){
+            if(pg>0)pdf.addPage();
+            const sH=Math.min(pH-mg*2,totalH-posY),srcY=posY/ratio,srcH=sH/ratio;
+            const sc=document.createElement('canvas');sc.width=canvas.width;sc.height=srcH;
+            sc.getContext('2d').drawImage(canvas,0,srcY,canvas.width,srcH,0,0,canvas.width,srcH);
+            pdf.addImage(sc.toDataURL('image/jpeg',0.92),'JPEG',mg,mg,uW,sH);
+            posY+=sH;pg++;
+        }
+        pdf.save(`Informe_${modulo.toUpperCase()}_${mesLabel.replace(/ /g,'_')}.pdf`);
+        toast("✓ PDF descargado correctamente");
+    } catch(e){console.error(e);toast("Error al generar el PDF");}
+    finally {
+        document.querySelectorAll(`#${panelIds[modulo]} .btn-eliminar`).forEach(b=>b.style.visibility='');
+        document.querySelectorAll(`#${panelIds[modulo]} thead th:last-child`).forEach(th=>th.style.visibility='');
+        if(bC)bC.style.display='';if(fM)fM.style.display='';
+        btn.disabled=false;btn.textContent='⬇ Descargar PDF';
+    }
+}
+
+async function descargarPDFGeneral() {
+    const mes=document.getElementById('mesFiltroGEN').value;
+    const mesLabel=mes?new Date(mes+'-01').toLocaleDateString('es-PE',{year:'numeric',month:'long'}):'informe';
+    const btn=document.querySelector('#panelAdminGEN .btn-imprimir');
+    btn.disabled=true;btn.textContent='Generando PDF...';
+    const panel=document.getElementById('panelAdminGEN');
+    const bC=panel.querySelector('.btn-cerrar'),fM=panel.querySelector('.filtro-mensual');
+    if(bC)bC.style.display='none';if(fM)fM.style.display='none';
+    try {
+        const canvas=await html2canvas(panel,{scale:1.6,useCORS:true,backgroundColor:'#fff',scrollY:-window.scrollY,windowWidth:panel.scrollWidth,windowHeight:panel.scrollHeight});
+        const {jsPDF}=window.jspdf;
+        const pdf=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
+        const pW=pdf.internal.pageSize.getWidth(),pH=pdf.internal.pageSize.getHeight(),mg=10,uW=pW-mg*2;
+        const ratio=uW/canvas.width,totalH=canvas.height*ratio;
+        let posY=0,pg=0;
+        while(posY<totalH){
+            if(pg>0)pdf.addPage();
+            const sH=Math.min(pH-mg*2,totalH-posY),srcY=posY/ratio,srcH=sH/ratio;
+            const sc=document.createElement('canvas');sc.width=canvas.width;sc.height=srcH;
+            sc.getContext('2d').drawImage(canvas,0,srcY,canvas.width,srcH,0,0,canvas.width,srcH);
+            pdf.addImage(sc.toDataURL('image/jpeg',0.92),'JPEG',mg,mg,uW,sH);
+            posY+=sH;pg++;
+        }
+        pdf.save(`Informe_GENERAL_${mesLabel.replace(/ /g,'_')}.pdf`);
+        toast("✓ Informe general descargado");
+    } catch(e){console.error(e);toast("Error al generar el PDF");}
+    finally {
+        if(bC)bC.style.display='';if(fM)fM.style.display='';
+        btn.disabled=false;btn.textContent='⬇ Descargar PDF';
+    }
+}
+
+
+
 // ===== TOAST =====
 function toast(msg) {
-    const t = document.getElementById("toast");
-    t.textContent = msg;
-    t.className = "show";
-    setTimeout(() => { t.className = ""; }, 3000);
+    const t=document.getElementById("toast");
+    t.textContent=msg; t.className="show";
+    setTimeout(()=>{ t.className="hide"; setTimeout(()=>{t.className="";},300); },3000);
 }
 </script>
 </body>
