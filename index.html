@@ -166,23 +166,33 @@
         .btn-admin:hover { color: var(--azul-claro); }
         #panelAdmin {
             margin-top: 30px;
-            padding: 28px;
+            padding: 0;
             background: var(--blanco);
-            border-radius: 10px;
-            border: 1px solid #dce6f5;
+            border-radius: 14px;
+            border: 1px solid var(--azul-borde);
+            box-shadow: 0 4px 24px rgba(26,35,126,0.10);
             display: none;
             text-align: left;
+            overflow: hidden;
         }
         #panelAdmin h3 {
+            background: linear-gradient(135deg, var(--azul) 0%, var(--azul-claro) 100%);
+            color: white;
             text-align: center;
-            color: var(--azul);
             font-family: 'Poppins', sans-serif;
-            margin-bottom: 20px;
-            font-size: 18px;
+            font-size: 15px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            padding: 18px 28px;
+            margin-bottom: 0;
+        }
+        .panel-admin-body {
+            padding: 24px 28px;
         }
         .filtro-mensual {
-            margin: 10px 0 20px;
-            background: #f1f8ff;
+            margin: 0 0 20px;
+            background: var(--azul-bg);
             padding: 14px 18px;
             border-radius: 10px;
             display: flex;
@@ -190,8 +200,9 @@
             gap: 12px;
             justify-content: center;
             flex-wrap: wrap;
+            border: 1px solid var(--azul-borde);
         }
-        .filtro-mensual label { font-weight: 700; color: var(--azul); }
+        .filtro-mensual label { font-weight: 800; color: var(--azul); font-size: 13px; text-transform: uppercase; letter-spacing: 1px; }
         .filtro-mensual input[type="month"] {
             padding: 9px 12px;
             border-radius: 8px;
@@ -201,14 +212,15 @@
             outline: none;
         }
         .btn-imprimir {
-            background: var(--azul-claro);
+            background: linear-gradient(135deg, var(--acento) 0%, #e65100 100%);
             color: var(--blanco);
-            padding: 8px 18px;
+            padding: 9px 20px;
             border-radius: 8px;
             font-weight: 700;
-            font-size: 14px;
+            font-size: 13px;
+            box-shadow: 0 3px 10px rgba(255,111,0,0.3);
         }
-        .btn-imprimir:hover { background: var(--azul); }
+        .btn-imprimir:hover { background: linear-gradient(135deg, #e65100 0%, var(--acento) 100%); }
 
         /* === STATS GENERALES === */
         .stats-grid {
@@ -235,18 +247,19 @@
         /* === STATS POR PERSONA === */
         .stats-personal {
             margin-bottom: 22px;
-            background: #f8fbff;
+            background: linear-gradient(135deg, #f5f7ff 0%, #eef0fb 100%);
             border-radius: 12px;
             padding: 16px;
-            border: 1px solid #bbdefb;
+            border: 1px solid var(--azul-borde);
         }
         .stats-personal h4 {
             color: var(--azul);
             font-family: 'Poppins', sans-serif;
-            font-size: 13px;
+            font-size: 12px;
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 1.5px;
             margin-bottom: 12px;
+            font-weight: 700;
         }
         .stats-personal-grid {
             display: flex;
@@ -255,18 +268,18 @@
         }
         .stat-persona-badge {
             background: white;
-            border: 1.5px solid #90caf9;
+            border: 1.5px solid var(--azul-borde);
             border-radius: 20px;
             padding: 6px 12px 6px 10px;
             font-size: 13px;
             font-weight: 700;
-            color: #333;
+            color: var(--azul);
             display: inline-flex;
             align-items: center;
             gap: 7px;
         }
         .stat-persona-badge .cnt {
-            background: var(--azul);
+            background: linear-gradient(135deg, var(--acento) 0%, #e65100 100%);
             color: white;
             border-radius: 50%;
             width: 22px;
@@ -327,15 +340,16 @@
         .empty-state .icon { font-size: 40px; display: block; margin-bottom: 8px; }
         .btn-cerrar {
             display: block;
-            margin: 22px auto 0;
-            background: #5f6368;
+            margin: 24px auto 0;
+            background: var(--azul);
             color: var(--blanco);
-            padding: 10px 28px;
+            padding: 11px 32px;
             border-radius: 8px;
             font-weight: 700;
             font-size: 14px;
+            letter-spacing: 0.5px;
         }
-        .btn-cerrar:hover { background: #333; }
+        .btn-cerrar:hover { background: var(--azul-medio); }
         #toast {
             position: fixed;
             bottom: 30px;
@@ -438,7 +452,8 @@
     </div>
 
     <div id="panelAdmin">
-        <h3>INFORME MENSUAL DE ATENCIÓN PERSONAL — 2026</h3>
+        <h3>Informe Mensual de Atención Personal — 2026</h3>
+        <div class="panel-admin-body">
 
         <div class="filtro-mensual">
             <label>Mes:</label>
@@ -482,6 +497,7 @@
         </div>
 
         <button class="btn-cerrar" onclick="cerrarAdmin()">Cerrar Informe</button>
+        </div><!-- /panel-admin-body -->
     </div>
 </div><!-- /container-inner -->
 </div><!-- /container -->
@@ -554,43 +570,26 @@ function registrarAtencion() {
 function eliminarRegistro(key, desc) {
     const pass = prompt("🔐 Ingrese la clave de administrador para eliminar:");
     if (!pass) return;
-    if (pass !== "Yarvin24") { alert("❌ Clave incorrecta. No se puede eliminar."); return; }
+    if (pass !== "yarvin2026") { alert("Clave incorrecta. No se puede eliminar."); return; }
     if (!confirm(`¿Está seguro de eliminar este registro?\n\n${desc}`)) return;
     db.ref('atenciones_personales/' + key).remove()
         .then(() => { toast("Registro eliminado correctamente"); generarReporteMensual(); })
         .catch(err => { console.error(err); toast("Error al eliminar"); });
 }
 
-// ===== OBTENER PRIMER NOMBRE =====
-// Los nombres tienen formato: "APELLIDO1 APELLIDO2 NOMBRE"
-// La 3ra palabra es el primer nombre
-function primerNombre(nombreCompleto) {
-    const partes = nombreCompleto.trim().split(/\s+/);
-    if (partes.length >= 3) return partes[2];
-    return partes[partes.length - 1];
-}
-
-// ===== ABREVIAR GRADO =====
-function abreviarGrado(grado) {
-    return grado
-        .replace('DIRECTIVOS', 'Dir.')
-        .replace('PSICÓLOGO (A)', 'Psic.')
-        .replace('VISITA EXTERNA', 'Visita');
-}
-
 // ===== ETIQUETA: Nombre Grado Sección =====
 function etiquetaPersona(r) {
-    const nombre = primerNombre(r.docente);
-    const grado  = abreviarGrado(r.grado);
-    const especial = ['DIRECTIVOS','PSICÓLOGO (A)','VISITA EXTERNA'].includes(r.seccion);
-    return especial ? `${nombre} ${grado}` : `${nombre} ${grado} ${r.seccion}`;
+    const nombre = r.nombre || r.docente;
+    const grado  = r.grado || '';
+    const seccion = r.seccion || '';
+    return `${nombre} ${grado} ${seccion}`.trim();
 }
 
 // ===== ACCESO ADMIN =====
 async function checkAdmin() {
     const pass = prompt("Ingrese clave de administrador:");
     if (!pass) return;
-    if (pass === "Yarvin24") {
+    if (pass === "yarvin2026") {
         document.getElementById("panelAdmin").style.display = "block";
         const hoy = new Date().toISOString().slice(0, 7);
         document.getElementById("mesFiltro").value = hoy.startsWith("2026") ? hoy : "2026-01";
