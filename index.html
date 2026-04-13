@@ -332,7 +332,7 @@
         .tipo-chip.crt-tipo { border-color:var(--crt-border); color:var(--crt-mid); background:white; }
         .tipo-chip.crt-tipo:hover { border-color:var(--crt-light); background:var(--crt-bg); }
         .tipo-chip.crt-tipo.selected { background:linear-gradient(135deg,var(--crt-mid),var(--crt-light)); border-color:var(--crt-light); color:white; box-shadow:0 4px 12px rgba(21,87,36,0.3); }
-        .campo-condicional { transition:all 0.3s ease; overflow:hidden; }
+        .campo-condicional { transition:max-height 0.3s ease, opacity 0.3s ease; overflow:hidden; }
         /* === HORAS SELECTOR === */
         .horas-selector { margin-bottom:14px; }
         .horas-selector label.horas-title { font-size:12px; font-weight:800; text-transform:uppercase; letter-spacing:1px; display:block; margin-bottom:8px; }
@@ -341,6 +341,9 @@
         .hora-chip { display:inline-flex; align-items:center; gap:6px; padding:7px 14px; border-radius:50px; font-size:12px; font-weight:700; cursor:pointer; transition:all 0.2s ease; user-select:none; border:2px solid; }
         .hora-chip input[type=checkbox] { display:none; }
         .hora-chip.aip-chip { border-color:var(--aip-border); color:var(--aip-mid); background:white; }
+        .hora-chip.crt-chip { border-color:var(--crt-border); color:var(--crt-mid); background:white; }
+        .hora-chip.crt-chip:hover { border-color:var(--crt-light); background:var(--crt-bg); }
+        .hora-chip.crt-chip.selected { background:linear-gradient(135deg,var(--crt-mid),var(--crt-light)); border-color:var(--crt-light); color:white; box-shadow:0 4px 12px rgba(21,87,36,0.3); }
         .hora-chip.aip-chip:hover { border-color:var(--aip-light); background:var(--aip-bg); }
         .hora-chip.aip-chip.selected { background:linear-gradient(135deg,var(--aip-mid),var(--aip-light)); border-color:var(--aip-light); color:white; box-shadow:0 4px 12px rgba(26,48,128,0.3); }
         /* === TOAST === */
@@ -363,17 +366,69 @@
             th:last-child, td:last-child { display:none !important; }
         }
         @media (max-width:640px) {
-            body { padding:16px 12px 32px; }
+            body { padding:10px 8px 32px; }
             table { min-width: 580px; }
             .tabla-container, .gen-tabla-wrap { -webkit-overflow-scrolling: touch; }
-            .modulo-selector { flex-direction:column; align-items:center; }
-            .modulo-btn { max-width:100%; width:100%; }
-            .container-inner { padding:0 16px 28px; }
-            .header-institucional { padding:20px; margin:0 -16px 20px; }
-            .stats-grid { grid-template-columns:repeat(2,1fr); }
-            .subtitulo { font-size:15px; }
-            .panel-admin-body { padding:18px 16px; }
-            .gen-resumen-grid { grid-template-columns:repeat(3,1fr); }
+
+            /* Selector compacto en fila horizontal */
+            .modulo-selector {
+                flex-direction: row;
+                flex-wrap: nowrap;
+                gap: 6px;
+                margin-bottom: 14px;
+                overflow-x: auto;
+                padding-bottom: 4px;
+                -webkit-overflow-scrolling: touch;
+            }
+            .modulo-btn {
+                flex: 1;
+                min-width: 0;
+                max-width: none;
+                padding: 8px 6px;
+                border-radius: 12px;
+                border-width: 1.5px;
+            }
+            .modulo-btn .mod-icon { font-size: 18px; margin-bottom: 2px; }
+            .modulo-btn .mod-name { font-size: 11px; letter-spacing: 0.5px; }
+            .modulo-btn .mod-sub  { display: none; }
+
+            /* Header compacto */
+            .container-inner { padding: 0 12px 24px; }
+            .header-institucional { padding: 14px 16px; margin: 0 -12px 16px; gap: 12px; }
+            .header-logo { width: 52px; height: 52px; }
+            .ie-nombre { font-size: 8px; }
+            .subtitulo { font-size: 13px; }
+            .modulo-tag { font-size: 9px; padding: 3px 8px; margin-top: 4px; }
+            .firebase-status { font-size: 10px; padding: 4px 10px 4px 8px; }
+            .fb-dot { width: 8px; height: 8px; }
+
+            /* Fecha */
+            .semana-info { font-size: 11px; padding: 6px 14px; margin-bottom: 16px; }
+
+            /* Formularios */
+            .form-grid { gap: 10px; }
+            select, input[type="text"], input[type="number"] { padding: 11px 12px; font-size: 13px; }
+            .btn-main { padding: 13px 20px; font-size: 13px; }
+
+            /* Stats */
+            .stats-grid { grid-template-columns: repeat(2,1fr); gap: 10px; }
+            .stat-card { padding: 14px 10px; }
+            .stat-card .stat-num { font-size: 26px; }
+
+            /* Chips de horas */
+            .horas-grid { gap: 5px; }
+            .hora-chip { padding: 5px 10px; font-size: 11px; }
+
+            /* Tipo chips */
+            .crt-tipo-row { gap: 5px; }
+            .tipo-chip { padding: 6px 11px; font-size: 11px; }
+
+            /* Admin panel */
+            .panel-admin-body { padding: 14px 12px; }
+            .panel-admin-header { font-size: 11px; padding: 14px 16px; }
+            .gen-resumen-grid { grid-template-columns: repeat(3,1fr); gap: 8px; padding: 12px; }
+            .gen-resumen-num { font-size: 20px; }
+            .btn-admin { font-size: 11px; padding: 8px 16px; margin-top: 24px; }
         }
     </style>
 </head>
@@ -529,11 +584,14 @@
                     <input type="text" id="crt-nombre" class="crt-input" placeholder="Nombre completo *" maxlength="100">
                     <select id="crt-actividad" class="crt-input">
                         <option value="">Tipo de actividad...</option>
-                        <option>USO DE COMPUTADORAS</option><option>PROYECCIÓN MULTIMEDIA</option>
-                        <option>IMPRESIÓN / ESCANEO</option><option>INSTALACIÓN DE SOFTWARE</option>
-                        <option>MANTENIMIENTO DE EQUIPOS</option><option>SOPORTE TÉCNICO</option>
-                        <option>PRÉSTAMO DE EQUIPOS</option><option>CAPACITACIÓN DOCENTE</option>
-                        <option>REUNIÓN / COORDINACIÓN</option><option>OTRO</option>
+                        <option>TRABAJO CON ESTUDIANTES</option>
+                        <option>ATENCIÓN A ESTUDIANTES</option>
+                        <option>USO DE COMPUTADORAS</option>
+                        <option>PROYECCIÓN MULTIMEDIA</option>
+                        <option>IMPRESIÓN / ESCANEO</option>
+                        <option>CAPACITACIÓN DOCENTE</option>
+                        <option>REUNIÓN / COORDINACIÓN</option>
+                        <option>OTRO</option>
                     </select>
                 </div>
                 <!-- Grado/Sección solo para DOCENTE -->
@@ -552,6 +610,18 @@
                 <div class="form-grid" style="grid-template-columns:1fr 1fr;">
                     <input type="text" id="crt-tema" class="crt-input" placeholder="Tema / Motivo *" maxlength="200">
                     <input type="text" id="crt-recursos" class="crt-input" placeholder="Recursos usados / Observaciones" maxlength="200">
+                </div>
+                <div class="horas-selector crt" style="margin-bottom:14px;">
+                    <label class="horas-title" style="color:var(--crt-mid)">🕐 Horas de uso del CRT <span style="font-weight:500;color:#9aa0b8;font-size:10px">(selecciona las horas utilizadas)</span></label>
+                    <div class="horas-grid" id="crt-horas-grid">
+                        <label class="hora-chip crt-chip" onclick="toggleHoraCRT(this)"><input type="checkbox" value="1ERA">1ERA</label>
+                        <label class="hora-chip crt-chip" onclick="toggleHoraCRT(this)"><input type="checkbox" value="2DA">2DA</label>
+                        <label class="hora-chip crt-chip" onclick="toggleHoraCRT(this)"><input type="checkbox" value="3ERA">3ERA</label>
+                        <label class="hora-chip crt-chip" onclick="toggleHoraCRT(this)"><input type="checkbox" value="4TA">4TA</label>
+                        <label class="hora-chip crt-chip" onclick="toggleHoraCRT(this)"><input type="checkbox" value="5TA">5TA</label>
+                        <label class="hora-chip crt-chip" onclick="toggleHoraCRT(this)"><input type="checkbox" value="6TA">6TA</label>
+                        <label class="hora-chip crt-chip" onclick="toggleHoraCRT(this)"><input type="checkbox" value="7MA">7MA</label>
+                    </div>
                 </div>
                 <button class="btn-main btn-crt" id="btnCRT" onclick="registrarCRT()">✔ Registrar Asistencia — CRT</button>
             </div>
@@ -596,7 +666,21 @@
                         <option value="">Tipo de persona *</option>
                         <option>DIRECTIVO</option>
                         <option>DOCENTE</option>
+                        <option>AUXILIAR</option>
+                        <option>UGEL</option>
                         <option>OTROS</option>
+                    </select>
+                    <select id="atp-area" class="atp-input">
+                        <option value="">Área / Cargo...</option>
+                        <option>COMUNICACIÓN</option><option>MATEMÁTICA</option>
+                        <option>CIENCIA Y TECNOLOGÍA</option><option>CIENCIAS SOCIALES</option>
+                        <option>INGLÉS</option><option>EDUCACIÓN FÍSICA</option>
+                        <option>ARTE Y CULTURA</option><option>EDUCACIÓN RELIGIOSA</option>
+                        <option>DESARROLLO PERSONAL, CIUDADANÍA Y CÍVICA</option>
+                        <option>EDUCACIÓN PARA EL TRABAJO</option><option>TUTORÍA</option>
+                        <option>DIRECCIÓN</option><option>SUBDIRECCIÓN</option>
+                        <option>AUXILIAR DE EDUCACIÓN</option><option>UGEL / EXTERNO</option>
+                        <option>OTRO</option>
                     </select>
                     <input type="text" id="atp-nombre" class="atp-input" placeholder="Nombre completo *" maxlength="120">
                     <input type="text" id="atp-tema" class="atp-input" placeholder="Tema tratado *" maxlength="250">
@@ -629,7 +713,8 @@
                     <div class="tabla-container">
                         <table><thead class="atp"><tr>
                             <th style="width:110px">Fecha/Hora</th>
-                            <th style="width:110px">Tipo</th>
+                            <th style="width:100px">Tipo</th>
+                            <th>Área/Cargo</th>
                             <th>Nombre</th>
                             <th>Tema Tratado</th>
                             <th style="width:80px">Tiempo</th>
@@ -786,16 +871,18 @@ function registrarCRT() {
     const esDocente=tipo==='DOCENTE';
     const gra=esDocente?document.getElementById("crt-grado").value.trim():'—';
     const sec=esDocente?document.getElementById("crt-seccion").value.trim():'—';
+    const horasCRT=[...document.querySelectorAll('#crt-horas-grid input[type=checkbox]:checked')].map(c=>c.value);
     if (!nom){toast("Ingrese el nombre completo");return;}
     if (!act){toast("Seleccione el tipo de actividad");return;}
     if (!tem){toast("Ingrese el tema o motivo");return;}
     if (esDocente && !gra){toast("Seleccione el grado");return;}
     if (esDocente && !sec){toast("Seleccione la sección");return;}
+    if (horasCRT.length===0){toast("Seleccione al menos una hora de uso");return;}
     const btn=document.getElementById("btnCRT");
     btn.disabled=true; btn.innerHTML='<span class="spinner"></span> Guardando...';
     const {mes,fecha,hora,timestamp}=getFechaHoy();
-    db.ref('atenciones_crt').push({tipo,docente:nom,area:area||'—',grado:gra,seccion:sec,actividad:act,tema:tem,observaciones:rec||"—",fecha,hora,mes,timestamp})
-    .then(()=>{ toast("✓ Registro CRT guardado"); ["crt-nombre","crt-tema","crt-recursos"].forEach(id=>document.getElementById(id).value=""); document.getElementById("crt-area").value=""; document.getElementById("crt-actividad").value=""; if(esDocente){document.getElementById("crt-grado").value="";document.getElementById("crt-seccion").value="";} })
+    db.ref('atenciones_crt').push({tipo,docente:nom,area:area||'—',grado:gra,seccion:sec,actividad:act,tema:tem,horas:horasCRT.join(', '),observaciones:rec||"—",fecha,hora,mes,timestamp})
+    .then(()=>{ toast("✓ Registro CRT guardado"); ["crt-nombre","crt-tema","crt-recursos"].forEach(id=>document.getElementById(id).value=""); document.getElementById("crt-area").value=""; document.getElementById("crt-actividad").value=""; if(esDocente){document.getElementById("crt-grado").value="";document.getElementById("crt-seccion").value="";} document.querySelectorAll('#crt-horas-grid .hora-chip').forEach(c=>{c.classList.remove('selected');c.querySelector('input').checked=false;}); })
     .catch(()=>toast("Error al guardar. Revise su conexión."))
     .finally(()=>{ btn.disabled=false; btn.innerHTML="✔ Registrar Asistencia — CRT"; });
 }
@@ -803,6 +890,7 @@ function registrarCRT() {
 // ===== REGISTRAR ATP =====
 function registrarATP() {
     const tipo=document.getElementById("atp-tipo").value.trim();
+    const area=document.getElementById("atp-area").value.trim();
     const nom=document.getElementById("atp-nombre").value.trim();
     const tem=document.getElementById("atp-tema").value.trim();
     const tpo=document.getElementById("atp-tiempo").value.trim();
@@ -814,8 +902,8 @@ function registrarATP() {
     const btn=document.getElementById("btnATP");
     btn.disabled=true; btn.innerHTML='<span class="spinner"></span> Guardando...';
     const {mes,fecha,hora,timestamp}=getFechaHoy();
-    db.ref('atenciones_atp').push({tipo,nombre:nom,tema:tem,tiempo:parseInt(tpo),observaciones:rec||"—",fecha,hora,mes,timestamp})
-    .then(()=>{ toast("✓ Atención personalizada registrada"); ["atp-nombre","atp-tema","atp-tiempo","atp-recursos"].forEach(id=>document.getElementById(id).value=""); document.getElementById("atp-tipo").value=""; })
+    db.ref('atenciones_atp').push({tipo,area:area||'—',nombre:nom,tema:tem,tiempo:parseInt(tpo),observaciones:rec||"—",fecha,hora,mes,timestamp})
+    .then(()=>{ toast("✓ Atención personalizada registrada"); ["atp-nombre","atp-tema","atp-tiempo","atp-recursos"].forEach(id=>document.getElementById(id).value=""); document.getElementById("atp-tipo").value=""; document.getElementById("atp-area").value=""; })
     .catch(()=>toast("Error al guardar. Revise su conexión."))
     .finally(()=>{ btn.disabled=false; btn.innerHTML="✔ Registrar Atención Personalizada"; });
 }
@@ -824,7 +912,12 @@ function registrarATP() {
 // ===== TOGGLE HORA AIP =====
 function toggleHora(label) {
     const cb = label.querySelector('input[type=checkbox]');
-    cb.checked = !cb.checked;
+    label.classList.toggle('selected', cb.checked);
+}
+
+// ===== TOGGLE HORA CRT =====
+function toggleHoraCRT(label) {
+    const cb = label.querySelector('input[type=checkbox]');
     label.classList.toggle('selected', cb.checked);
 }
 
@@ -887,7 +980,7 @@ function generarReporte(modulo) {
         : {tabla:'crt-tablaCuerpo',total:'crt-statTotal',personas:'crt-statPersonas',dias:'crt-statDias',semana:'crt-statSemana',stats:'crt-statsPersonal',grafico:'crt-grafico'};
 
     const tabla=document.getElementById(p.tabla);
-    tabla.innerHTML=`<tr><td colspan="7" style="text-align:center;padding:30px;color:#9aa0b8">Cargando...</td></tr>`;
+    tabla.innerHTML=`<tr><td colspan="9" style="text-align:center;padding:30px;color:#9aa0b8">Cargando...</td></tr>`;
     [p.total,p.personas,p.dias,p.semana].forEach(id=>document.getElementById(id).textContent="—");
     document.getElementById(p.stats).innerHTML="";
 
@@ -908,7 +1001,7 @@ function generarReporte(modulo) {
         const statsEl=document.getElementById(p.stats);
         statsEl.innerHTML=Object.keys(porPersona).length===0?'<span style="color:#9aa0b8;font-size:13px">Sin registros</span>':Object.entries(porPersona).sort((a,b)=>b[1]-a[1]).map(([lbl,cnt])=>`<div class="stat-persona-badge ${modulo}">${lbl}<span class="cnt ${modulo}">${cnt}</span></div>`).join('');
 
-        tabla.innerHTML=registros.length===0?`<tr><td colspan="7"><div class="empty-state">📭 No hay registros para este mes.</div></td></tr>`:registros.map(reg=>{
+        tabla.innerHTML=registros.length===0?`<tr><td colspan="${modulo==='crt'?10:9}"><div class="empty-state">📭 No hay registros para este mes.</div></td></tr>`:registros.map(reg=>{
             let cols;
             if(modulo==='aip'){
                 const horasBadge=reg.horas?`<span style="font-size:11px;font-weight:700;color:var(--aip-mid);background:var(--aip-bg);padding:3px 10px;border-radius:50px;border:1px solid var(--aip-border)">${reg.horas}</span>`:'<span style="color:#9aa0b8">—</span>';
@@ -916,7 +1009,8 @@ function generarReporte(modulo) {
             } else {
                 const tipoCls=reg.tipo==='DIRECTIVO'?'directivo':reg.tipo==='DOCENTE'?'docente':'otros';
                 const gradoSec=(reg.grado&&reg.grado!=='—')?`<span class="badge-grado crt">${reg.grado} ${reg.seccion}</span>`:'<span style="color:#9aa0b8;font-size:11px">—</span>';
-                cols=`<td><span class="badge-tipo ${tipoCls}">${reg.tipo||'—'}</span></td><td><b>${reg.docente}</b></td><td>${reg.area||'—'}</td><td>${gradoSec}</td><td>${reg.actividad||'—'}</td>`;
+                const horasBadgeCRT=reg.horas?`<span style="font-size:11px;font-weight:700;color:var(--crt-mid);background:var(--crt-bg);padding:3px 10px;border-radius:50px;border:1px solid var(--crt-border)">${reg.horas}</span>`:'<span style="color:#9aa0b8">—</span>';
+                cols=`<td><span class="badge-tipo ${tipoCls}">${reg.tipo||'—'}</span></td><td><b>${reg.docente}</b></td><td>${reg.area||'—'}</td><td>${gradoSec}</td><td>${horasBadgeCRT}</td><td>${reg.actividad||'—'}</td>`;
             }
             return `<tr><td><b>${reg.fecha}</b><br><small style="color:#9aa0b8">${reg.hora}</small></td>${cols}<td>${reg.tema}</td><td style="color:#6b7280">${reg.observaciones}</td><td style="text-align:center"><button class="btn-eliminar" onclick="eliminarRegistro('${modulo}','${reg._key}','${reg.docente.replace(/'/g,"\\'")} — ${reg.fecha}')">Eliminar</button></td></tr>`;
         }).join('');
@@ -958,9 +1052,9 @@ function generarReporteATP(mes) {
         const statsEl=document.getElementById('atp-statsPersonal');
         statsEl.innerHTML=Object.keys(porPersona).length===0?'<span style="color:#9aa0b8;font-size:13px">Sin registros</span>':Object.entries(porPersona).sort((a,b)=>b[1]-a[1]).map(([lbl,cnt])=>`<div class="stat-persona-badge atp">${lbl}<span class="cnt atp">${cnt}</span></div>`).join('');
 
-        tabla.innerHTML=registros.length===0?`<tr><td colspan="7"><div class="empty-state">📭 No hay registros para este mes.</div></td></tr>`:registros.map(reg=>{
+        tabla.innerHTML=registros.length===0?`<tr><td colspan="9"><div class="empty-state">📭 No hay registros para este mes.</div></td></tr>`:registros.map(reg=>{
             const tipoCls=reg.tipo==='DIRECTIVO'?'directivo':reg.tipo==='DOCENTE'?'docente':'otros';
-            return `<tr><td><b>${reg.fecha}</b><br><small style="color:#9aa0b8">${reg.hora}</small></td><td><span class="badge-tipo ${tipoCls}">${reg.tipo}</span></td><td><b>${reg.nombre}</b></td><td>${reg.tema}</td><td style="text-align:center;font-family:'Space Mono',monospace;font-weight:700;color:var(--atp-mid)">${reg.tiempo} min</td><td style="color:#6b7280">${reg.observaciones}</td><td style="text-align:center"><button class="btn-eliminar" onclick="eliminarRegistro('atp','${reg._key}','${reg.nombre.replace(/'/g,"\\'")} — ${reg.fecha}')">Eliminar</button></td></tr>`;
+            return `<tr><td><b>${reg.fecha}</b><br><small style="color:#9aa0b8">${reg.hora}</small></td><td><span class="badge-tipo ${tipoCls}">${reg.tipo}</span></td><td style="font-size:12px;color:var(--atp-mid);font-weight:600">${reg.area||'—'}</td><td><b>${reg.nombre}</b></td><td>${reg.tema}</td><td style="text-align:center;font-family:'Space Mono',monospace;font-weight:700;color:var(--atp-mid)">${reg.tiempo} min</td><td style="color:#6b7280">${reg.observaciones}</td><td style="text-align:center"><button class="btn-eliminar" onclick="eliminarRegistro('atp','${reg._key}','${reg.nombre.replace(/'/g,"\\'")} — ${reg.fecha}')">Eliminar</button></td></tr>`;
         }).join('');
 
         const conteo={};
@@ -1010,7 +1104,7 @@ async function generarReporteGeneral() {
             </div>
             <div class="gen-tabla-wrap"><table>
                 <thead class="aip"><tr><th>Fecha</th><th>Área</th><th>Nombre</th><th>Grado/Secc.</th><th>Horas</th><th>Tema</th></tr></thead>
-                <tbody>${aip.length===0?'<tr><td colspan="5"><div class="empty-state">Sin registros</div></td></tr>':aip.map(r=>`<tr><td><b>${r.fecha}</b> <small style="color:#9aa0b8">${r.hora}</small></td><td>${r.docente}</td><td>${r.nombre||'—'}</td><td><span class="badge-grado aip">${r.grado} ${r.seccion}</span></td><td><span style="font-size:11px;font-weight:700;color:var(--aip-mid)">${r.horas||'—'}</span></td><td>${r.tema}</td></tr>`).join('')}</tbody>
+                <tbody>${aip.length===0?'<tr><td colspan="10"><div class="empty-state">Sin registros</div></td></tr>':aip.map(r=>`<tr><td><b>${r.fecha}</b> <small style="color:#9aa0b8">${r.hora}</small></td><td>${r.docente}</td><td>${r.nombre||'—'}</td><td><span class="badge-grado aip">${r.grado} ${r.seccion}</span></td><td><span style="font-size:11px;font-weight:700;color:var(--aip-mid)">${r.horas||'—'}</span></td><td>${r.tema}</td></tr>`).join('')}</tbody>
             </table></div>
         </div>`;
 
@@ -1024,7 +1118,7 @@ async function generarReporteGeneral() {
             </div>
             <div class="gen-tabla-wrap"><table>
                 <thead class="crt"><tr><th>Fecha</th><th>Tipo</th><th>Nombre</th><th>Área</th><th>Grado/Secc.</th><th>Actividad</th><th>Tema</th></tr></thead>
-                <tbody>${crt.length===0?'<tr><td colspan="5"><div class="empty-state">Sin registros</div></td></tr>':crt.map(r=>{const tc=r.tipo==='DIRECTIVO'?'directivo':r.tipo==='DOCENTE'?'docente':'otros';const gs=(r.grado&&r.grado!=='—')?`<span class="badge-grado crt">${r.grado} ${r.seccion}</span>`:'—';return `<tr><td><b>${r.fecha}</b> <small style="color:#9aa0b8">${r.hora}</small></td><td><span class="badge-tipo ${tc}">${r.tipo||'—'}</span></td><td>${r.docente}</td><td>${r.area||'—'}</td><td>${gs}</td><td>${r.actividad||'—'}</td><td>${r.tema}</td></tr>`;}).join('')}</tbody>
+                <tbody>${crt.length===0?'<tr><td colspan="10"><div class="empty-state">Sin registros</div></td></tr>':crt.map(r=>{const tc=r.tipo==='DIRECTIVO'?'directivo':r.tipo==='DOCENTE'?'docente':'otros';const gs=(r.grado&&r.grado!=='—')?`<span class="badge-grado crt">${r.grado} ${r.seccion}</span>`:'—';return `<tr><td><b>${r.fecha}</b> <small style="color:#9aa0b8">${r.hora}</small></td><td><span class="badge-tipo ${tc}">${r.tipo||'—'}</span></td><td>${r.docente}</td><td>${r.area||'—'}</td><td>${gs}</td><td>${r.actividad||'—'}</td><td>${r.tema}</td></tr>`;}).join('')}</tbody>
             </table></div>
         </div>`;
 
@@ -1037,8 +1131,8 @@ async function generarReporteGeneral() {
                 <div class="gen-resumen-card"><div class="gen-resumen-num atp">${atp.reduce((s,r)=>s+(parseInt(r.tiempo)||0),0)}</div><div class="gen-resumen-label">Minutos</div></div>
             </div>
             <div class="gen-tabla-wrap"><table>
-                <thead class="atp"><tr><th>Fecha</th><th>Tipo</th><th>Nombre</th><th>Tema</th><th>Tiempo</th></tr></thead>
-                <tbody>${atp.length===0?'<tr><td colspan="5"><div class="empty-state">Sin registros</div></td></tr>':atp.map(r=>{ const tc=r.tipo==='DIRECTIVO'?'directivo':r.tipo==='DOCENTE'?'docente':'otros'; return `<tr><td><b>${r.fecha}</b> <small style="color:#9aa0b8">${r.hora}</small></td><td><span class="badge-tipo ${tc}">${r.tipo}</span></td><td>${r.nombre}</td><td>${r.tema}</td><td style="font-family:'Space Mono',monospace;font-weight:700;color:var(--atp-mid)">${r.tiempo} min</td></tr>`; }).join('')}</tbody>
+                <thead class="atp"><tr><th>Fecha</th><th>Tipo</th><th>Área/Cargo</th><th>Nombre</th><th>Tema</th><th>Tiempo</th></tr></thead>
+                <tbody>${atp.length===0?'<tr><td colspan="10"><div class="empty-state">Sin registros</div></td></tr>':atp.map(r=>{ const tc=r.tipo==='DIRECTIVO'?'directivo':r.tipo==='DOCENTE'?'docente':'otros'; return `<tr><td><b>${r.fecha}</b> <small style="color:#9aa0b8">${r.hora}</small></td><td><span class="badge-tipo ${tc}">${r.tipo}</span></td><td style="font-size:12px;color:var(--atp-mid);font-weight:600">${r.area||'—'}</td><td>${r.nombre}</td><td>${r.tema}</td><td style="font-family:'Space Mono',monospace;font-weight:700;color:var(--atp-mid)">${r.tiempo} min</td></tr>`; }).join('')}</tbody>
             </table></div>
         </div>`;
 
