@@ -1,196 +1,814 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
-<meta charset="UTF-8">
-<title>AIP PRO</title>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro de Atención Personal 2026 — IE N° 0148</title>
 
-<style>
-body {
-  font-family: Arial;
-  background:#020617;
-  color:white;
-  text-align:center;
-}
-.container { max-width:800px; margin:auto; }
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-input, select, textarea {
-  width:90%;
-  padding:10px;
-  margin:5px;
-  border-radius:8px;
-  border:none;
-}
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        :root {
+            --azul:        #1a237e;
+            --azul-medio:  #283593;
+            --azul-claro:  #3949ab;
+            --azul-bg:     #e8eaf6;
+            --azul-borde:  #c5cae9;
+            --acento:      #ff6f00;
+            --acento-suave:#fff3e0;
+            --verde:       #2e7d32;
+            --verde-hover: #1b5e20;
+            --rojo:        #c62828;
+            --rojo-hover:  #b71c1c;
+            --gris-texto:  #37474f;
+            --blanco:      #fff;
+            --sombra:      0 6px 30px rgba(26,35,126,0.13);
+        }
+        body {
+            font-family: 'Nunito', sans-serif;
+            background: linear-gradient(135deg, #1a237e 0%, #283593 40%, #3949ab 70%, #1565c0 100%);
+            min-height: 100vh;
+            padding: 28px 20px;
+        }
+        .container {
+            max-width: 1100px;
+            margin: auto;
+            background: #ffffff;
+            padding: 0 0 36px 0;
+            border-radius: 16px;
+            box-shadow: var(--sombra);
+            text-align: center;
+            overflow: hidden;
+        }
+        .container-inner {
+            padding: 32px 32px 0;
+        }
+        .top-bar {
+            background: linear-gradient(90deg, var(--azul) 0%, var(--acento) 100%);
+            height: 7px;
+            width: 100%;
+        }
+        .header-institucional {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            background: linear-gradient(135deg, var(--azul) 0%, var(--azul-claro) 100%);
+            margin: 0 -32px;
+            padding: 24px 32px;
+            margin-bottom: 24px;
+            text-align: left;
+        }
+        .header-logo {
+            width: 80px;
+            height: 80px;
+            border-radius: 10px;
+            object-fit: cover;
+            border: 3px solid rgba(255,255,255,0.4);
+            flex-shrink: 0;
+            background: rgba(255,255,255,0.15);
+        }
+        .header-texto { flex: 1; }
+        .ie-nombre {
+            font-family: 'Poppins', sans-serif;
+            font-size: 11px;
+            font-weight: 600;
+            color: rgba(255,255,255,0.75);
+            text-transform: uppercase;
+            letter-spacing: 2.5px;
+            margin-bottom: 4px;
+        }
+        .subtitulo {
+            font-family: 'Poppins', sans-serif;
+            font-size: 19px;
+            color: #ffffff;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .subtitulo span {
+            color: #ffcc02;
+        }
+        .semana-info {
+            background: var(--azul-bg);
+            padding: 7px 20px;
+            border-radius: 6px;
+            display: inline-block;
+            margin-top: 0;
+            margin-bottom: 20px;
+            font-size: 13px;
+            color: var(--azul);
+            font-weight: 700;
+            border: 1px solid var(--azul-borde);
+            letter-spacing: 0.3px;
+        }
+        .panel-asistencia {
+            background: linear-gradient(135deg, #f5f7ff 0%, #eef0fb 100%);
+            border: 1px solid var(--azul-borde);
+            border-left: 4px solid var(--acento);
+            border-radius: 10px;
+            padding: 24px;
+            margin-bottom: 16px;
+        }
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 14px;
+            margin-bottom: 14px;
+        }
+        select, input[type="text"] {
+            padding: 11px 14px;
+            border-radius: 8px;
+            border: 2px solid var(--azul-borde);
+            font-size: 14px;
+            font-family: 'Nunito', sans-serif;
+            outline: none;
+            background: var(--blanco);
+            width: 100%;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            color: var(--gris-texto);
+        }
+        select:focus, input[type="text"]:focus {
+            border-color: var(--azul-claro);
+            box-shadow: 0 0 0 3px rgba(57,73,171,0.12);
+        }
+        button { font-family: 'Nunito', sans-serif; cursor: pointer; transition: 0.25s; border: none; }
+        .btn-success {
+            background: linear-gradient(135deg, var(--acento) 0%, #e65100 100%);
+            color: var(--blanco);
+            padding: 14px 32px;
+            border-radius: 8px;
+            width: 100%;
+            max-width: 420px;
+            font-size: 15px;
+            font-weight: 800;
+            margin-top: 10px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            box-shadow: 0 4px 15px rgba(255,111,0,0.35);
+        }
+        .btn-success:hover { background: linear-gradient(135deg, #e65100 0%, var(--acento) 100%); transform: translateY(-2px); box-shadow: 0 6px 20px rgba(255,111,0,0.45); }
+        .btn-success:disabled { background: #aaa; cursor: not-allowed; transform: none; }
+        .btn-admin {
+            background: none;
+            border: none;
+            color: #999;
+            font-size: 13px;
+            font-weight: 700;
+            margin-top: 40px;
+            padding: 8px;
+        }
+        .btn-admin:hover { color: var(--azul-claro); }
+        #panelAdmin {
+            margin-top: 30px;
+            padding: 28px;
+            background: var(--blanco);
+            border-radius: 10px;
+            border: 1px solid #dce6f5;
+            display: none;
+            text-align: left;
+        }
+        #panelAdmin h3 {
+            text-align: center;
+            color: var(--azul);
+            font-family: 'Poppins', sans-serif;
+            margin-bottom: 20px;
+            font-size: 18px;
+        }
+        .filtro-mensual {
+            margin: 10px 0 20px;
+            background: #f1f8ff;
+            padding: 14px 18px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .filtro-mensual label { font-weight: 700; color: var(--azul); }
+        .filtro-mensual input[type="month"] {
+            padding: 9px 12px;
+            border-radius: 8px;
+            border: 2px solid #90caf9;
+            font-size: 14px;
+            font-family: 'Nunito', sans-serif;
+            outline: none;
+        }
+        .btn-imprimir {
+            background: var(--azul-claro);
+            color: var(--blanco);
+            padding: 8px 18px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 14px;
+        }
+        .btn-imprimir:hover { background: var(--azul); }
 
-button {
-  background:#22c55e;
-  color:white;
-  padding:12px;
-  border:none;
-  border-radius:10px;
-  cursor:pointer;
-}
+        /* === STATS GENERALES === */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+            gap: 12px;
+            margin-bottom: 22px;
+        }
+        .stat-card {
+            background: linear-gradient(135deg, var(--azul) 0%, var(--azul-claro) 100%);
+            border-radius: 12px;
+            padding: 16px 10px;
+            text-align: center;
+            color: white;
+        }
+        .stat-card .stat-num {
+            font-size: 30px;
+            font-weight: 800;
+            color: #ffffff;
+            font-family: 'Poppins', sans-serif;
+        }
+        .stat-card .stat-label { font-size: 11px; color: rgba(255,255,255,0.8); font-weight: 600; margin-top: 2px; text-transform: uppercase; letter-spacing: 0.5px; }
 
-.card {
-  background:#1e293b;
-  padding:15px;
-  border-radius:12px;
-  margin:10px;
-}
-</style>
+        /* === STATS POR PERSONA === */
+        .stats-personal {
+            margin-bottom: 22px;
+            background: #f8fbff;
+            border-radius: 12px;
+            padding: 16px;
+            border: 1px solid #bbdefb;
+        }
+        .stats-personal h4 {
+            color: var(--azul);
+            font-family: 'Poppins', sans-serif;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 12px;
+        }
+        .stats-personal-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .stat-persona-badge {
+            background: white;
+            border: 1.5px solid #90caf9;
+            border-radius: 20px;
+            padding: 6px 12px 6px 10px;
+            font-size: 13px;
+            font-weight: 700;
+            color: #333;
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+        }
+        .stat-persona-badge .cnt {
+            background: var(--azul);
+            color: white;
+            border-radius: 50%;
+            width: 22px;
+            height: 22px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: 800;
+            flex-shrink: 0;
+        }
+
+        .grafico-wrap { height: 240px; margin-bottom: 28px; background: #fafafa; border-radius: 10px; padding: 10px; border: 1px solid #eee; }
+        .tabla-container { overflow-x: auto; margin-top: 10px; border-radius: 10px; border: 1px solid #e0e0e0; }
+        table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        thead th {
+            background: linear-gradient(135deg, var(--azul) 0%, var(--azul-claro) 100%);
+            color: var(--blanco);
+            padding: 12px 12px;
+            text-align: left;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+        }
+        td { padding: 10px 12px; border-bottom: 1px solid #f0f0f0; color: var(--gris-texto); vertical-align: top; }
+        tr:last-child td { border-bottom: none; }
+        tr:nth-child(even) td { background-color: #f8f9fa; }
+        tr:hover td { background-color: #e8f0fe; transition: 0.15s; }
+        .badge-grado {
+            background: var(--azul-bg);
+            color: var(--azul);
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 700;
+            white-space: nowrap;
+            border: 1px solid var(--azul-borde);
+        }
+
+        /* === BOTÓN ELIMINAR === */
+        .btn-eliminar {
+            background: var(--rojo);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 5px 10px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.2s;
+            white-space: nowrap;
+        }
+        .btn-eliminar:hover { background: var(--rojo-hover); transform: scale(1.05); }
+
+        .empty-state { text-align: center; padding: 40px; color: #aaa; font-size: 15px; }
+        .empty-state .icon { font-size: 40px; display: block; margin-bottom: 8px; }
+        .btn-cerrar {
+            display: block;
+            margin: 22px auto 0;
+            background: #5f6368;
+            color: var(--blanco);
+            padding: 10px 28px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 14px;
+        }
+        .btn-cerrar:hover { background: #333; }
+        #toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #222;
+            color: var(--blanco);
+            padding: 14px 32px;
+            border-radius: 50px;
+            display: none;
+            z-index: 2000;
+            font-weight: 700;
+            font-size: 14px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.25);
+            animation: fadeInUp 0.3s ease;
+        }
+        #toast.show { display: block; }
+        @keyframes fadeInUp { from { opacity:0; transform: translateX(-50%) translateY(10px); } to { opacity:1; transform: translateX(-50%) translateY(0); } }
+        .spinner { display: inline-block; width: 18px; height: 18px; border: 3px solid rgba(255,255,255,0.4); border-top-color: #fff; border-radius: 50%; animation: spin 0.7s linear infinite; vertical-align: middle; margin-right: 6px; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        @media print {
+            body { background: white !important; animation: none; padding: 0; }
+            .container { box-shadow: none; padding: 10px; }
+            #panelAdmin { border: none; }
+            .btn-admin, .btn-cerrar, .btn-imprimir, .panel-asistencia, .semana-info, .logo, .subtitulo { display: none !important; }
+            .filtro-mensual button { display: none !important; }
+            #panelAdmin { display: block !important; }
+            .btn-eliminar { display: none !important; }
+            th:last-child, td:last-child { display: none !important; }
+        }
+        @media (max-width: 600px) {
+            .subtitulo { font-size: 16px; }
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+    </style>
 </head>
 
 <body>
-
 <div class="container">
+<div class="top-bar"></div>
+<div class="container-inner">
+    <div class="header-institucional">
+        <img src="logo.jpeg" alt="Insignia IE" class="header-logo" onerror="this.style.display='none'">
+        <div class="header-texto">
+            <div class="ie-nombre">IE N° 0148 — Maestro Víctor Raúl Haya de la Torre</div>
+            <div class="subtitulo">Registro de <span>Atención Personal</span> 2026</div>
+        </div>
+    </div>
+    <div class="semana-info" id="fecha-actual">Cargando...</div>
 
-<div style="display:flex; flex-direction:column; align-items:center;">
-  <img src="logo.png" width="90">
-  <h1>IE N° 0148 MAESTRO VÍCTOR RAÚL HAYA DE LA TORRE</h1>
-  <h1>📊 REGISTRO DE ASISTENCIA - AIP</h1>
-</div>
+    <div class="panel-asistencia">
+        <div class="form-grid">
+            <select id="docente">
+                <option value="">Seleccione el área...</option>
+                <option>COMUNICACIÓN</option>
+                <option>MATEMÁTICA</option>
+                <option>CIENCIA Y TECNOLOGÍA</option>
+                <option>CIENCIAS SOCIALES</option>
+                <option>INGLÉS</option>
+                <option>EDUCACIÓN FÍSICA</option>
+                <option>ARTE Y CULTURA</option>
+                <option>EDUCACIÓN RELIGIOSA</option>
+                <option>DESARROLLO PERSONAL, CIUDADANÍA Y CÍVICA</option>
+                <option>EDUCACIÓN PARA EL TRABAJO</option>
+                <option>TUTORÍA</option>
+                <option>DIRECTIVOS</option>
+                <option>PSICÓLOGO (A)</option>
+                <option>VISITA / PERSONAL EXTERNO</option>
+            </select>
 
-<!-- LOGIN ADMIN -->
-<div class="card">
-<input type="password" id="clave" placeholder="Clave admin">
-<button onclick="verDashboard()">Entrar como admin</button>
-</div>
+            <input type="text" id="nombre" placeholder="Nombre del docente *" maxlength="100">
 
-<!-- FORMULARIO -->
-<div class="card" id="formulario">
-<h2>📝 Registro</h2>
+            <select id="grado">
+                <option value="">Grado...</option>
+                <option>1°</option>
+                <option>2°</option>
+                <option>3°</option>
+                <option>4°</option>
+                <option>5°</option>
+            </select>
 
-<input id="nombre" placeholder="Nombre docente">
+            <select id="seccion">
+                <option value="">Sección...</option>
+                <option>A</option><option>B</option><option>C</option>
+                <option>D</option><option>E</option>
+            </select>
+        </div>
 
-<select id="area">
-<option>Matemática</option>
-<option>Comunicación</option>
-<option>Ciencia y Tecnología</option>
-<option>Inglés</option>
-<option>DPCC</option>
-<option>Ciencias Sociales</option>
-<option>Arte</option>
-<option>Religión</option>
-<option>EPT</option>
-<option>DPCC</option>
-<option>Tutoría</option>
-</select>
+        <div class="form-grid" style="grid-template-columns: 1fr 1fr;">
+            <input type="text" id="tema" placeholder="Tema trabajado *" maxlength="200">
+            <input type="text" id="recursos" placeholder="Recursos usados" maxlength="200">
+        </div>
 
-<select id="grado">
-<option value="">Grado</option>
-<option>1</option>
-<option>2</option>
-<option>3</option>
-<option>4</option>
-<option>5</option>
-</select>
+        <button class="btn-success" id="btnRegistrar" onclick="registrarAtencion()">Registrar Atención</button>
+    </div>
 
-<select id="seccion">
-<option value="">Sección</option>
-<option>A</option>
-<option>B</option>
-<option>C</option>
-<option>D</option>
-<option>E</option>
-</select>
+    <div style="margin-top: 40px; border-top: 1px solid #e0e0e0; padding-top: 18px;">
+        <button class="btn-admin" onclick="checkAdmin()">Acceso Docente PIP — Generar Informe Mensual</button>
+    </div>
 
-<input id="tema" placeholder="Tema">
-<textarea id="recursos" placeholder="Recursos"></textarea>
-<input id="horas" type="number" placeholder="Horas">
+    <div id="panelAdmin">
+        <h3>INFORME MENSUAL DE ATENCIÓN PERSONAL — 2026</h3>
 
-<button onclick="enviar()">Registrar</button>
+        <div class="filtro-mensual">
+            <label>Mes:</label>
+            <input type="month" id="mesFiltro" min="2026-01" max="2026-12" onchange="generarReporteMensual()">
+            <button class="btn-imprimir" onclick="descargarPDF()">Descargar PDF</button>
+        </div>
 
-<p id="msg"></p>
-</div>
+        <!-- Estadísticas generales -->
+        <div class="stats-grid">
+            <div class="stat-card"><div class="stat-num" id="statTotal">—</div><div class="stat-label">Total Atenciones</div></div>
+            <div class="stat-card"><div class="stat-num" id="statPersonas">—</div><div class="stat-label">Personas Distintas</div></div>
+            <div class="stat-card"><div class="stat-num" id="statDias">—</div><div class="stat-label">Días con Atención</div></div>
+            <div class="stat-card"><div class="stat-num" id="statSemana">—</div><div class="stat-label">Prom. por Semana</div></div>
+        </div>
 
-<!-- DASHBOARD OCULTO -->
-<div id="dashboard" style="display:none">
+        <!-- Estadística por persona: Nombre Grado Sección -->
+        <div class="stats-personal">
+            <h4>Atenciones por persona</h4>
+            <div class="stats-personal-grid" id="statsPersonal"></div>
+        </div>
 
-<div class="card">
-<h2>📈 Uso por grado</h2>
-<canvas id="graficoGrado"></canvas>
-</div>
+        <!-- Gráfico -->
+        <div class="grafico-wrap"><canvas id="graficoAsistencia"></canvas></div>
 
-<div class="card">
-<h2>📊 Uso por área</h2>
-<canvas id="graficoArea"></canvas>
-</div>
+        <!-- Tabla -->
+        <div class="tabla-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width:110px">Fecha / Hora</th>
+                        <th>Área</th>
+                        <th>Nombre</th>
+                        <th style="width:110px">Grado / Secc.</th>
+                        <th>Tema Trabajado</th>
+                        <th>Recursos Usados</th>
+                        <th style="width:90px;text-align:center">Acción</th>
+                    </tr>
+                </thead>
+                <tbody id="tablaCuerpo"></tbody>
+            </table>
+        </div>
 
-</div>
+        <button class="btn-cerrar" onclick="cerrarAdmin()">Cerrar Informe</button>
+    </div>
+</div><!-- /container-inner -->
+</div><!-- /container -->
 
-</div>
+<div id="toast"></div>
 
 <script>
-const URL = "PEGA_AQUI_TU_SCRIPT";
-const SHEET_ID = "PEGA_AQUI_TU_ID";
-const PASSWORD = "1234"; // cambia esto
+// ✅ FIREBASE CONFIG — Proyecto: asistencia-aip
+const firebaseConfig = {
+    apiKey: "AIzaSyBPR7HXG0fOnpJQxEP5deFKDb6-olYL4zo",
+    authDomain: "asistencia-aip.firebaseapp.com",
+    databaseURL: "https://asistencia-aip-default-rtdb.firebaseio.com",
+    projectId: "asistencia-aip",
+    storageBucket: "asistencia-aip.firebasestorage.app",
+    messagingSenderId: "290763895484",
+    appId: "1:290763895484:web:1ec5ae6b66b595e9c596b9"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
 
-function enviar() {
-  let data = {
-    nombre: nombre.value,
-    area: area.value,
-    grado: grado.value,
-    seccion: seccion.value,
-    tema: tema.value,
-    recursos: recursos.value,
-    horas: horas.value
-  };
+// ===== FECHA ACTUAL =====
+function actualizarFecha() {
+    const d = new Date();
+    const opciones = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+    const fechaStr = d.toLocaleDateString('es-PE', opciones);
+    document.getElementById('fecha-actual').textContent = `${fechaStr.charAt(0).toUpperCase() + fechaStr.slice(1)}`;
+}
+actualizarFecha();
 
-  if(!data.nombre || !data.grado || !data.seccion){
-    alert("Completa datos obligatorios");
-    return;
-  }
+// ===== REGISTRAR ATENCIÓN =====
+function registrarAtencion() {
+    const doc = document.getElementById("docente").value.trim();
+    const nom = document.getElementById("nombre").value.trim();
+    const gra = document.getElementById("grado").value.trim();
+    const sec = document.getElementById("seccion").value.trim();
+    const tem = document.getElementById("tema").value.trim();
+    const rec = document.getElementById("recursos").value.trim();
 
-  fetch(URL, {
-    method: "POST",
-    body: JSON.stringify(data)
-  }).then(()=>{
-    msg.innerText = "✅ Registrado";
-  });
+    if (!doc) { toast("Seleccione el área"); return; }
+    if (!nom) { toast("Ingrese el nombre del docente"); return; }
+    if (!gra) { toast("Seleccione el grado"); return; }
+    if (!sec) { toast("Seleccione la sección"); return; }
+    if (!tem) { toast("Ingrese el tema trabajado"); return; }
+
+    const btn = document.getElementById("btnRegistrar");
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span> Guardando...';
+
+    const d = new Date();
+    const mesActual     = d.toISOString().slice(0, 7);
+    const fechaCompleta = `${String(d.getDate()).padStart(2,'0')}-${String(d.getMonth()+1).padStart(2,'0')}-${d.getFullYear()}`;
+    const horaCompleta  = d.toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit' });
+
+    db.ref('atenciones_personales').push({
+        docente: doc, nombre: nom, grado: gra, seccion: sec, tema: tem,
+        observaciones: rec || "—", fecha: fechaCompleta,
+        hora: horaCompleta, mes: mesActual, timestamp: Date.now()
+    })
+    .then(() => {
+        toast("Atención registrada correctamente");
+        document.getElementById("nombre").value = "";
+        document.getElementById("tema").value = "";
+        document.getElementById("recursos").value = "";
+    })
+    .catch(err => { console.error(err); toast("Error al guardar. Revise su conexión."); })
+    .finally(() => { btn.disabled = false; btn.innerHTML = "Registrar Atención"; });
 }
 
-function verDashboard(){
-  if(clave.value === PASSWORD){
-    document.getElementById("formulario").style.display = "none";
-    document.getElementById("dashboard").style.display = "block";
-    cargarDatos();
-  } else {
-    alert("Clave incorrecta");
-  }
+// ===== ELIMINAR REGISTRO (solo admin) =====
+function eliminarRegistro(key, desc) {
+    const pass = prompt("🔐 Ingrese la clave de administrador para eliminar:");
+    if (!pass) return;
+    if (pass !== "Yarvin24") { alert("❌ Clave incorrecta. No se puede eliminar."); return; }
+    if (!confirm(`¿Está seguro de eliminar este registro?\n\n${desc}`)) return;
+    db.ref('atenciones_personales/' + key).remove()
+        .then(() => { toast("Registro eliminado correctamente"); generarReporteMensual(); })
+        .catch(err => { console.error(err); toast("Error al eliminar"); });
 }
 
-async function cargarDatos(){
-  const url = `https://opensheet.elk.sh/${SHEET_ID}/Sheet1`;
-  let res = await fetch(url);
-  let data = await res.json();
+// ===== OBTENER PRIMER NOMBRE =====
+// Los nombres tienen formato: "APELLIDO1 APELLIDO2 NOMBRE"
+// La 3ra palabra es el primer nombre
+function primerNombre(nombreCompleto) {
+    const partes = nombreCompleto.trim().split(/\s+/);
+    if (partes.length >= 3) return partes[2];
+    return partes[partes.length - 1];
+}
 
-  let grados = {1:0,2:0,3:0,4:0,5:0};
-  let areas = {};
+// ===== ABREVIAR GRADO =====
+function abreviarGrado(grado) {
+    return grado
+        .replace('DIRECTIVOS', 'Dir.')
+        .replace('PSICÓLOGO (A)', 'Psic.')
+        .replace('VISITA EXTERNA', 'Visita');
+}
 
-  data.forEach(d => {
-    grados[d.Grado]++;
+// ===== ETIQUETA: Nombre Grado Sección =====
+function etiquetaPersona(r) {
+    const nombre = primerNombre(r.docente);
+    const grado  = abreviarGrado(r.grado);
+    const especial = ['DIRECTIVOS','PSICÓLOGO (A)','VISITA EXTERNA'].includes(r.seccion);
+    return especial ? `${nombre} ${grado}` : `${nombre} ${grado} ${r.seccion}`;
+}
 
-    if(!areas[d["Área"]]) areas[d["Área"]] = 0;
-    areas[d["Área"]]++;
-  });
-
-  new Chart(document.getElementById('graficoGrado'), {
-    type: 'bar',
-    data: {
-      labels: Object.keys(grados),
-      datasets: [{ label:'Uso por grado', data:Object.values(grados) }]
+// ===== ACCESO ADMIN =====
+async function checkAdmin() {
+    const pass = prompt("Ingrese clave de administrador:");
+    if (!pass) return;
+    if (pass === "Yarvin24") {
+        document.getElementById("panelAdmin").style.display = "block";
+        const hoy = new Date().toISOString().slice(0, 7);
+        document.getElementById("mesFiltro").value = hoy.startsWith("2026") ? hoy : "2026-01";
+        generarReporteMensual();
+        setTimeout(() => window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' }), 100);
+    } else {
+        alert("❌ Clave incorrecta");
     }
-  });
+}
 
-  new Chart(document.getElementById('graficoArea'), {
-    type: 'bar',
-    data: {
-      labels: Object.keys(areas),
-      datasets: [{ label:'Uso por área', data:Object.values(areas) }]
+function cerrarAdmin() {
+    document.getElementById("panelAdmin").style.display = "none";
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ===== GENERAR REPORTE MENSUAL =====
+let miChart = null;
+
+function generarReporteMensual() {
+    const mes = document.getElementById("mesFiltro").value;
+    if (!mes) return;
+    if (!mes.startsWith("2026")) { toast("Solo se muestran datos del año 2026"); return; }
+
+    const tabla = document.getElementById("tablaCuerpo");
+    tabla.innerHTML = "<tr><td colspan='7' style='text-align:center;padding:20px;color:#aaa'>Cargando datos...</td></tr>";
+    ["statTotal","statPersonas","statDias","statSemana"].forEach(id => document.getElementById(id).textContent = "—");
+    document.getElementById("statsPersonal").innerHTML = "";
+
+    db.ref('atenciones_personales').orderByChild('timestamp').once('value', snap => {
+        const data = snap.val() || {};
+
+        const registros = Object.entries(data)
+            .filter(([, r]) => r.mes === mes)
+            .sort((a, b) => b[1].timestamp - a[1].timestamp)
+            .map(([key, r]) => ({ ...r, _key: key }));
+
+        // Estadísticas generales
+        const totalAtenciones = registros.length;
+        const personasUnicas  = new Set(registros.map(r => r.docente)).size;
+        const diasUnicos      = new Set(registros.map(r => r.fecha)).size;
+        const promSemana      = diasUnicos > 0 ? (totalAtenciones / Math.ceil(diasUnicos / 5)).toFixed(1) : 0;
+
+        document.getElementById("statTotal").textContent    = totalAtenciones;
+        document.getElementById("statPersonas").textContent = personasUnicas;
+        document.getElementById("statDias").textContent     = diasUnicos;
+        document.getElementById("statSemana").textContent   = promSemana;
+
+        // Estadística por persona (Nombre Grado Sección)
+        const porPersona = {};
+        registros.forEach(r => {
+            const lbl = etiquetaPersona(r);
+            porPersona[lbl] = (porPersona[lbl] || 0) + 1;
+        });
+
+        const statsEl = document.getElementById("statsPersonal");
+        if (Object.keys(porPersona).length === 0) {
+            statsEl.innerHTML = '<span style="color:#aaa;font-size:13px">Sin registros</span>';
+        } else {
+            statsEl.innerHTML = Object.entries(porPersona)
+                .sort((a, b) => b[1] - a[1])
+                .map(([lbl, cnt]) => `
+                    <div class="stat-persona-badge">
+                        ${lbl}
+                        <span class="cnt">${cnt}</span>
+                    </div>
+                `).join('');
+        }
+
+        // Tabla con botón eliminar
+        if (registros.length === 0) {
+            tabla.innerHTML = `<tr><td colspan="7"><div class="empty-state"><span class="icon">—</span>No hay registros para este mes.</div></td></tr>`;
+        } else {
+            tabla.innerHTML = registros.map(reg => `
+                <tr>
+                    <td><b>${reg.fecha}</b><br><small style="color:#888">${reg.hora}</small></td>
+                    <td><b>${reg.docente}</b></td>
+                    <td>${reg.nombre || '—'}</td>
+                    <td><span class="badge-grado">${reg.grado} ${reg.seccion === 'N/A' ? '' : reg.seccion}</span></td>
+                    <td>${reg.tema}</td>
+                    <td style="color:#666">${reg.observaciones}</td>
+                    <td style="text-align:center">
+                        <button class="btn-eliminar"
+                            onclick="eliminarRegistro('${reg._key}', '${reg.docente.replace(/'/g,"\\'")} — ${reg.fecha}')">
+                            Eliminar
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // Gráfico con etiqueta Nombre Grado Sección
+        const conteoGrafico = {};
+        registros.forEach(r => {
+            const lbl = etiquetaPersona(r);
+            conteoGrafico[lbl] = (conteoGrafico[lbl] || 0) + 1;
+        });
+
+        const etiquetas = Object.entries(conteoGrafico).sort((a,b) => b[1]-a[1]).map(e => e[0]);
+        const valores   = etiquetas.map(e => conteoGrafico[e]);
+
+        const ctx = document.getElementById('graficoAsistencia').getContext('2d');
+        if (miChart) miChart.destroy();
+        miChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: etiquetas,
+                datasets: [{
+                    label: 'Atenciones en el mes',
+                    data: valores,
+                    backgroundColor: etiquetas.map((_, i) => `hsl(${210 + i * 15}, 70%, ${55 + i * 2}%)`),
+                    borderRadius: 6,
+                    borderSkipped: false
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: { callbacks: { label: ctx => ` ${ctx.parsed.y} atención(es)` } }
+                },
+                scales: {
+                    y: { beginAtZero: true, ticks: { stepSize: 1 }, grid: { color: '#f0f0f0' } },
+                    x: { grid: { display: false } }
+                }
+            }
+        });
+    })
+    .catch(err => {
+        console.error(err);
+        tabla.innerHTML = "<tr><td colspan='7' style='text-align:center;color:red'>Error al cargar los datos</td></tr>";
+    });
+}
+
+// ===== DESCARGAR PDF =====
+async function descargarPDF() {
+    const mes = document.getElementById("mesFiltro").value;
+    const mesLabel = mes ? new Date(mes + '-01').toLocaleDateString('es-PE', { year: 'numeric', month: 'long' }) : 'informe';
+    const btn = document.querySelector('.btn-imprimir');
+    btn.disabled = true;
+    btn.textContent = 'Generando PDF...';
+
+    // Ocultar botones de eliminar temporalmente
+    document.querySelectorAll('.btn-eliminar').forEach(b => b.style.visibility = 'hidden');
+    // Ocultar columna acción en el thead
+    document.querySelectorAll('thead th:last-child').forEach(th => th.style.visibility = 'hidden');
+    // Ocultar botones que no deben aparecer en el PDF
+    const btnCerrar = document.querySelector('.btn-cerrar');
+    const filtroMensual = document.querySelector('.filtro-mensual');
+    if (btnCerrar) btnCerrar.style.display = 'none';
+    if (filtroMensual) filtroMensual.style.display = 'none';
+
+    const { jsPDF } = window.jspdf;
+    const panel = document.getElementById('panelAdmin');
+
+    try {
+        const canvas = await html2canvas(panel, {
+            scale: 1.8,
+            useCORS: true,
+            backgroundColor: '#ffffff',
+            scrollY: -window.scrollY,
+            windowWidth: panel.scrollWidth,
+            windowHeight: panel.scrollHeight
+        });
+
+        const imgData = canvas.toDataURL('image/jpeg', 0.92);
+        const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+        const pageW = pdf.internal.pageSize.getWidth();
+        const pageH = pdf.internal.pageSize.getHeight();
+        const margin = 10;
+        const usableW = pageW - margin * 2;
+        const imgW = canvas.width;
+        const imgH = canvas.height;
+        const ratio = usableW / imgW;
+        const totalH = imgH * ratio;
+        let posY = 0;
+        let page = 0;
+
+        while (posY < totalH) {
+            if (page > 0) pdf.addPage();
+            const sliceH = Math.min(pageH - margin * 2, totalH - posY);
+            const srcY = posY / ratio;
+            const srcH = sliceH / ratio;
+
+            const sliceCanvas = document.createElement('canvas');
+            sliceCanvas.width = imgW;
+            sliceCanvas.height = srcH;
+            const ctx2 = sliceCanvas.getContext('2d');
+            ctx2.drawImage(canvas, 0, srcY, imgW, srcH, 0, 0, imgW, srcH);
+            const sliceData = sliceCanvas.toDataURL('image/jpeg', 0.92);
+            pdf.addImage(sliceData, 'JPEG', margin, margin, usableW, sliceH);
+
+            posY += sliceH;
+            page++;
+        }
+
+        pdf.save(`Informe_Atenciones_${mesLabel.replace(/ /g,'_')}.pdf`);
+        toast("PDF descargado correctamente");
+    } catch (e) {
+        console.error(e);
+        toast("Error al generar el PDF");
+    } finally {
+        document.querySelectorAll('.btn-eliminar').forEach(b => b.style.visibility = '');
+        document.querySelectorAll('thead th:last-child').forEach(th => th.style.visibility = '');
+        if (btnCerrar) btnCerrar.style.display = '';
+        if (filtroMensual) filtroMensual.style.display = '';
+        btn.disabled = false;
+        btn.textContent = 'Descargar PDF';
     }
-  });
+}
+
+// ===== TOAST =====
+function toast(msg) {
+    const t = document.getElementById("toast");
+    t.textContent = msg;
+    t.className = "show";
+    setTimeout(() => { t.className = ""; }, 3000);
 }
 </script>
-
 </body>
 </html>
