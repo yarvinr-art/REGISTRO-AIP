@@ -155,6 +155,35 @@
         }
         .campo-aip-condicional { transition: max-height 0.35s ease, opacity 0.3s ease; overflow: hidden; max-height: 400px; opacity: 1; }
         .campo-aip-condicional.oculto { max-height: 0; opacity: 0; pointer-events: none; }
+        .hora-programada-wrap { transition: max-height 0.35s ease, opacity 0.3s ease; overflow: hidden; max-height: 0; opacity: 0; pointer-events: none; }
+        .hora-programada-wrap.visible { max-height: 120px; opacity: 1; pointer-events: auto; }
+        .hora-programada-wrap .horas-title { font-size:12px; font-weight:800; text-transform:uppercase; letter-spacing:1px; color:#b45309; display:block; margin-bottom:8px; }
+        .hora-programada-wrap .horas-grid { display:flex; flex-wrap:wrap; gap:8px; }
+
+        /* === SESIÓN PRESENTADA TOGGLE === */
+        .sesion-row {
+            display: flex; align-items: center; gap: 10px;
+            margin-bottom: 14px; flex-wrap: wrap;
+        }
+        .sesion-label-txt {
+            font-size: 12px; font-weight: 800; text-transform: uppercase;
+            letter-spacing: 1px; color: var(--text-muted); flex-shrink: 0;
+        }
+        .sesion-toggle { display: flex; gap: 6px; }
+        .sesion-chip {
+            padding: 8px 20px; border-radius: 50px; font-size: 12px;
+            font-weight: 800; letter-spacing: 1px; text-transform: uppercase;
+            cursor: pointer; border: 2px solid #e5e7eb;
+            background: #f9fafb; color: #6b7280;
+            transition: all 0.22s cubic-bezier(0.22,1,0.36,1);
+            user-select: none; position: relative;
+        }
+        .sesion-chip input { position: absolute; opacity: 0; width: 0; height: 0; }
+        .sesion-chip:hover { border-color: #9ca3af; color: #374151; }
+        .sesion-chip.si.selected  { background: #dcfce7; border-color: #16a34a; color: #15803d; box-shadow: 0 0 0 3px rgba(22,163,74,0.15); }
+        .sesion-chip.no.selected  { background: #fee2e2; border-color: #dc2626; color: #b91c1c; box-shadow: 0 0 0 3px rgba(220,38,38,0.15); }
+        .badge-sesion-si  { display:inline-block; padding:3px 10px; border-radius:50px; background:#dcfce7; color:#15803d; font-size:11px; font-weight:800; border:1px solid #86efac; }
+        .badge-sesion-no  { display:inline-block; padding:3px 10px; border-radius:50px; background:#fee2e2; color:#b91c1c; font-size:11px; font-weight:800; border:1px solid #fca5a5; }
 
         /* === FIREBASE STATUS === */
         .firebase-status { display:flex; align-items:center; gap:7px; background:rgba(0,0,0,0.25); border-radius:50px; padding:5px 14px 5px 10px; border:1px solid rgba(255,255,255,0.15); backdrop-filter:blur(6px); font-size:11px; font-weight:700; color:rgba(255,255,255,0.85); letter-spacing:0.8px; text-transform:uppercase; flex-shrink:0; }
@@ -513,6 +542,21 @@
                         <span>Marcar si el docente fue programado pero no asistió al aula</span>
                     </div>
                 </label>
+                <!-- Hora programada — solo visible cuando NO INGRESÓ está activo -->
+                <div class="hora-programada-wrap" id="aip-hora-programada-wrap">
+                    <div class="horas-selector aip" style="background:#fff8f0;border:1.5px solid #fdd8a0;border-radius:8px;padding:14px 16px;margin-bottom:14px;">
+                        <label class="horas-title">🕐 Hora programada que debía ingresar <span style="font-weight:500;color:#9aa0b8;font-size:10px;text-transform:none;letter-spacing:0">(obligatorio)</span></label>
+                        <div class="horas-grid" id="aip-hora-programada-grid">
+                            <label class="hora-chip aip-chip" onclick="toggleHoraProg(this)"><input type="checkbox" value="1ERA">1ERA</label>
+                            <label class="hora-chip aip-chip" onclick="toggleHoraProg(this)"><input type="checkbox" value="2DA">2DA</label>
+                            <label class="hora-chip aip-chip" onclick="toggleHoraProg(this)"><input type="checkbox" value="3ERA">3ERA</label>
+                            <label class="hora-chip aip-chip" onclick="toggleHoraProg(this)"><input type="checkbox" value="4TA">4TA</label>
+                            <label class="hora-chip aip-chip" onclick="toggleHoraProg(this)"><input type="checkbox" value="5TA">5TA</label>
+                            <label class="hora-chip aip-chip" onclick="toggleHoraProg(this)"><input type="checkbox" value="6TA">6TA</label>
+                            <label class="hora-chip aip-chip" onclick="toggleHoraProg(this)"><input type="checkbox" value="7MA">7MA</label>
+                        </div>
+                    </div>
+                </div>
                 <div class="form-grid">
                     <select id="aip-area" class="aip-input">
                         <option value="">Seleccione el área...</option>
@@ -553,6 +597,18 @@
                         </div>
                     </div>
                 </div>
+                <!-- Toggle SESIÓN PRESENTADA -->
+                <div class="sesion-row" id="aip-sesion-row">
+                    <span class="sesion-label-txt">📋 ¿Presentó su sesión de aprendizaje?</span>
+                    <div class="sesion-toggle">
+                        <label class="sesion-chip si" id="aip-sesion-si" onclick="selectSesion('aip','SI')">
+                            <input type="radio" name="aip-sesion" value="SI"> ✔ Sí
+                        </label>
+                        <label class="sesion-chip no" id="aip-sesion-no" onclick="selectSesion('aip','NO')">
+                            <input type="radio" name="aip-sesion" value="NO"> ✘ No
+                        </label>
+                    </div>
+                </div>
                 <button class="btn-main btn-aip" id="btnAIP" onclick="registrarAIP()">✔ Registrar Asistencia — AIP</button>
             </div>
             <div style="margin-top:40px;border-top:1px solid #e8eaf0;padding-top:20px;text-align:center;">
@@ -577,7 +633,7 @@
                     <div class="tabla-container">
                         <table><thead class="aip"><tr>
                             <th style="width:110px">Fecha/Hora</th><th>Área</th><th>Nombre</th>
-                            <th style="width:100px">Grado/Secc.</th><th>Horas</th><th>Tema</th><th>Recursos</th>
+                            <th style="width:100px">Grado/Secc.</th><th>Horas</th><th>Sesión</th><th>Tema</th><th>Recursos</th>
                             <th style="width:80px;text-align:center">Acción</th>
                         </tr></thead><tbody id="aip-tablaCuerpo"></tbody></table>
                     </div>
@@ -655,6 +711,19 @@
                         <label class="hora-chip crt-chip" onclick="toggleHoraCRT(this)"><input type="checkbox" value="7MA">7MA</label>
                     </div>
                 </div>
+                </div>
+                <!-- Toggle SESIÓN PRESENTADA -->
+                <div class="sesion-row">
+                    <span class="sesion-label-txt">📋 ¿Presentó su sesión de aprendizaje?</span>
+                    <div class="sesion-toggle">
+                        <label class="sesion-chip si" id="crt-sesion-si" onclick="selectSesion('crt','SI')">
+                            <input type="radio" name="crt-sesion" value="SI"> ✔ Sí
+                        </label>
+                        <label class="sesion-chip no" id="crt-sesion-no" onclick="selectSesion('crt','NO')">
+                            <input type="radio" name="crt-sesion" value="NO"> ✘ No
+                        </label>
+                    </div>
+                </div>
                 <button class="btn-main btn-crt" id="btnCRT" onclick="registrarCRT()">✔ Registrar Asistencia — CRT</button>
             </div>
             <div style="margin-top:40px;border-top:1px solid #e8eaf0;padding-top:20px;text-align:center;">
@@ -681,7 +750,7 @@
                             <th style="width:110px">Fecha/Hora</th><th style="width:90px">Tipo</th>
                             <th>Nombre</th><th>Área/Cargo</th>
                             <th style="width:100px">Grado/Secc.</th><th>Actividad</th>
-                            <th>Tema</th><th>Recursos</th>
+                            <th>Sesión</th><th>Tema</th><th>Recursos</th>
                             <th style="width:80px;text-align:center">Acción</th>
                         </tr></thead><tbody id="crt-tablaCuerpo"></tbody></table>
                     </div>
@@ -872,11 +941,22 @@ function toggleNoIngreso() {
     const cb = document.getElementById('aip-no-ingreso');
     const wrap = document.getElementById('noIngresoWrap');
     const campos = document.getElementById('aip-campos-asistencia');
+    const horaProgWrap = document.getElementById('aip-hora-programada-wrap');
     const btn = document.getElementById('btnAIP');
-    // If called from label onclick, toggle manually
     const activo = cb.checked;
     wrap.classList.toggle('activo', activo);
     campos.classList.toggle('oculto', activo);
+    horaProgWrap.classList.toggle('visible', activo);
+    // Ocultar toggle de sesión si no ingresó
+    const sesionRow = document.getElementById('aip-sesion-row');
+    if (sesionRow) sesionRow.style.display = activo ? 'none' : 'flex';
+    if (!activo) {
+        // Limpiar hora programada al desactivar
+        document.querySelectorAll('#aip-hora-programada-grid .hora-chip').forEach(c => {
+            c.classList.remove('selected');
+            c.querySelector('input').checked = false;
+        });
+    }
     if (activo) {
         btn.innerHTML = '⚠️ Registrar No Ingresó — AIP';
         btn.style.background = 'linear-gradient(135deg,#b45309,#92400e)';
@@ -884,6 +964,17 @@ function toggleNoIngreso() {
         btn.innerHTML = '✔ Registrar Asistencia — AIP';
         btn.style.background = '';
     }
+}
+
+function toggleHoraProg(label) {
+    // Solo una hora programada seleccionable a la vez
+    document.querySelectorAll('#aip-hora-programada-grid .hora-chip').forEach(c => {
+        c.classList.remove('selected');
+        c.querySelector('input').checked = false;
+    });
+    const cb = label.querySelector('input[type=checkbox]');
+    cb.checked = true;
+    label.classList.add('selected');
 }
 
 // ===== REGISTRAR AIP =====
@@ -905,9 +996,15 @@ function registrarAIP() {
         if (horas.length===0){toast("Seleccione al menos una hora de uso");return;}
     }
 
+    if (noIngreso) {
+        const horaProg=[...document.querySelectorAll('#aip-hora-programada-grid input[type=checkbox]:checked')].map(c=>c.value);
+        if (horaProg.length===0){toast("Seleccione la hora en que debía ingresar");return;}
+    }
+
     const rec=noIngreso ? "—" : (document.getElementById("aip-recursos").value.trim() || "—");
     const tem=noIngreso ? "NO INGRESÓ" : document.getElementById("aip-tema").value.trim();
     const horas=noIngreso ? [] : [...document.querySelectorAll('#aip-horas-grid input[type=checkbox]:checked')].map(c=>c.value);
+    const horaProgramada=noIngreso ? ([...document.querySelectorAll('#aip-hora-programada-grid input[type=checkbox]:checked')].map(c=>c.value).join(', ') || "—") : "—";
 
     const btn=document.getElementById("btnAIP");
     btn.disabled=true; btn.innerHTML='<span class="spinner"></span> Guardando...';
@@ -916,12 +1013,16 @@ function registrarAIP() {
         docente:area, nombre:nom, grado:gra, seccion:sec,
         tema:tem, horas:horas.join(', ') || "—",
         observaciones:rec, fecha, hora, mes, timestamp,
-        estado: noIngreso ? "NO_INGRESO" : "ASISTIO"
+        estado: noIngreso ? "NO_INGRESO" : "ASISTIO",
+        horaProgramada: horaProgramada,
+        sesionPresentada: noIngreso ? "—" : getSesion('aip')
     })
     .then(()=>{
         toast(noIngreso ? "⚠️ 'No ingresó' registrado" : "✓ Asistencia AIP registrada");
         ["aip-nombre","aip-tema","aip-recursos"].forEach(id=>document.getElementById(id).value="");
         document.querySelectorAll('#aip-horas-grid .hora-chip').forEach(c=>{c.classList.remove('selected');c.querySelector('input').checked=false;});
+        document.querySelectorAll('#aip-hora-programada-grid .hora-chip').forEach(c=>{c.classList.remove('selected');c.querySelector('input').checked=false;});
+        resetSesion('aip');
         // Reset no ingresó
         document.getElementById('aip-no-ingreso').checked = false;
         toggleNoIngreso();
@@ -952,8 +1053,8 @@ function registrarCRT() {
     const btn=document.getElementById("btnCRT");
     btn.disabled=true; btn.innerHTML='<span class="spinner"></span> Guardando...';
     const {mes,fecha,hora,timestamp}=getFechaHoy();
-    db.ref('atenciones_crt').push({tipo,docente:nom,area:area||'—',grado:gra,seccion:sec,actividad:act,tema:tem,horas:horasCRT.join(', '),observaciones:rec||"—",fecha,hora,mes,timestamp})
-    .then(()=>{ toast("✓ Registro CRT guardado"); ["crt-nombre","crt-tema","crt-recursos"].forEach(id=>document.getElementById(id).value=""); document.getElementById("crt-area").value=""; document.getElementById("crt-actividad").value=""; if(esDocente){document.getElementById("crt-grado").value="";document.getElementById("crt-seccion").value="";} document.querySelectorAll('#crt-horas-grid .hora-chip').forEach(c=>{c.classList.remove('selected');c.querySelector('input').checked=false;}); })
+    db.ref('atenciones_crt').push({tipo,docente:nom,area:area||'—',grado:gra,seccion:sec,actividad:act,tema:tem,horas:horasCRT.join(', '),observaciones:rec||"—",fecha,hora,mes,timestamp,sesionPresentada:getSesion('crt')})
+    .then(()=>{ toast("✓ Registro CRT guardado"); ["crt-nombre","crt-tema","crt-recursos"].forEach(id=>document.getElementById(id).value=""); document.getElementById("crt-area").value=""; document.getElementById("crt-actividad").value=""; if(esDocente){document.getElementById("crt-grado").value="";document.getElementById("crt-seccion").value="";} document.querySelectorAll('#crt-horas-grid .hora-chip').forEach(c=>{c.classList.remove('selected');c.querySelector('input').checked=false;}); resetSesion('crt'); })
     .catch(()=>toast("Error al guardar. Revise su conexión."))
     .finally(()=>{ btn.disabled=false; btn.innerHTML="✔ Registrar Asistencia — CRT"; });
 }
@@ -990,6 +1091,27 @@ function toggleHora(label) {
 function toggleHoraCRT(label) {
     const cb = label.querySelector('input[type=checkbox]');
     label.classList.toggle('selected', cb.checked);
+}
+
+// ===== SESIÓN PRESENTADA =====
+function selectSesion(mod, val) {
+    ['SI','NO'].forEach(v => {
+        const el = document.getElementById(`${mod}-sesion-${v.toLowerCase()}`);
+        if (el) el.classList.toggle('selected', v === val);
+    });
+    const radio = document.querySelector(`input[name="${mod}-sesion"][value="${val}"]`);
+    if (radio) radio.checked = true;
+}
+function getSesion(mod) {
+    const el = document.querySelector(`input[name="${mod}-sesion"]:checked`);
+    return el ? el.value : '—';
+}
+function resetSesion(mod) {
+    ['si','no'].forEach(v => {
+        const el = document.getElementById(`${mod}-sesion-${v}`);
+        if (el) el.classList.remove('selected');
+    });
+    document.querySelectorAll(`input[name="${mod}-sesion"]`).forEach(r => r.checked = false);
 }
 
 // ===== TIPO PERSONA CRT =====
@@ -1074,16 +1196,24 @@ function generarReporte(modulo) {
             let cols;
             if(modulo==='aip'){
                 const esNoIngreso = reg.estado === 'NO_INGRESO' || reg.tema === 'NO INGRESÓ';
+                const horaProg = reg.horaProgramada && reg.horaProgramada !== '—' ? reg.horaProgramada : null;
                 const horasBadge = esNoIngreso
-                    ? `<span class="badge-no-ingreso">⚠ No ingresó</span>`
+                    ? `<span class="badge-no-ingreso">⚠ No ingresó</span>${horaProg ? `<br><span style="font-size:10px;color:#b45309;font-weight:700;margin-top:3px;display:inline-block">📅 Debía: ${horaProg}</span>` : ''}`
                     : (reg.horas && reg.horas !== '—' ? `<span style="font-size:11px;font-weight:700;color:var(--aip-mid);background:var(--aip-bg);padding:3px 10px;border-radius:50px;border:1px solid var(--aip-border)">${reg.horas}</span>` : '<span style="color:#9aa0b8">—</span>');
                 const temaCell = esNoIngreso ? `<span class="badge-no-ingreso">⚠ NO INGRESÓ</span>` : reg.tema;
-                cols=`<td><b>${reg.docente}</b></td><td>${reg.nombre||'—'}</td><td><span class="badge-grado aip">${reg.grado} ${reg.seccion}</span></td><td>${horasBadge}</td>`;
+                const sesionBadge = esNoIngreso ? '<span style="color:#9aa0b8;font-size:11px">—</span>'
+                    : (reg.sesionPresentada === 'SI' ? '<span class="badge-sesion-si">✔ Sí</span>'
+                    : reg.sesionPresentada === 'NO' ? '<span class="badge-sesion-no">✘ No</span>'
+                    : '<span style="color:#9aa0b8;font-size:11px">—</span>');
+                cols=`<td><b>${reg.docente}</b></td><td>${reg.nombre||'—'}</td><td><span class="badge-grado aip">${reg.grado} ${reg.seccion}</span></td><td>${horasBadge}</td><td>${sesionBadge}</td>`;
             } else {
                 const tipoCls=reg.tipo==='DIRECTIVO'?'directivo':reg.tipo==='DOCENTE'?'docente':'otros';
                 const gradoSec=(reg.grado&&reg.grado!=='—')?`<span class="badge-grado crt">${reg.grado} ${reg.seccion}</span>`:'<span style="color:#9aa0b8;font-size:11px">—</span>';
                 const horasBadgeCRT=reg.horas?`<span style="font-size:11px;font-weight:700;color:var(--crt-mid);background:var(--crt-bg);padding:3px 10px;border-radius:50px;border:1px solid var(--crt-border)">${reg.horas}</span>`:'<span style="color:#9aa0b8">—</span>';
-                cols=`<td><span class="badge-tipo ${tipoCls}">${reg.tipo||'—'}</span></td><td><b>${reg.docente}</b></td><td>${reg.area||'—'}</td><td>${gradoSec}</td><td>${horasBadgeCRT}</td><td>${reg.actividad||'—'}</td>`;
+                const sesionBadgeCRT = reg.sesionPresentada === 'SI' ? '<span class="badge-sesion-si">✔ Sí</span>'
+                    : reg.sesionPresentada === 'NO' ? '<span class="badge-sesion-no">✘ No</span>'
+                    : '<span style="color:#9aa0b8;font-size:11px">—</span>';
+                cols=`<td><span class="badge-tipo ${tipoCls}">${reg.tipo||'—'}</span></td><td><b>${reg.docente}</b></td><td>${reg.area||'—'}</td><td>${gradoSec}</td><td>${horasBadgeCRT}</td><td>${reg.actividad||'—'}</td><td>${sesionBadgeCRT}</td>`;
             }
             return `<tr${(reg.estado==='NO_INGRESO'||reg.tema==='NO INGRESÓ')?` style="background:#fffbeb;"`:''}><td><b>${reg.fecha}</b><br><small style="color:#9aa0b8">${reg.hora}</small></td>${cols}<td>${modulo==='aip'?(typeof temaCell!=='undefined'?temaCell:reg.tema):reg.tema}</td><td style="color:#6b7280">${reg.observaciones}</td><td style="text-align:center"><button class="btn-eliminar" onclick="eliminarRegistro('${modulo}','${reg._key}','${reg.docente.replace(/'/g,"\\'")} — ${reg.fecha}')">Eliminar</button></td></tr>`;
         }).join('');
