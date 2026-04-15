@@ -134,6 +134,28 @@
         .subtitulo .tag-gen { color:var(--gen-accent); font-weight:800; }
         .modulo-tag { display:inline-block; margin-top:8px; background:rgba(255,255,255,0.15); color:rgba(255,255,255,0.9); font-size:10px; font-weight:700; padding:4px 12px; border-radius:20px; letter-spacing:1.5px; text-transform:uppercase; border:1px solid rgba(255,255,255,0.2); backdrop-filter:blur(4px); }
 
+        /* === NO INGRESÓ TOGGLE === */
+        .no-ingreso-wrap {
+            display: flex; align-items: center; gap: 12px;
+            margin-bottom: 14px; padding: 12px 16px;
+            background: #fff8f0; border: 1.5px solid #fdd8a0;
+            border-radius: var(--radius-sm); cursor: pointer;
+            transition: all 0.25s ease;
+        }
+        .no-ingreso-wrap:hover { background: #fff0dc; border-color: var(--aip-accent); }
+        .no-ingreso-wrap.activo { background: #fff0dc; border-color: var(--aip-accent); box-shadow: 0 0 0 3px rgba(244,160,32,0.2); }
+        .no-ingreso-wrap input[type=checkbox] { width: 18px; height: 18px; accent-color: var(--aip-accent); cursor: pointer; flex-shrink: 0; }
+        .no-ingreso-label { font-size: 13px; font-weight: 800; color: #b45309; text-transform: uppercase; letter-spacing: 1px; user-select: none; }
+        .no-ingreso-label span { font-weight: 500; color: #92400e; font-size: 11px; text-transform: none; letter-spacing: 0; display: block; margin-top: 1px; }
+        .badge-no-ingreso {
+            display: inline-block; padding: 3px 12px; border-radius: 50px;
+            background: #fef3c7; color: #b45309; font-size: 11px;
+            font-weight: 800; text-transform: uppercase; letter-spacing: 0.8px;
+            border: 1px solid #fcd34d;
+        }
+        .campo-aip-condicional { transition: max-height 0.35s ease, opacity 0.3s ease; overflow: hidden; max-height: 400px; opacity: 1; }
+        .campo-aip-condicional.oculto { max-height: 0; opacity: 0; pointer-events: none; }
+
         /* === FIREBASE STATUS === */
         .firebase-status { display:flex; align-items:center; gap:7px; background:rgba(0,0,0,0.25); border-radius:50px; padding:5px 14px 5px 10px; border:1px solid rgba(255,255,255,0.15); backdrop-filter:blur(6px); font-size:11px; font-weight:700; color:rgba(255,255,255,0.85); letter-spacing:0.8px; text-transform:uppercase; flex-shrink:0; }
         .fb-dot { width:10px; height:10px; border-radius:50%; background:#fbbf24; flex-shrink:0; transition:background 0.4s ease,box-shadow 0.4s ease; }
@@ -483,6 +505,14 @@
         <!-- ======== SECCIÓN AIP ======== -->
         <div id="seccionAIP">
             <div class="panel-asistencia panel-aip">
+                <!-- Toggle NO INGRESÓ -->
+                <label class="no-ingreso-wrap" id="noIngresoWrap" onclick="toggleNoIngreso()">
+                    <input type="checkbox" id="aip-no-ingreso" onclick="event.stopPropagation();toggleNoIngreso()">
+                    <div class="no-ingreso-label">
+                        ⚠️ No ingresó al AIP
+                        <span>Marcar si el docente fue programado pero no asistió al aula</span>
+                    </div>
+                </label>
                 <div class="form-grid">
                     <select id="aip-area" class="aip-input">
                         <option value="">Seleccione el área...</option>
@@ -505,20 +535,22 @@
                         <option>A</option><option>B</option><option>C</option><option>D</option><option>E</option>
                     </select>
                 </div>
-                <div class="form-grid" style="grid-template-columns:1fr 1fr;">
-                    <input type="text" id="aip-tema" class="aip-input" placeholder="Tema trabajado *" maxlength="200">
-                    <input type="text" id="aip-recursos" class="aip-input" placeholder="Recursos usados" maxlength="200">
-                </div>
-                <div class="horas-selector aip">
-                    <label class="horas-title">🕐 Horas de uso del AIP <span style="font-weight:500;color:#9aa0b8;font-size:10px">(selecciona las horas utilizadas)</span></label>
-                    <div class="horas-grid" id="aip-horas-grid">
-                        <label class="hora-chip aip-chip" onclick="toggleHora(this)"><input type="checkbox" value="1ERA">1ERA</label>
-                        <label class="hora-chip aip-chip" onclick="toggleHora(this)"><input type="checkbox" value="2DA">2DA</label>
-                        <label class="hora-chip aip-chip" onclick="toggleHora(this)"><input type="checkbox" value="3ERA">3ERA</label>
-                        <label class="hora-chip aip-chip" onclick="toggleHora(this)"><input type="checkbox" value="4TA">4TA</label>
-                        <label class="hora-chip aip-chip" onclick="toggleHora(this)"><input type="checkbox" value="5TA">5TA</label>
-                        <label class="hora-chip aip-chip" onclick="toggleHora(this)"><input type="checkbox" value="6TA">6TA</label>
-                        <label class="hora-chip aip-chip" onclick="toggleHora(this)"><input type="checkbox" value="7MA">7MA</label>
+                <div id="aip-campos-asistencia" class="campo-aip-condicional">
+                    <div class="form-grid" style="grid-template-columns:1fr 1fr;">
+                        <input type="text" id="aip-tema" class="aip-input" placeholder="Tema trabajado *" maxlength="200">
+                        <input type="text" id="aip-recursos" class="aip-input" placeholder="Recursos usados" maxlength="200">
+                    </div>
+                    <div class="horas-selector aip">
+                        <label class="horas-title">🕐 Horas de uso del AIP <span style="font-weight:500;color:#9aa0b8;font-size:10px">(selecciona las horas utilizadas)</span></label>
+                        <div class="horas-grid" id="aip-horas-grid">
+                            <label class="hora-chip aip-chip" onclick="toggleHora(this)"><input type="checkbox" value="1ERA">1ERA</label>
+                            <label class="hora-chip aip-chip" onclick="toggleHora(this)"><input type="checkbox" value="2DA">2DA</label>
+                            <label class="hora-chip aip-chip" onclick="toggleHora(this)"><input type="checkbox" value="3ERA">3ERA</label>
+                            <label class="hora-chip aip-chip" onclick="toggleHora(this)"><input type="checkbox" value="4TA">4TA</label>
+                            <label class="hora-chip aip-chip" onclick="toggleHora(this)"><input type="checkbox" value="5TA">5TA</label>
+                            <label class="hora-chip aip-chip" onclick="toggleHora(this)"><input type="checkbox" value="6TA">6TA</label>
+                            <label class="hora-chip aip-chip" onclick="toggleHora(this)"><input type="checkbox" value="7MA">7MA</label>
+                        </div>
                     </div>
                 </div>
                 <button class="btn-main btn-aip" id="btnAIP" onclick="registrarAIP()">✔ Registrar Asistencia — AIP</button>
@@ -835,28 +867,67 @@ function getFechaHoy() {
     };
 }
 
+// ===== TOGGLE NO INGRESÓ AIP =====
+function toggleNoIngreso() {
+    const cb = document.getElementById('aip-no-ingreso');
+    const wrap = document.getElementById('noIngresoWrap');
+    const campos = document.getElementById('aip-campos-asistencia');
+    const btn = document.getElementById('btnAIP');
+    // If called from label onclick, toggle manually
+    const activo = cb.checked;
+    wrap.classList.toggle('activo', activo);
+    campos.classList.toggle('oculto', activo);
+    if (activo) {
+        btn.innerHTML = '⚠️ Registrar No Ingresó — AIP';
+        btn.style.background = 'linear-gradient(135deg,#b45309,#92400e)';
+    } else {
+        btn.innerHTML = '✔ Registrar Asistencia — AIP';
+        btn.style.background = '';
+    }
+}
+
 // ===== REGISTRAR AIP =====
 function registrarAIP() {
+    const noIngreso = document.getElementById('aip-no-ingreso').checked;
     const area=document.getElementById("aip-area").value.trim();
     const nom=document.getElementById("aip-nombre").value.trim();
     const gra=document.getElementById("aip-grado").value.trim();
     const sec=document.getElementById("aip-seccion").value.trim();
-    const tem=document.getElementById("aip-tema").value.trim();
-    const rec=document.getElementById("aip-recursos").value.trim();
-    const horas=[...document.querySelectorAll('#aip-horas-grid input[type=checkbox]:checked')].map(c=>c.value);
     if (!area){toast("Seleccione el área");return;}
     if (!nom){toast("Ingrese el nombre del docente");return;}
     if (!gra){toast("Seleccione el grado");return;}
     if (!sec){toast("Seleccione la sección");return;}
-    if (!tem){toast("Ingrese el tema trabajado");return;}
-    if (horas.length===0){toast("Seleccione al menos una hora de uso");return;}
+
+    if (!noIngreso) {
+        const tem=document.getElementById("aip-tema").value.trim();
+        const horas=[...document.querySelectorAll('#aip-horas-grid input[type=checkbox]:checked')].map(c=>c.value);
+        if (!tem){toast("Ingrese el tema trabajado");return;}
+        if (horas.length===0){toast("Seleccione al menos una hora de uso");return;}
+    }
+
+    const rec=noIngreso ? "—" : (document.getElementById("aip-recursos").value.trim() || "—");
+    const tem=noIngreso ? "NO INGRESÓ" : document.getElementById("aip-tema").value.trim();
+    const horas=noIngreso ? [] : [...document.querySelectorAll('#aip-horas-grid input[type=checkbox]:checked')].map(c=>c.value);
+
     const btn=document.getElementById("btnAIP");
     btn.disabled=true; btn.innerHTML='<span class="spinner"></span> Guardando...';
     const {mes,fecha,hora,timestamp}=getFechaHoy();
-    db.ref('atenciones_aip').push({docente:area,nombre:nom,grado:gra,seccion:sec,tema:tem,horas:horas.join(', '),observaciones:rec||"—",fecha,hora,mes,timestamp})
-    .then(()=>{ toast("✓ Asistencia AIP registrada"); ["aip-nombre","aip-tema","aip-recursos"].forEach(id=>document.getElementById(id).value=""); document.querySelectorAll('#aip-horas-grid .hora-chip').forEach(c=>{c.classList.remove('selected');c.querySelector('input').checked=false;}); })
+    db.ref('atenciones_aip').push({
+        docente:area, nombre:nom, grado:gra, seccion:sec,
+        tema:tem, horas:horas.join(', ') || "—",
+        observaciones:rec, fecha, hora, mes, timestamp,
+        estado: noIngreso ? "NO_INGRESO" : "ASISTIO"
+    })
+    .then(()=>{
+        toast(noIngreso ? "⚠️ 'No ingresó' registrado" : "✓ Asistencia AIP registrada");
+        ["aip-nombre","aip-tema","aip-recursos"].forEach(id=>document.getElementById(id).value="");
+        document.querySelectorAll('#aip-horas-grid .hora-chip').forEach(c=>{c.classList.remove('selected');c.querySelector('input').checked=false;});
+        // Reset no ingresó
+        document.getElementById('aip-no-ingreso').checked = false;
+        toggleNoIngreso();
+    })
     .catch(()=>toast("Error al guardar. Revise su conexión."))
-    .finally(()=>{ btn.disabled=false; btn.innerHTML="✔ Registrar Asistencia — AIP"; });
+    .finally(()=>{ btn.disabled=false; btn.innerHTML="✔ Registrar Asistencia — AIP"; btn.style.background=''; });
 }
 
 // ===== REGISTRAR CRT =====
@@ -1002,7 +1073,11 @@ function generarReporte(modulo) {
         tabla.innerHTML=registros.length===0?`<tr><td colspan="${modulo==='crt'?10:9}"><div class="empty-state">📭 No hay registros para este mes.</div></td></tr>`:registros.map(reg=>{
             let cols;
             if(modulo==='aip'){
-                const horasBadge=reg.horas?`<span style="font-size:11px;font-weight:700;color:var(--aip-mid);background:var(--aip-bg);padding:3px 10px;border-radius:50px;border:1px solid var(--aip-border)">${reg.horas}</span>`:'<span style="color:#9aa0b8">—</span>';
+                const esNoIngreso = reg.estado === 'NO_INGRESO' || reg.tema === 'NO INGRESÓ';
+                const horasBadge = esNoIngreso
+                    ? `<span class="badge-no-ingreso">⚠ No ingresó</span>`
+                    : (reg.horas && reg.horas !== '—' ? `<span style="font-size:11px;font-weight:700;color:var(--aip-mid);background:var(--aip-bg);padding:3px 10px;border-radius:50px;border:1px solid var(--aip-border)">${reg.horas}</span>` : '<span style="color:#9aa0b8">—</span>');
+                const temaCell = esNoIngreso ? `<span class="badge-no-ingreso">⚠ NO INGRESÓ</span>` : reg.tema;
                 cols=`<td><b>${reg.docente}</b></td><td>${reg.nombre||'—'}</td><td><span class="badge-grado aip">${reg.grado} ${reg.seccion}</span></td><td>${horasBadge}</td>`;
             } else {
                 const tipoCls=reg.tipo==='DIRECTIVO'?'directivo':reg.tipo==='DOCENTE'?'docente':'otros';
@@ -1010,7 +1085,7 @@ function generarReporte(modulo) {
                 const horasBadgeCRT=reg.horas?`<span style="font-size:11px;font-weight:700;color:var(--crt-mid);background:var(--crt-bg);padding:3px 10px;border-radius:50px;border:1px solid var(--crt-border)">${reg.horas}</span>`:'<span style="color:#9aa0b8">—</span>';
                 cols=`<td><span class="badge-tipo ${tipoCls}">${reg.tipo||'—'}</span></td><td><b>${reg.docente}</b></td><td>${reg.area||'—'}</td><td>${gradoSec}</td><td>${horasBadgeCRT}</td><td>${reg.actividad||'—'}</td>`;
             }
-            return `<tr><td><b>${reg.fecha}</b><br><small style="color:#9aa0b8">${reg.hora}</small></td>${cols}<td>${reg.tema}</td><td style="color:#6b7280">${reg.observaciones}</td><td style="text-align:center"><button class="btn-eliminar" onclick="eliminarRegistro('${modulo}','${reg._key}','${reg.docente.replace(/'/g,"\\'")} — ${reg.fecha}')">Eliminar</button></td></tr>`;
+            return `<tr${(reg.estado==='NO_INGRESO'||reg.tema==='NO INGRESÓ')?` style="background:#fffbeb;"`:''}><td><b>${reg.fecha}</b><br><small style="color:#9aa0b8">${reg.hora}</small></td>${cols}<td>${modulo==='aip'?(typeof temaCell!=='undefined'?temaCell:reg.tema):reg.tema}</td><td style="color:#6b7280">${reg.observaciones}</td><td style="text-align:center"><button class="btn-eliminar" onclick="eliminarRegistro('${modulo}','${reg._key}','${reg.docente.replace(/'/g,"\\'")} — ${reg.fecha}')">Eliminar</button></td></tr>`;
         }).join('');
 
         const conteo={};
