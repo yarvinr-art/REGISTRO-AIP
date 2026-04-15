@@ -243,6 +243,7 @@
         .btn-admin.aip-admin:hover { color:var(--aip-light); border-color:var(--aip-light); background:var(--aip-bg); }
         .btn-admin.crt-admin:hover { color:var(--crt-light); border-color:var(--crt-light); background:var(--crt-bg); }
         .btn-admin.atp-admin:hover { color:var(--atp-light); border-color:var(--atp-light); background:var(--atp-bg); }
+        .btn-admin.gen-admin:hover { color:var(--gen-mid); border-color:var(--gen-accent); background:var(--gen-bg); }
 
         /* === ADMIN PANEL === */
         .panel-admin { margin-top:32px; background:var(--surface); border-radius:var(--radius-lg); display:none; text-align:left; overflow:hidden; box-shadow:0 8px 40px rgba(13,27,75,0.12),0 2px 8px rgba(13,27,75,0.06); border:1.5px solid; }
@@ -321,6 +322,16 @@
 
         /* === CHART & TABLE === */
         .grafico-wrap { height:250px; margin-bottom:28px; background:var(--surface-2); border-radius:var(--radius-md); padding:12px; border:1.5px solid #e8eaf0; }
+        /* === MULTI-CHART GRID === */
+        .graficos-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:16px; margin-bottom:28px; }
+        .grafico-card { background:var(--surface-2); border-radius:var(--radius-md); padding:14px 14px 10px; border:1.5px solid #e8eaf0; }
+        .grafico-card-title { font-family:'Space Mono',monospace; font-size:9px; font-weight:700; text-transform:uppercase; letter-spacing:1.5px; color:var(--text-muted); margin-bottom:8px; display:flex; align-items:center; gap:5px; }
+        .grafico-card-title.aip { color:var(--aip-mid); }
+        .grafico-card-title.crt { color:var(--crt-mid); }
+        .grafico-card-title.atp { color:var(--atp-mid); }
+        .grafico-card-title.gen { color:var(--gen-mid); }
+        .grafico-card .chart-container { height:200px; position:relative; }
+        .grafico-card.mini .chart-container { height:160px; }
         .tabla-container { overflow-x:auto; margin-top:12px; border-radius:var(--radius-md); border:1.5px solid #e8eaf0; box-shadow:0 2px 10px rgba(0,0,0,0.04); }
         table { width:100%; border-collapse:collapse; font-size:13px; }
         thead th { color:white; padding:14px 12px; text-align:left; font-family:'Space Mono',monospace; font-weight:700; font-size:10px; text-transform:uppercase; letter-spacing:1px; }
@@ -611,8 +622,8 @@
                 </div>
                 <button class="btn-main btn-aip" id="btnAIP" onclick="registrarAIP()">✔ Registrar Asistencia — AIP</button>
             </div>
-            <div style="margin-top:40px;border-top:1px solid #e8eaf0;padding-top:20px;text-align:center;">
-                <button class="btn-admin aip-admin" onclick="checkAdmin('aip')">🔐 Acceso Administrador — Informe AIP</button>
+            <div id="acceso-informe-aip" style="display:none;margin-top:40px;border-top:1px solid #e8eaf0;padding-top:20px;text-align:center;">
+                <button class="btn-admin aip-admin" onclick="abrirInforme('aip')">📊 Ver Informe AIP</button>
             </div>
             <div id="panelAdminAIP" class="panel-admin aip">
                 <div class="panel-admin-header aip">📊 Informe Mensual — Aula de Innovación Pedagógica 2026</div>
@@ -629,7 +640,20 @@
                         <div class="stat-card aip"><div class="stat-num stat-accent-aip" id="aip-statSemana">—</div><div class="stat-label">Prom. por Semana</div></div>
                     </div>
                     <div class="stats-personal aip"><h4>Asistencias por persona</h4><div class="stats-personal-grid" id="aip-statsPersonal"></div></div>
-                    <div class="grafico-wrap"><canvas id="aip-grafico"></canvas></div>
+                    <div class="graficos-grid">
+                        <div class="grafico-card">
+                            <div class="grafico-card-title aip">📊 Asistencias por Docente / Grado</div>
+                            <div class="chart-container"><canvas id="aip-grafico"></canvas></div>
+                        </div>
+                        <div class="grafico-card">
+                            <div class="grafico-card-title aip">📅 Asistencias por Día del Mes</div>
+                            <div class="chart-container"><canvas id="aip-grafico-dias"></canvas></div>
+                        </div>
+                        <div class="grafico-card">
+                            <div class="grafico-card-title aip">📋 Sesión de Aprendizaje Presentada</div>
+                            <div class="chart-container"><canvas id="aip-grafico-sesion"></canvas></div>
+                        </div>
+                    </div>
                     <div class="tabla-container">
                         <table><thead class="aip"><tr>
                             <th style="width:110px">Fecha/Hora</th><th>Área</th><th>Nombre</th>
@@ -726,8 +750,8 @@
                 </div>
                 <button class="btn-main btn-crt" id="btnCRT" onclick="registrarCRT()">✔ Registrar Asistencia — CRT</button>
             </div>
-            <div style="margin-top:40px;border-top:1px solid #e8eaf0;padding-top:20px;text-align:center;">
-                <button class="btn-admin crt-admin" onclick="checkAdmin('crt')">🔐 Acceso Administrador — Informe CRT</button>
+            <div id="acceso-informe-crt" style="display:none;margin-top:40px;border-top:1px solid #e8eaf0;padding-top:20px;text-align:center;">
+                <button class="btn-admin crt-admin" onclick="abrirInforme('crt')">📊 Ver Informe CRT</button>
             </div>
             <div id="panelAdminCRT" class="panel-admin crt">
                 <div class="panel-admin-header crt">📊 Informe Mensual — Centro de Recursos Tecnológicos 2026</div>
@@ -744,7 +768,20 @@
                         <div class="stat-card crt"><div class="stat-num stat-accent-crt" id="crt-statSemana">—</div><div class="stat-label">Prom. por Semana</div></div>
                     </div>
                     <div class="stats-personal crt"><h4>Asistencias por persona</h4><div class="stats-personal-grid" id="crt-statsPersonal"></div></div>
-                    <div class="grafico-wrap"><canvas id="crt-grafico"></canvas></div>
+                    <div class="graficos-grid">
+                        <div class="grafico-card">
+                            <div class="grafico-card-title crt">📊 Registros por Persona</div>
+                            <div class="chart-container"><canvas id="crt-grafico"></canvas></div>
+                        </div>
+                        <div class="grafico-card">
+                            <div class="grafico-card-title crt">👤 Distribución por Tipo de Persona</div>
+                            <div class="chart-container"><canvas id="crt-grafico-tipo"></canvas></div>
+                        </div>
+                        <div class="grafico-card">
+                            <div class="grafico-card-title crt">🖥️ Uso por Tipo de Actividad</div>
+                            <div class="chart-container"><canvas id="crt-grafico-actividad"></canvas></div>
+                        </div>
+                    </div>
                     <div class="tabla-container">
                         <table><thead class="crt"><tr>
                             <th style="width:110px">Fecha/Hora</th><th style="width:90px">Tipo</th>
@@ -792,8 +829,8 @@
                 </div>
                 <button class="btn-main btn-atp" id="btnATP" onclick="registrarATP()">✔ Registrar Atención Personalizada</button>
             </div>
-            <div style="margin-top:40px;border-top:1px solid #e8eaf0;padding-top:20px;text-align:center;">
-                <button class="btn-admin atp-admin" onclick="checkAdmin('atp')">🔐 Acceso Administrador — Informe ATP</button>
+            <div id="acceso-informe-atp" style="display:none;margin-top:40px;border-top:1px solid #e8eaf0;padding-top:20px;text-align:center;">
+                <button class="btn-admin atp-admin" onclick="abrirInforme('atp')">📊 Ver Informe ATP</button>
             </div>
             <div id="panelAdminATP" class="panel-admin atp">
                 <div class="panel-admin-header atp">📊 Informe Mensual — Atención Personalizada 2026</div>
@@ -810,7 +847,20 @@
                         <div class="stat-card atp"><div class="stat-num stat-accent-atp" id="atp-statPromMin">—</div><div class="stat-label">Prom. Min / Atención</div></div>
                     </div>
                     <div class="stats-personal atp"><h4>Atenciones por persona</h4><div class="stats-personal-grid" id="atp-statsPersonal"></div></div>
-                    <div class="grafico-wrap"><canvas id="atp-grafico"></canvas></div>
+                    <div class="graficos-grid">
+                        <div class="grafico-card">
+                            <div class="grafico-card-title atp">👤 Atenciones por Tipo de Persona</div>
+                            <div class="chart-container"><canvas id="atp-grafico"></canvas></div>
+                        </div>
+                        <div class="grafico-card">
+                            <div class="grafico-card-title atp">📚 Atenciones por Área / Cargo</div>
+                            <div class="chart-container"><canvas id="atp-grafico-area"></canvas></div>
+                        </div>
+                        <div class="grafico-card">
+                            <div class="grafico-card-title atp">⏱️ Distribución por Tiempo de Atención</div>
+                            <div class="chart-container"><canvas id="atp-grafico-tiempo"></canvas></div>
+                        </div>
+                    </div>
                     <div class="tabla-container">
                         <table><thead class="atp"><tr>
                             <th style="width:110px">Fecha/Hora</th>
@@ -836,7 +886,26 @@
                 </p>
             </div>
             <div style="margin-top:20px;border-top:1px solid #e8eaf0;padding-top:20px;text-align:center;">
-                <button class="btn-admin" style="border-color:#d4d8e8;color:#9aa0b8;" onclick="checkAdmin('gen')">🔐 Acceso Administrador — Informe General</button>
+                <div id="div-btn-admin-unico" style="display:inline-block;">
+                    <button class="btn-admin" style="border-color:#d4d8e8;color:#9aa0b8;font-size:14px;padding:14px 28px;" onclick="checkAdmin()">🔐 Acceso Administrador</button>
+                    <div style="font-size:11px;color:#b0b7c9;margin-top:8px;">Ingrese la clave para acceder a todos los informes</div>
+                </div>
+                <div id="div-admin-activo" style="display:none;">
+                    <div style="display:inline-flex;align-items:center;gap:12px;background:#f0fdf4;border:1.5px solid #86efac;border-radius:12px;padding:12px 22px;">
+                        <span style="font-size:18px;">✅</span>
+                        <div style="text-align:left;">
+                            <div style="font-size:13px;font-weight:800;color:#15803d;text-transform:uppercase;letter-spacing:1px;">Administrador activo</div>
+                            <div style="font-size:11px;color:#16a34a;margin-top:2px;">Los informes están disponibles en cada módulo</div>
+                        </div>
+                        <button onclick="cerrarSesionAdmin()" style="background:#fee2e2;border:1px solid #fca5a5;color:#b91c1c;border-radius:8px;padding:6px 14px;font-size:11px;font-weight:700;cursor:pointer;letter-spacing:0.5px;">✕ Cerrar sesión</button>
+                    </div>
+                    <div style="margin-top:14px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+                        <button class="btn-admin aip-admin" onclick="abrirInforme('aip')" style="min-width:130px;">📊 Informe AIP</button>
+                        <button class="btn-admin crt-admin" onclick="abrirInforme('crt')" style="min-width:130px;">📊 Informe CRT</button>
+                        <button class="btn-admin atp-admin" onclick="abrirInforme('atp')" style="min-width:130px;">📊 Informe ATP</button>
+                        <button class="btn-admin gen-admin" onclick="abrirInforme('gen')" style="min-width:160px;border-color:var(--gen-accent);color:var(--gen-mid);">📋 Informe General</button>
+                    </div>
+                </div>
             </div>
             <div id="panelAdminGEN" class="panel-admin" style="border-color:var(--gen-border);">
                 <div class="panel-admin-header gen" style="background:linear-gradient(135deg,var(--gen-dark),var(--gen-light));">
@@ -848,7 +917,21 @@
                         <input type="month" id="mesFiltroGEN" min="2026-01" max="2026-12" onchange="generarReporteGeneral()">
                         <button class="btn-imprimir gen" onclick="descargarPDFGeneral()">⬇ Descargar PDF</button>
                     </div>
-                    <div class="grafico-wrap" id="genGraficoWrap" style="display:none;margin-bottom:20px;"><canvas id="gen-grafico"></canvas></div>
+                    <div class="grafico-wrap" id="genGraficoWrap" style="display:none;margin-bottom:24px;"><canvas id="gen-grafico"></canvas></div>
+                    <div class="graficos-grid" id="genGraficosSeccion" style="display:none;margin-bottom:24px;">
+                        <div class="grafico-card mini">
+                            <div class="grafico-card-title aip">💻 AIP — Asistencias por Día</div>
+                            <div class="chart-container"><canvas id="gen-aip-grafico"></canvas></div>
+                        </div>
+                        <div class="grafico-card mini">
+                            <div class="grafico-card-title crt">🖥️ CRT — Por Tipo de Persona</div>
+                            <div class="chart-container"><canvas id="gen-crt-grafico"></canvas></div>
+                        </div>
+                        <div class="grafico-card mini">
+                            <div class="grafico-card-title atp">🧑‍🏫 ATP — Por Tipo de Persona</div>
+                            <div class="chart-container"><canvas id="gen-atp-grafico"></canvas></div>
+                        </div>
+                    </div>
                     <div id="genContenido">
                         <div class="empty-state">📭 Seleccione un mes para generar el informe.</div>
                     </div>
@@ -885,7 +968,10 @@ db.ref('.info/connected').on('value', snap => {
     else { fbDot.className='fb-dot error'; fbLabel.textContent='Sin conexión'; }
 });
 
-let chartAIP=null, chartCRT=null, chartATP=null;
+let chartAIP=null, chartAIPDias=null, chartAIPSesion=null,
+    chartCRT=null, chartCRTTipo=null, chartCRTActividad=null,
+    chartATP=null, chartATPArea=null, chartATPTiempo=null,
+    chartGenConsolidado=null, chartGenAIP=null, chartGenCRT=null, chartGenATP=null;
 
 // ===== CAMBIO DE MÓDULO =====
 function cambiarModulo(modulo) {
@@ -1129,11 +1215,29 @@ function selectTipoCRT(label, tipo) {
         document.getElementById('crt-seccion').value = '';
     }
 }
-// ===== ADMIN =====
-function checkAdmin(modulo) {
+// ===== ADMIN (ACCESO ÚNICO) =====
+let adminAutenticado = false;
+
+function checkAdmin() {
     const pass = prompt('Clave de administrador:');
     if (!pass) return;
     if (pass !== "YARVIN2026") { alert("Clave incorrecta"); return; }
+    adminAutenticado = true;
+    // Mostrar estado activo y botones de informe en sección GENERAL
+    document.getElementById('div-btn-admin-unico').style.display = 'none';
+    document.getElementById('div-admin-activo').style.display = 'block';
+    // Mostrar botón de informe en cada sección (AIP, CRT, ATP)
+    ['aip','crt','atp'].forEach(m => {
+        const el = document.getElementById('acceso-informe-' + m);
+        if (el) el.style.display = 'block';
+    });
+    toast("✅ Sesión de administrador iniciada");
+}
+
+function abrirInforme(modulo) {
+    if (!adminAutenticado) { checkAdmin(); return; }
+    // Si no estamos en el módulo correcto, cambiar a él primero
+    cambiarModulo(modulo === 'gen' ? 'gen' : modulo);
     const panelIds={aip:'panelAdminAIP',crt:'panelAdminCRT',atp:'panelAdminATP',gen:'panelAdminGEN'};
     const filtroIds={aip:'mesFiltroAIP',crt:'mesFiltroCRT',atp:'mesFiltroATP',gen:'mesFiltroGEN'};
     document.getElementById(panelIds[modulo]).style.display="block";
@@ -1144,10 +1248,29 @@ function checkAdmin(modulo) {
     setTimeout(()=>window.scrollTo({top:document.body.scrollHeight,behavior:'smooth'}),150);
 }
 
+function cerrarSesionAdmin() {
+    adminAutenticado = false;
+    // Ocultar todos los paneles de informe
+    ['panelAdminAIP','panelAdminCRT','panelAdminATP','panelAdminGEN'].forEach(id=>{
+        document.getElementById(id).style.display='none';
+    });
+    // Ocultar botones de informe en módulos
+    ['aip','crt','atp'].forEach(m => {
+        const el = document.getElementById('acceso-informe-' + m);
+        if (el) el.style.display = 'none';
+    });
+    // Restaurar botón de acceso en GENERAL
+    document.getElementById('div-btn-admin-unico').style.display = 'inline-block';
+    document.getElementById('div-admin-activo').style.display = 'none';
+    window.scrollTo({top:0,behavior:'smooth'});
+    toast("Sesión de administrador cerrada");
+}
+
 function cerrarAdmin(modulo) {
     const ids={aip:'panelAdminAIP',crt:'panelAdminCRT',atp:'panelAdminATP',gen:'panelAdminGEN'};
     document.getElementById(ids[modulo]).style.display="none";
     window.scrollTo({top:0,behavior:'smooth'});
+    // No cierra la sesión, solo el panel
 }
 
 function eliminarRegistro(modulo,key,desc) {
@@ -1167,8 +1290,8 @@ function generarReporte(modulo) {
     if (modulo==='atp') { generarReporteATP(mes); return; }
 
     const p = modulo==='aip'
-        ? {tabla:'aip-tablaCuerpo',total:'aip-statTotal',personas:'aip-statPersonas',dias:'aip-statDias',semana:'aip-statSemana',stats:'aip-statsPersonal',grafico:'aip-grafico'}
-        : {tabla:'crt-tablaCuerpo',total:'crt-statTotal',personas:'crt-statPersonas',dias:'crt-statDias',semana:'crt-statSemana',stats:'crt-statsPersonal',grafico:'crt-grafico'};
+        ? {tabla:'aip-tablaCuerpo',total:'aip-statTotal',personas:'aip-statPersonas',dias:'aip-statDias',semana:'aip-statSemana',stats:'aip-statsPersonal',grafico:'aip-grafico',graficoDias:'aip-grafico-dias',graficoSesion:'aip-grafico-sesion'}
+        : {tabla:'crt-tablaCuerpo',total:'crt-statTotal',personas:'crt-statPersonas',dias:'crt-statDias',semana:'crt-statSemana',stats:'crt-statsPersonal',grafico:'crt-grafico',graficoTipo:'crt-grafico-tipo',graficoActividad:'crt-grafico-actividad'};
 
     const tabla=document.getElementById(p.tabla);
     tabla.innerHTML=`<tr><td colspan="9" style="text-align:center;padding:30px;color:#9aa0b8">Cargando...</td></tr>`;
@@ -1218,6 +1341,7 @@ function generarReporte(modulo) {
             return `<tr${(reg.estado==='NO_INGRESO'||reg.tema==='NO INGRESÓ')?` style="background:#fffbeb;"`:''}><td><b>${reg.fecha}</b><br><small style="color:#9aa0b8">${reg.hora}</small></td>${cols}<td>${modulo==='aip'?(typeof temaCell!=='undefined'?temaCell:reg.tema):reg.tema}</td><td style="color:#6b7280">${reg.observaciones}</td><td style="text-align:center"><button class="btn-eliminar" onclick="eliminarRegistro('${modulo}','${reg._key}','${reg.docente.replace(/'/g,"\\'")} — ${reg.fecha}')">Eliminar</button></td></tr>`;
         }).join('');
 
+        // ===== GRÁFICO 1: Por persona =====
         const conteo={};
         registros.forEach(r=>{ const lbl=modulo==='aip'?`${r.nombre||r.docente} ${r.grado}${r.seccion}`.trim():`${r.docente} ${r.grado}${r.seccion}`.trim(); conteo[lbl]=(conteo[lbl]||0)+1; });
         const etqs=Object.entries(conteo).sort((a,b)=>b[1]-a[1]).map(e=>e[0]);
@@ -1226,8 +1350,47 @@ function generarReporte(modulo) {
         if (modulo==='aip'){if(chartAIP)chartAIP.destroy();}else{if(chartCRT)chartCRT.destroy();}
         const baseColor=modulo==='aip'?[26,48,128]:[30,122,58];
         const accentHex=modulo==='aip'?'#f4a020':'#4ade80';
-        const chart=new Chart(ctx,{type:'bar',data:{labels:etqs,datasets:[{label:'Asistencias',data:vals,backgroundColor:etqs.map((_,i)=>`rgba(${baseColor[0]},${baseColor[1]},${baseColor[2]},${0.7+i*0.03})`),hoverBackgroundColor:accentHex,borderRadius:8,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>` ${c.parsed.y} asistencia(s)`}}},scales:{y:{beginAtZero:true,ticks:{stepSize:1},grid:{color:'#f0f2f8'}},x:{grid:{display:false}}}}});
+        const chart=new Chart(ctx,{type:'bar',data:{labels:etqs,datasets:[{label:'Asistencias',data:vals,backgroundColor:etqs.map((_,i)=>`rgba(${baseColor[0]},${baseColor[1]},${baseColor[2]},${Math.min(0.95,0.6+i*0.05)})`),hoverBackgroundColor:accentHex,borderRadius:6,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>` ${c.parsed.y} registro(s)`}}},scales:{y:{beginAtZero:true,ticks:{stepSize:1},grid:{color:'#f0f2f8'}},x:{grid:{display:false},ticks:{font:{size:9}}}}}});
         if (modulo==='aip')chartAIP=chart;else chartCRT=chart;
+
+        if (modulo==='aip') {
+            // ===== GRÁFICO 2 AIP: Por día del mes =====
+            const pDia={};
+            registros.forEach(r=>{ const d=r.fecha?r.fecha.split('-')[0]:'?'; pDia[d]=(pDia[d]||0)+1; });
+            const dDias=Object.keys(pDia).sort((a,b)=>parseInt(a)-parseInt(b));
+            const vDias=dDias.map(d=>pDia[d]);
+            const ctx2=document.getElementById(p.graficoDias).getContext('2d');
+            if(chartAIPDias)chartAIPDias.destroy();
+            chartAIPDias=new Chart(ctx2,{type:'bar',data:{labels:dDias.map(d=>'Día '+d),datasets:[{label:'Asistencias',data:vDias,backgroundColor:'rgba(35,72,192,0.7)',hoverBackgroundColor:'#f4a020',borderRadius:5,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>` ${c.parsed.y} registro(s)`}}},scales:{y:{beginAtZero:true,ticks:{stepSize:1},grid:{color:'#f0f2f8'}},x:{grid:{display:false},ticks:{font:{size:9}}}}}});
+
+            // ===== GRÁFICO 3 AIP: Sesión Presentada =====
+            const pSesion={SI:0,NO:0,'—':0};
+            registros.forEach(r=>{ const v=r.sesionPresentada||'—'; if(pSesion[v]!==undefined)pSesion[v]++;else pSesion['—']++; });
+            const sesLabels=['✔ Sí presentó','✘ No presentó','Sin dato'];
+            const sesVals=[pSesion.SI,pSesion.NO,pSesion['—']];
+            const ctx3=document.getElementById(p.graficoSesion).getContext('2d');
+            if(chartAIPSesion)chartAIPSesion.destroy();
+            chartAIPSesion=new Chart(ctx3,{type:'doughnut',data:{labels:sesLabels,datasets:[{data:sesVals,backgroundColor:['#22c55e','#ef4444','#d1d5db'],borderWidth:2,borderColor:'#fff'}]},options:{responsive:true,maintainAspectRatio:false,cutout:'60%',plugins:{legend:{position:'bottom',labels:{font:{size:10},padding:8}},tooltip:{callbacks:{label:c=>` ${c.parsed} docente(s)`}}}}});
+        } else {
+            // ===== GRÁFICO 2 CRT: Por tipo de persona =====
+            const pTipo={};
+            registros.forEach(r=>{ pTipo[r.tipo||'OTRO']=(pTipo[r.tipo||'OTRO']||0)+1; });
+            const tTipos=Object.keys(pTipo);
+            const vTipos=tTipos.map(t=>pTipo[t]);
+            const tipoColors={'DOCENTE':'rgba(107,33,168,0.8)','DIRECTIVO':'rgba(251,191,36,0.85)','AUXILIAR':'rgba(30,122,58,0.8)','UGEL':'rgba(26,48,128,0.8)','OTRO':'rgba(107,114,128,0.8)'};
+            const ctx2=document.getElementById(p.graficoTipo).getContext('2d');
+            if(chartCRTTipo)chartCRTTipo.destroy();
+            chartCRTTipo=new Chart(ctx2,{type:'doughnut',data:{labels:tTipos,datasets:[{data:vTipos,backgroundColor:tTipos.map(t=>tipoColors[t]||'rgba(107,114,128,0.8)'),borderWidth:2,borderColor:'#fff'}]},options:{responsive:true,maintainAspectRatio:false,cutout:'55%',plugins:{legend:{position:'bottom',labels:{font:{size:10},padding:8}},tooltip:{callbacks:{label:c=>` ${c.parsed} persona(s)`}}}}});
+
+            // ===== GRÁFICO 3 CRT: Por actividad =====
+            const pAct={};
+            registros.forEach(r=>{ pAct[r.actividad||'OTRO']=(pAct[r.actividad||'OTRO']||0)+1; });
+            const actEtqs=Object.entries(pAct).sort((a,b)=>b[1]-a[1]).map(e=>e[0]);
+            const actVals=actEtqs.map(e=>pAct[e]);
+            const ctx3=document.getElementById(p.graficoActividad).getContext('2d');
+            if(chartCRTActividad)chartCRTActividad.destroy();
+            chartCRTActividad=new Chart(ctx3,{type:'bar',data:{labels:actEtqs,datasets:[{label:'Usos',data:actVals,backgroundColor:'rgba(30,122,58,0.75)',hoverBackgroundColor:'#4ade80',borderRadius:6,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>` ${c.parsed.x} uso(s)`}}},scales:{x:{beginAtZero:true,ticks:{stepSize:1},grid:{color:'#f0f2f8'}},y:{grid:{display:false},ticks:{font:{size:9}}}}}});
+        }
     }).catch(err=>{ console.error(err); document.getElementById(p.tabla).innerHTML=`<tr><td colspan="7" style="text-align:center;color:red">Error al cargar datos</td></tr>`; });
 }
 
@@ -1260,13 +1423,30 @@ function generarReporteATP(mes) {
             return `<tr><td><b>${reg.fecha}</b><br><small style="color:#9aa0b8">${reg.hora}</small></td><td><span class="badge-tipo ${tipoCls}">${reg.tipo}</span></td><td style="font-size:12px;color:var(--atp-mid);font-weight:600">${reg.area||'—'}</td><td><b>${reg.nombre}</b></td><td>${reg.tema}</td><td style="text-align:center;font-family:'Space Mono',monospace;font-weight:700;color:var(--atp-mid)">${reg.tiempo} min</td><td style="color:#6b7280">${reg.observaciones}</td><td style="text-align:center"><button class="btn-eliminar" onclick="eliminarRegistro('atp','${reg._key}','${reg.nombre.replace(/'/g,"\\'")} — ${reg.fecha}')">Eliminar</button></td></tr>`;
         }).join('');
 
-        const conteo={};
-        registros.forEach(r=>{ conteo[r.tipo]=(conteo[r.tipo]||0)+1; });
-        const etqs=Object.keys(conteo);
-        const vals=etqs.map(e=>conteo[e]);
+        // ===== GRÁFICO 1 ATP: Doughnut por tipo =====
+        const conteoTipo={};
+        registros.forEach(r=>{ conteoTipo[r.tipo]=(conteoTipo[r.tipo]||0)+1; });
+        const etqsTipo=Object.keys(conteoTipo);
+        const valsTipo=etqsTipo.map(e=>conteoTipo[e]);
         const ctx=document.getElementById('atp-grafico').getContext('2d');
         if (chartATP) chartATP.destroy();
-        chartATP=new Chart(ctx,{type:'doughnut',data:{labels:etqs,datasets:[{data:vals,backgroundColor:['#6b21a8','#9333ea','#c084fc'],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right'},tooltip:{callbacks:{label:c=>` ${c.parsed} atenciones`}}}}});
+        chartATP=new Chart(ctx,{type:'doughnut',data:{labels:etqsTipo,datasets:[{data:valsTipo,backgroundColor:['#6b21a8','#9333ea','#c084fc','#f0abfc','#7c3aed'],borderWidth:2,borderColor:'#fff'}]},options:{responsive:true,maintainAspectRatio:false,cutout:'58%',plugins:{legend:{position:'bottom',labels:{font:{size:10},padding:8}},tooltip:{callbacks:{label:c=>` ${c.parsed} atenciones`}}}}});
+
+        // ===== GRÁFICO 2 ATP: Bar por área =====
+        const conteoArea={};
+        registros.forEach(r=>{ conteoArea[r.area||'SIN ÁREA']=(conteoArea[r.area||'SIN ÁREA']||0)+1; });
+        const etqsArea=Object.entries(conteoArea).sort((a,b)=>b[1]-a[1]).map(e=>e[0]);
+        const valsArea=etqsArea.map(e=>conteoArea[e]);
+        const ctx2=document.getElementById('atp-grafico-area').getContext('2d');
+        if(chartATPArea)chartATPArea.destroy();
+        chartATPArea=new Chart(ctx2,{type:'bar',data:{labels:etqsArea,datasets:[{label:'Atenciones',data:valsArea,backgroundColor:'rgba(107,33,168,0.75)',hoverBackgroundColor:'#f0abfc',borderRadius:6,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>` ${c.parsed.x} atención(es)`}}},scales:{x:{beginAtZero:true,ticks:{stepSize:1},grid:{color:'#f0f2f8'}},y:{grid:{display:false},ticks:{font:{size:9}}}}}});
+
+        // ===== GRÁFICO 3 ATP: Distribución por tiempo (minutos) =====
+        const rangos={'1-15 min':0,'16-30 min':0,'31-60 min':0,'61-120 min':0,'120+ min':0};
+        registros.forEach(r=>{ const m=parseInt(r.tiempo)||0; if(m<=15)rangos['1-15 min']++;else if(m<=30)rangos['16-30 min']++;else if(m<=60)rangos['31-60 min']++;else if(m<=120)rangos['61-120 min']++;else rangos['120+ min']++; });
+        const ctx3=document.getElementById('atp-grafico-tiempo').getContext('2d');
+        if(chartATPTiempo)chartATPTiempo.destroy();
+        chartATPTiempo=new Chart(ctx3,{type:'bar',data:{labels:Object.keys(rangos),datasets:[{label:'Atenciones',data:Object.values(rangos),backgroundColor:['rgba(107,33,168,0.5)','rgba(107,33,168,0.65)','rgba(107,33,168,0.8)','rgba(107,33,168,0.9)','rgba(107,33,168,1)'],hoverBackgroundColor:'#f0abfc',borderRadius:6,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>` ${c.parsed.y} atención(es)`}}},scales:{y:{beginAtZero:true,ticks:{stepSize:1},grid:{color:'#f0f2f8'}},x:{grid:{display:false},ticks:{font:{size:10}}}}}});
     }).catch(err=>{ console.error(err); document.getElementById('atp-tablaCuerpo').innerHTML=`<tr><td colspan="7" style="text-align:center;color:red">Error al cargar datos</td></tr>`; });
 }
 
@@ -1298,44 +1478,101 @@ async function generarReporteGeneral() {
         </div>`;
 
         // AIP block
+        const aipSesionSI=aip.filter(r=>r.sesionPresentada==='SI').length;
+        const aipSesionNO=aip.filter(r=>r.sesionPresentada==='NO').length;
         html+=`<div class="gen-seccion-bloque" style="margin-top:20px">
             <div class="gen-seccion-header aip">💻 AIP — Aula de Innovación Pedagógica<span class="gen-count">${aip.length} registros</span></div>
-            <div class="gen-resumen-grid">
+            <div class="gen-resumen-grid" style="grid-template-columns:repeat(4,1fr)">
                 <div class="gen-resumen-card"><div class="gen-resumen-num aip">${aip.length}</div><div class="gen-resumen-label">Asistencias</div></div>
                 <div class="gen-resumen-card"><div class="gen-resumen-num aip">${new Set(aip.map(r=>r.docente)).size}</div><div class="gen-resumen-label">Personas</div></div>
                 <div class="gen-resumen-card"><div class="gen-resumen-num aip">${new Set(aip.map(r=>r.fecha)).size}</div><div class="gen-resumen-label">Días</div></div>
+                <div class="gen-resumen-card"><div class="gen-resumen-num aip">${aipSesionSI}</div><div class="gen-resumen-label">Con Sesión</div></div>
+            </div>
+            <div style="padding:12px 20px 4px;background:var(--surface-2);">
+                <div class="graficos-grid" style="grid-template-columns:repeat(auto-fit,minmax(220px,1fr));margin-bottom:0">
+                    <div class="grafico-card mini">
+                        <div class="grafico-card-title aip">📅 Asistencias por Día</div>
+                        <div class="chart-container"><canvas id="gen-aip-dias"></canvas></div>
+                    </div>
+                    <div class="grafico-card mini">
+                        <div class="grafico-card-title aip">📊 Por Área Curricular</div>
+                        <div class="chart-container"><canvas id="gen-aip-area"></canvas></div>
+                    </div>
+                    <div class="grafico-card mini">
+                        <div class="grafico-card-title aip">📋 Sesión Presentada</div>
+                        <div class="chart-container"><canvas id="gen-aip-sesion"></canvas></div>
+                    </div>
+                </div>
             </div>
             <div class="gen-tabla-wrap"><table>
-                <thead class="aip"><tr><th>Fecha</th><th>Área</th><th>Nombre</th><th>Grado/Secc.</th><th>Horas</th><th>Tema</th></tr></thead>
-                <tbody>${aip.length===0?'<tr><td colspan="10"><div class="empty-state">Sin registros</div></td></tr>':aip.map(r=>`<tr><td><b>${r.fecha}</b> <small style="color:#9aa0b8">${r.hora}</small></td><td>${r.docente}</td><td>${r.nombre||'—'}</td><td><span class="badge-grado aip">${r.grado} ${r.seccion}</span></td><td><span style="font-size:11px;font-weight:700;color:var(--aip-mid)">${r.horas||'—'}</span></td><td>${r.tema}</td></tr>`).join('')}</tbody>
+                <thead class="aip"><tr><th>Fecha</th><th>Área</th><th>Nombre</th><th>Grado/Secc.</th><th>Horas</th><th>Sesión</th><th>Tema</th></tr></thead>
+                <tbody>${aip.length===0?'<tr><td colspan="7"><div class="empty-state">Sin registros</div></td></tr>':aip.map(r=>{
+                    const sesB=r.sesionPresentada==='SI'?'<span class="badge-sesion-si">✔ Sí</span>':r.sesionPresentada==='NO'?'<span class="badge-sesion-no">✘ No</span>':'<span style="color:#9aa0b8">—</span>';
+                    return `<tr><td><b>${r.fecha}</b> <small style="color:#9aa0b8">${r.hora}</small></td><td>${r.docente}</td><td>${r.nombre||'—'}</td><td><span class="badge-grado aip">${r.grado} ${r.seccion}</span></td><td><span style="font-size:11px;font-weight:700;color:var(--aip-mid)">${r.horas||'—'}</span></td><td>${sesB}</td><td>${r.tema}</td></tr>`;
+                }).join('')}</tbody>
             </table></div>
         </div>`;
 
         // CRT block
         html+=`<div class="gen-seccion-bloque">
             <div class="gen-seccion-header crt">🖥️ CRT — Centro de Recursos Tecnológicos<span class="gen-count">${crt.length} registros</span></div>
-            <div class="gen-resumen-grid">
+            <div class="gen-resumen-grid" style="grid-template-columns:repeat(4,1fr)">
                 <div class="gen-resumen-card"><div class="gen-resumen-num crt">${crt.length}</div><div class="gen-resumen-label">Asistencias</div></div>
                 <div class="gen-resumen-card"><div class="gen-resumen-num crt">${new Set(crt.map(r=>r.docente)).size}</div><div class="gen-resumen-label">Personas</div></div>
                 <div class="gen-resumen-card"><div class="gen-resumen-num crt">${new Set(crt.map(r=>r.fecha)).size}</div><div class="gen-resumen-label">Días</div></div>
+                <div class="gen-resumen-card"><div class="gen-resumen-num crt">${crt.filter(r=>r.tipo==='DOCENTE').length}</div><div class="gen-resumen-label">Docentes</div></div>
+            </div>
+            <div style="padding:12px 20px 4px;background:var(--surface-2);">
+                <div class="graficos-grid" style="grid-template-columns:repeat(auto-fit,minmax(220px,1fr));margin-bottom:0">
+                    <div class="grafico-card mini">
+                        <div class="grafico-card-title crt">👤 Por Tipo de Persona</div>
+                        <div class="chart-container"><canvas id="gen-crt-tipo"></canvas></div>
+                    </div>
+                    <div class="grafico-card mini">
+                        <div class="grafico-card-title crt">🖥️ Por Tipo de Actividad</div>
+                        <div class="chart-container"><canvas id="gen-crt-actividad"></canvas></div>
+                    </div>
+                    <div class="grafico-card mini">
+                        <div class="grafico-card-title crt">📅 Registros por Día</div>
+                        <div class="chart-container"><canvas id="gen-crt-dias"></canvas></div>
+                    </div>
+                </div>
             </div>
             <div class="gen-tabla-wrap"><table>
                 <thead class="crt"><tr><th>Fecha</th><th>Tipo</th><th>Nombre</th><th>Área</th><th>Grado/Secc.</th><th>Actividad</th><th>Tema</th></tr></thead>
-                <tbody>${crt.length===0?'<tr><td colspan="10"><div class="empty-state">Sin registros</div></td></tr>':crt.map(r=>{const tc=r.tipo==='DIRECTIVO'?'directivo':r.tipo==='DOCENTE'?'docente':'otros';const gs=(r.grado&&r.grado!=='—')?`<span class="badge-grado crt">${r.grado} ${r.seccion}</span>`:'—';return `<tr><td><b>${r.fecha}</b> <small style="color:#9aa0b8">${r.hora}</small></td><td><span class="badge-tipo ${tc}">${r.tipo||'—'}</span></td><td>${r.docente}</td><td>${r.area||'—'}</td><td>${gs}</td><td>${r.actividad||'—'}</td><td>${r.tema}</td></tr>`;}).join('')}</tbody>
+                <tbody>${crt.length===0?'<tr><td colspan="7"><div class="empty-state">Sin registros</div></td></tr>':crt.map(r=>{const tc=r.tipo==='DIRECTIVO'?'directivo':r.tipo==='DOCENTE'?'docente':'otros';const gs=(r.grado&&r.grado!=='—')?`<span class="badge-grado crt">${r.grado} ${r.seccion}</span>`:'—';return `<tr><td><b>${r.fecha}</b> <small style="color:#9aa0b8">${r.hora}</small></td><td><span class="badge-tipo ${tc}">${r.tipo||'—'}</span></td><td>${r.docente}</td><td>${r.area||'—'}</td><td>${gs}</td><td>${r.actividad||'—'}</td><td>${r.tema}</td></tr>`;}).join('')}</tbody>
             </table></div>
         </div>`;
 
         // ATP block
+        const atpMin=atp.reduce((s,r)=>s+(parseInt(r.tiempo)||0),0);
         html+=`<div class="gen-seccion-bloque">
             <div class="gen-seccion-header atp">🧑‍🏫 ATP — Atención Personalizada<span class="gen-count">${atp.length} registros</span></div>
-            <div class="gen-resumen-grid">
+            <div class="gen-resumen-grid" style="grid-template-columns:repeat(4,1fr)">
                 <div class="gen-resumen-card"><div class="gen-resumen-num atp">${atp.length}</div><div class="gen-resumen-label">Atenciones</div></div>
                 <div class="gen-resumen-card"><div class="gen-resumen-num atp">${new Set(atp.map(r=>r.nombre)).size}</div><div class="gen-resumen-label">Personas</div></div>
-                <div class="gen-resumen-card"><div class="gen-resumen-num atp">${atp.reduce((s,r)=>s+(parseInt(r.tiempo)||0),0)}</div><div class="gen-resumen-label">Minutos</div></div>
+                <div class="gen-resumen-card"><div class="gen-resumen-num atp">${atpMin}</div><div class="gen-resumen-label">Min. Totales</div></div>
+                <div class="gen-resumen-card"><div class="gen-resumen-num atp">${atp.length>0?(atpMin/atp.length).toFixed(0):0}</div><div class="gen-resumen-label">Prom. Min.</div></div>
+            </div>
+            <div style="padding:12px 20px 4px;background:var(--surface-2);">
+                <div class="graficos-grid" style="grid-template-columns:repeat(auto-fit,minmax(220px,1fr));margin-bottom:0">
+                    <div class="grafico-card mini">
+                        <div class="grafico-card-title atp">👤 Por Tipo de Persona</div>
+                        <div class="chart-container"><canvas id="gen-atp-tipo"></canvas></div>
+                    </div>
+                    <div class="grafico-card mini">
+                        <div class="grafico-card-title atp">📚 Por Área / Cargo</div>
+                        <div class="chart-container"><canvas id="gen-atp-area"></canvas></div>
+                    </div>
+                    <div class="grafico-card mini">
+                        <div class="grafico-card-title atp">⏱️ Distribución por Tiempo</div>
+                        <div class="chart-container"><canvas id="gen-atp-tiempo"></canvas></div>
+                    </div>
+                </div>
             </div>
             <div class="gen-tabla-wrap"><table>
                 <thead class="atp"><tr><th>Fecha</th><th>Tipo</th><th>Área/Cargo</th><th>Nombre</th><th>Tema</th><th>Tiempo</th></tr></thead>
-                <tbody>${atp.length===0?'<tr><td colspan="10"><div class="empty-state">Sin registros</div></td></tr>':atp.map(r=>{ const tc=r.tipo==='DIRECTIVO'?'directivo':r.tipo==='DOCENTE'?'docente':'otros'; return `<tr><td><b>${r.fecha}</b> <small style="color:#9aa0b8">${r.hora}</small></td><td><span class="badge-tipo ${tc}">${r.tipo}</span></td><td style="font-size:12px;color:var(--atp-mid);font-weight:600">${r.area||'—'}</td><td>${r.nombre}</td><td>${r.tema}</td><td style="font-family:'Space Mono',monospace;font-weight:700;color:var(--atp-mid)">${r.tiempo} min</td></tr>`; }).join('')}</tbody>
+                <tbody>${atp.length===0?'<tr><td colspan="6"><div class="empty-state">Sin registros</div></td></tr>':atp.map(r=>{ const tc=r.tipo==='DIRECTIVO'?'directivo':r.tipo==='DOCENTE'?'docente':'otros'; return `<tr><td><b>${r.fecha}</b> <small style="color:#9aa0b8">${r.hora}</small></td><td><span class="badge-tipo ${tc}">${r.tipo}</span></td><td style="font-size:12px;color:var(--atp-mid);font-weight:600">${r.area||'—'}</td><td>${r.nombre}</td><td>${r.tema}</td><td style="font-family:'Space Mono',monospace;font-weight:700;color:var(--atp-mid)">${r.tiempo} min</td></tr>`; }).join('')}</tbody>
             </table></div>
         </div>`;
 
@@ -1353,28 +1590,87 @@ async function generarReporteGeneral() {
                 datasets: [{
                     label: 'Registros del mes',
                     data: [aip.length, crt.length, atp.length],
-                    backgroundColor: [
-                        'rgba(26,48,128,0.85)',
-                        'rgba(21,87,36,0.85)',
-                        'rgba(107,33,168,0.85)'
-                    ],
+                    backgroundColor: ['rgba(26,48,128,0.85)','rgba(21,87,36,0.85)','rgba(107,33,168,0.85)'],
                     hoverBackgroundColor: ['#f4a020','#4ade80','#f0abfc'],
-                    borderRadius: 10,
-                    borderSkipped: false
+                    borderRadius: 10, borderSkipped: false
                 }]
             },
             options: {
                 responsive: true, maintainAspectRatio: false,
-                plugins: {
-                    legend: { display: false },
-                    tooltip: { callbacks: { label: c => ` ${c.parsed.y} registro(s)` } }
-                },
-                scales: {
-                    y: { beginAtZero: true, ticks: { stepSize: 1 }, grid: { color: '#f0f2f8' } },
-                    x: { grid: { display: false }, ticks: { font: { weight: '700' } } }
-                }
+                plugins: { legend:{display:false}, tooltip:{callbacks:{label:c=>` ${c.parsed.y} registro(s)`}} },
+                scales: { y:{beginAtZero:true,ticks:{stepSize:1},grid:{color:'#f0f2f8'}}, x:{grid:{display:false},ticks:{font:{weight:'700'}}} }
             }
         });
+
+        // ===== GRÁFICOS SECUNDARIOS DE SECCIÓN EN GENERAL =====
+        document.getElementById('genGraficosSeccion').style.display = 'none'; // ocultar el viejo
+
+        // AIP: por día
+        const aipPDia={};
+        aip.forEach(r=>{ const d=r.fecha?r.fecha.split('-')[0]:'?'; aipPDia[d]=(aipPDia[d]||0)+1; });
+        const aipDDias=Object.keys(aipPDia).sort((a,b)=>parseInt(a)-parseInt(b));
+        if(document.getElementById('gen-aip-dias')){
+            if(chartGenAIP)chartGenAIP.destroy();
+            chartGenAIP=new Chart(document.getElementById('gen-aip-dias').getContext('2d'),{type:'bar',data:{labels:aipDDias.map(d=>'D'+d),datasets:[{data:aipDDias.map(d=>aipPDia[d]),backgroundColor:'rgba(35,72,192,0.75)',hoverBackgroundColor:'#f4a020',borderRadius:4,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,ticks:{stepSize:1,font:{size:8}},grid:{color:'#f0f2f8'}},x:{grid:{display:false},ticks:{font:{size:8}}}}}});
+        }
+        // AIP: por área
+        const aipPArea={};
+        aip.forEach(r=>{ aipPArea[r.docente||'?']=(aipPArea[r.docente||'?']||0)+1; });
+        const aipAreaEtqs=Object.entries(aipPArea).sort((a,b)=>b[1]-a[1]).slice(0,6).map(e=>e[0]);
+        if(document.getElementById('gen-aip-area')){
+            new Chart(document.getElementById('gen-aip-area').getContext('2d'),{type:'bar',data:{labels:aipAreaEtqs,datasets:[{data:aipAreaEtqs.map(k=>aipPArea[k]),backgroundColor:'rgba(26,48,128,0.7)',hoverBackgroundColor:'#f4a020',borderRadius:4,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{beginAtZero:true,ticks:{stepSize:1,font:{size:8}}},y:{grid:{display:false},ticks:{font:{size:8}}}}}});
+        }
+        // AIP: sesión presentada
+        const aipSes={SI:0,NO:0,'—':0};
+        aip.forEach(r=>{ const v=r.sesionPresentada||'—'; aipSes[v]=(aipSes[v]||0)+1; });
+        if(document.getElementById('gen-aip-sesion')){
+            new Chart(document.getElementById('gen-aip-sesion').getContext('2d'),{type:'doughnut',data:{labels:['✔ Sí','✘ No','Sin dato'],datasets:[{data:[aipSes.SI,aipSes.NO,aipSes['—']],backgroundColor:['#22c55e','#ef4444','#d1d5db'],borderWidth:2,borderColor:'#fff'}]},options:{responsive:true,maintainAspectRatio:false,cutout:'55%',plugins:{legend:{position:'bottom',labels:{font:{size:9},padding:6}}}}});
+        }
+
+        // CRT: por tipo
+        const crtPTipo={};
+        crt.forEach(r=>{ crtPTipo[r.tipo||'OTRO']=(crtPTipo[r.tipo||'OTRO']||0)+1; });
+        const tipoColors={'DOCENTE':'rgba(107,33,168,0.8)','DIRECTIVO':'rgba(251,191,36,0.85)','AUXILIAR':'rgba(30,122,58,0.8)','UGEL':'rgba(26,48,128,0.8)','OTRO':'rgba(107,114,128,0.8)'};
+        if(document.getElementById('gen-crt-tipo')){
+            if(chartGenCRT)chartGenCRT.destroy();
+            chartGenCRT=new Chart(document.getElementById('gen-crt-tipo').getContext('2d'),{type:'doughnut',data:{labels:Object.keys(crtPTipo),datasets:[{data:Object.values(crtPTipo),backgroundColor:Object.keys(crtPTipo).map(t=>tipoColors[t]||'rgba(107,114,128,0.8)'),borderWidth:2,borderColor:'#fff'}]},options:{responsive:true,maintainAspectRatio:false,cutout:'55%',plugins:{legend:{position:'bottom',labels:{font:{size:9},padding:6}}}}});
+        }
+        // CRT: por actividad
+        const crtPAct={};
+        crt.forEach(r=>{ crtPAct[r.actividad||'OTRO']=(crtPAct[r.actividad||'OTRO']||0)+1; });
+        const crtActEtqs=Object.entries(crtPAct).sort((a,b)=>b[1]-a[1]).map(e=>e[0]);
+        if(document.getElementById('gen-crt-actividad')){
+            new Chart(document.getElementById('gen-crt-actividad').getContext('2d'),{type:'bar',data:{labels:crtActEtqs,datasets:[{data:crtActEtqs.map(k=>crtPAct[k]),backgroundColor:'rgba(30,122,58,0.75)',hoverBackgroundColor:'#4ade80',borderRadius:4,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{beginAtZero:true,ticks:{stepSize:1,font:{size:8}}},y:{grid:{display:false},ticks:{font:{size:8}}}}}});
+        }
+        // CRT: por día
+        const crtPDia={};
+        crt.forEach(r=>{ const d=r.fecha?r.fecha.split('-')[0]:'?'; crtPDia[d]=(crtPDia[d]||0)+1; });
+        const crtDDias=Object.keys(crtPDia).sort((a,b)=>parseInt(a)-parseInt(b));
+        if(document.getElementById('gen-crt-dias')){
+            new Chart(document.getElementById('gen-crt-dias').getContext('2d'),{type:'bar',data:{labels:crtDDias.map(d=>'D'+d),datasets:[{data:crtDDias.map(d=>crtPDia[d]),backgroundColor:'rgba(30,122,58,0.75)',hoverBackgroundColor:'#4ade80',borderRadius:4,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,ticks:{stepSize:1,font:{size:8}},grid:{color:'#f0f2f8'}},x:{grid:{display:false},ticks:{font:{size:8}}}}}});
+        }
+
+        // ATP: por tipo
+        const atpPTipo={};
+        atp.forEach(r=>{ atpPTipo[r.tipo]=(atpPTipo[r.tipo]||0)+1; });
+        if(document.getElementById('gen-atp-tipo')){
+            if(chartGenATP)chartGenATP.destroy();
+            chartGenATP=new Chart(document.getElementById('gen-atp-tipo').getContext('2d'),{type:'doughnut',data:{labels:Object.keys(atpPTipo),datasets:[{data:Object.values(atpPTipo),backgroundColor:['#6b21a8','#9333ea','#c084fc','#f0abfc','#7c3aed'],borderWidth:2,borderColor:'#fff'}]},options:{responsive:true,maintainAspectRatio:false,cutout:'55%',plugins:{legend:{position:'bottom',labels:{font:{size:9},padding:6}}}}});
+        }
+        // ATP: por área
+        const atpPArea={};
+        atp.forEach(r=>{ atpPArea[r.area||'SIN ÁREA']=(atpPArea[r.area||'SIN ÁREA']||0)+1; });
+        const atpAreaEtqs=Object.entries(atpPArea).sort((a,b)=>b[1]-a[1]).slice(0,6).map(e=>e[0]);
+        if(document.getElementById('gen-atp-area')){
+            new Chart(document.getElementById('gen-atp-area').getContext('2d'),{type:'bar',data:{labels:atpAreaEtqs,datasets:[{data:atpAreaEtqs.map(k=>atpPArea[k]),backgroundColor:'rgba(107,33,168,0.75)',hoverBackgroundColor:'#f0abfc',borderRadius:4,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{beginAtZero:true,ticks:{stepSize:1,font:{size:8}}},y:{grid:{display:false},ticks:{font:{size:8}}}}}});
+        }
+        // ATP: distribución por tiempo
+        const atpRangos={'1-15':0,'16-30':0,'31-60':0,'61-120':0,'120+':0};
+        atp.forEach(r=>{ const m=parseInt(r.tiempo)||0; if(m<=15)atpRangos['1-15']++;else if(m<=30)atpRangos['16-30']++;else if(m<=60)atpRangos['31-60']++;else if(m<=120)atpRangos['61-120']++;else atpRangos['120+']++; });
+        if(document.getElementById('gen-atp-tiempo')){
+            new Chart(document.getElementById('gen-atp-tiempo').getContext('2d'),{type:'bar',data:{labels:Object.keys(atpRangos).map(k=>k+' min'),datasets:[{data:Object.values(atpRangos),backgroundColor:['rgba(107,33,168,0.4)','rgba(107,33,168,0.6)','rgba(107,33,168,0.75)','rgba(107,33,168,0.9)','rgba(107,33,168,1)'],borderRadius:4,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,ticks:{stepSize:1,font:{size:8}},grid:{color:'#f0f2f8'}},x:{grid:{display:false},ticks:{font:{size:9}}}}}});
+        }
+
     } catch(e) {
         console.error(e);
         contenido.innerHTML='<div class="empty-state" style="color:red">Error al cargar los datos del informe general.</div>';
