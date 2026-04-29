@@ -148,6 +148,72 @@
         .hora-programada-wrap .horas-title { font-size:12px; font-weight:800; text-transform:uppercase; letter-spacing:1px; color:#b45309; display:block; margin-bottom:8px; }
         .hora-programada-wrap .horas-grid { display:flex; flex-wrap:wrap; gap:8px; }
 
+        /* ===== HORA CHIPS — 1ERA, 2DA, 3ERA ... ===== */
+        .horas-selector { margin-bottom:14px; }
+        .horas-title { font-size:12px; font-weight:800; text-transform:uppercase; letter-spacing:1px; display:block; margin-bottom:10px; }
+        .horas-grid { display:flex; flex-wrap:wrap; gap:8px; }
+
+        .hora-chip {
+            display:inline-flex; align-items:center; justify-content:center;
+            cursor:pointer; user-select:none; position:relative;
+        }
+        .hora-chip input { position:absolute; opacity:0; width:0; height:0; pointer-events:none; }
+        .hora-chip span.chip-label {
+            display:inline-flex; align-items:center; justify-content:center;
+            min-width:56px; padding:9px 14px; border-radius:50px;
+            font-size:12px; font-weight:800; letter-spacing:1.5px; text-transform:uppercase;
+            border:2px solid transparent;
+            transition:all 0.22s cubic-bezier(0.22,1,0.36,1);
+            box-shadow:0 1px 3px rgba(0,0,0,0.08);
+        }
+        .hora-chip:hover span.chip-label { transform:translateY(-2px); box-shadow:0 4px 12px rgba(0,0,0,0.13); }
+
+        /* AIP chips — azul dorado */
+        .aip-chip span.chip-label { background:var(--aip-bg); color:var(--aip-mid); border-color:var(--aip-border); }
+        .aip-chip:hover span.chip-label { background:#dde3f8; border-color:var(--aip-light); }
+        .aip-chip.selected span.chip-label {
+            background:linear-gradient(135deg,var(--aip-mid),var(--aip-light));
+            border-color:var(--aip-accent); color:#fff;
+            box-shadow:0 4px 16px rgba(35,72,192,0.5), 0 0 0 3px rgba(244,160,32,0.3);
+            transform:translateY(-2px);
+        }
+
+        /* CRT chips — verde */
+        .crt-chip span.chip-label { background:var(--crt-bg); color:var(--crt-mid); border-color:var(--crt-border); }
+        .crt-chip:hover span.chip-label { background:#c3f0d0; border-color:var(--crt-light); }
+        .crt-chip.selected span.chip-label {
+            background:linear-gradient(135deg,var(--crt-mid),var(--crt-light));
+            border-color:var(--crt-accent); color:#fff;
+            box-shadow:0 4px 16px rgba(30,122,58,0.5), 0 0 0 3px rgba(74,222,128,0.3);
+            transform:translateY(-2px);
+        }
+
+        /* AIT chips — rosa */
+        .ait-chip span.chip-label { background:var(--ait-bg); color:var(--ait-mid); border-color:var(--ait-border); }
+        .ait-chip:hover span.chip-label { background:#ffe0e6; border-color:var(--ait-light); }
+        .ait-chip.selected span.chip-label {
+            background:linear-gradient(135deg,var(--ait-mid),var(--ait-light));
+            border-color:var(--ait-accent); color:#fff;
+            box-shadow:0 4px 16px rgba(219,39,119,0.5), 0 0 0 3px rgba(253,164,175,0.3);
+            transform:translateY(-2px);
+        }
+
+        /* Tipo chips (DOCENTE, DIRECTIVO...) */
+        .crt-tipo-row { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:14px; }
+        .tipo-chip {
+            display:inline-flex; align-items:center; gap:5px; padding:8px 18px; border-radius:50px;
+            font-size:12px; font-weight:800; letter-spacing:0.8px; text-transform:uppercase;
+            cursor:pointer; user-select:none; border:2px solid #e2e8f0; background:#f8fafc; color:#64748b;
+            transition:all 0.22s ease; position:relative;
+        }
+        .tipo-chip input { position:absolute; opacity:0; width:0; height:0; }
+        .tipo-chip.crt-tipo { border-color:var(--crt-border); color:var(--crt-mid); background:var(--crt-bg); }
+        .tipo-chip.crt-tipo:hover { border-color:var(--crt-light); background:#c3f0d0; }
+        .tipo-chip.crt-tipo.selected {
+            background:linear-gradient(135deg,var(--crt-mid),var(--crt-light));
+            border-color:var(--crt-accent); color:#fff; box-shadow:0 4px 12px rgba(30,122,58,0.35);
+        }
+
         .sesion-row { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
         .sesion-label-txt { font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); flex-shrink: 0; }
         .sesion-toggle { display: flex; gap: 6px; }
@@ -373,13 +439,13 @@
                     <div class="horas-selector aip" style="background:#fff8f0;border:1.5px solid #fdd8a0;border-radius:8px;padding:14px 16px;margin-bottom:14px;">
                         <label class="horas-title">🕐 Hora programada que debía ingresar <span style="font-weight:500;color:#9aa0b8;font-size:10px;text-transform:none;letter-spacing:0">(obligatorio)</span></label>
                         <div class="horas-grid" id="aip-hora-programada-grid">
-                            <label class="hora-chip aip-chip" onclick="toggleHoraProg(this)"><input type="checkbox" value="1ERA">1ERA</label>
-                            <label class="hora-chip aip-chip" onclick="toggleHoraProg(this)"><input type="checkbox" value="2DA">2DA</label>
-                            <label class="hora-chip aip-chip" onclick="toggleHoraProg(this)"><input type="checkbox" value="3ERA">3ERA</label>
-                            <label class="hora-chip aip-chip" onclick="toggleHoraProg(this)"><input type="checkbox" value="4TA">4TA</label>
-                            <label class="hora-chip aip-chip" onclick="toggleHoraProg(this)"><input type="checkbox" value="5TA">5TA</label>
-                            <label class="hora-chip aip-chip" onclick="toggleHoraProg(this)"><input type="checkbox" value="6TA">6TA</label>
-                            <label class="hora-chip aip-chip" onclick="toggleHoraProg(this)"><input type="checkbox" value="7MA">7MA</label>
+                            <label class="hora-chip aip-chip" onclick="toggleHoraProg(this)"><input type="checkbox" value="1ERA"><span class="chip-label">1ERA</span></label>
+                            <label class="hora-chip aip-chip" onclick="toggleHoraProg(this)"><input type="checkbox" value="2DA"><span class="chip-label">2DA</span></label>
+                            <label class="hora-chip aip-chip" onclick="toggleHoraProg(this)"><input type="checkbox" value="3ERA"><span class="chip-label">3ERA</span></label>
+                            <label class="hora-chip aip-chip" onclick="toggleHoraProg(this)"><input type="checkbox" value="4TA"><span class="chip-label">4TA</span></label>
+                            <label class="hora-chip aip-chip" onclick="toggleHoraProg(this)"><input type="checkbox" value="5TA"><span class="chip-label">5TA</span></label>
+                            <label class="hora-chip aip-chip" onclick="toggleHoraProg(this)"><input type="checkbox" value="6TA"><span class="chip-label">6TA</span></label>
+                            <label class="hora-chip aip-chip" onclick="toggleHoraProg(this)"><input type="checkbox" value="7MA"><span class="chip-label">7MA</span></label>
                         </div>
                     </div>
                 </div>
@@ -397,13 +463,13 @@
                     <div class="horas-selector aip">
                         <label class="horas-title">🕐 Horas de uso del AIP <span style="font-weight:500;color:#9aa0b8;font-size:10px">(selecciona las horas utilizadas)</span></label>
                         <div class="horas-grid" id="aip-horas-grid">
-                            <label class="hora-chip aip-chip" onclick="toggleHora(this)"><input type="checkbox" value="1ERA">1ERA</label>
-                            <label class="hora-chip aip-chip" onclick="toggleHora(this)"><input type="checkbox" value="2DA">2DA</label>
-                            <label class="hora-chip aip-chip" onclick="toggleHora(this)"><input type="checkbox" value="3ERA">3ERA</label>
-                            <label class="hora-chip aip-chip" onclick="toggleHora(this)"><input type="checkbox" value="4TA">4TA</label>
-                            <label class="hora-chip aip-chip" onclick="toggleHora(this)"><input type="checkbox" value="5TA">5TA</label>
-                            <label class="hora-chip aip-chip" onclick="toggleHora(this)"><input type="checkbox" value="6TA">6TA</label>
-                            <label class="hora-chip aip-chip" onclick="toggleHora(this)"><input type="checkbox" value="7MA">7MA</label>
+                            <label class="hora-chip aip-chip" onclick="toggleHora(this)"><input type="checkbox" value="1ERA"><span class="chip-label">1ERA</span></label>
+                            <label class="hora-chip aip-chip" onclick="toggleHora(this)"><input type="checkbox" value="2DA"><span class="chip-label">2DA</span></label>
+                            <label class="hora-chip aip-chip" onclick="toggleHora(this)"><input type="checkbox" value="3ERA"><span class="chip-label">3ERA</span></label>
+                            <label class="hora-chip aip-chip" onclick="toggleHora(this)"><input type="checkbox" value="4TA"><span class="chip-label">4TA</span></label>
+                            <label class="hora-chip aip-chip" onclick="toggleHora(this)"><input type="checkbox" value="5TA"><span class="chip-label">5TA</span></label>
+                            <label class="hora-chip aip-chip" onclick="toggleHora(this)"><input type="checkbox" value="6TA"><span class="chip-label">6TA</span></label>
+                            <label class="hora-chip aip-chip" onclick="toggleHora(this)"><input type="checkbox" value="7MA"><span class="chip-label">7MA</span></label>
                         </div>
                     </div>
                 </div>
@@ -457,6 +523,13 @@
                         <div class="grafico-card"><div class="grafico-card-title aip">📊 ASISTENCIAS POR DÍA DEL MES</div><div class="chart-container"><canvas id="aip-grafico-dias"></canvas></div></div>
                         <div class="grafico-card"><div class="grafico-card-title aip">📋 SESIÓN DE APRENDIZAJE PRESENTADA</div><div class="chart-container"><canvas id="aip-grafico-sesion"></canvas></div></div>
                         <div class="grafico-card"><div class="grafico-card-title aip">🏆 TOP DOCENTES POR ASISTENCIA</div><div class="chart-container"><canvas id="aip-grafico-top"></canvas></div></div>
+                        <div class="grafico-card" style="border-left:4px solid #f59e0b;"><div class="grafico-card-title" style="color:#b45309">🚫 FRECUENCIA DE NO INGRESO POR DOCENTE</div><div class="chart-container"><canvas id="aip-grafico-no-ingreso"></canvas></div></div>
+                    </div>
+
+                    <!-- DOCENTES QUE NO INGRESARON — DETALLE -->
+                    <div class="stats-dias-semana" style="margin-top:24px;margin-bottom:24px;">
+                        <h4 style="border-left-color:#f59e0b;color:#b45309">🚫 DETALLE: DOCENTES QUE NO INGRESARON AL AIP</h4>
+                        <div id="aip-no-ingreso-tabla" style="margin-top:12px;"></div>
                     </div>
                     
                     <!-- DETALLE DE REGISTROS -->
@@ -496,7 +569,7 @@
                     </div>
                 </div>
                 <div class="form-grid" style="grid-template-columns:1fr 1fr;"><input type="text" id="crt-tema" class="crt-input" placeholder="Tema / Motivo *" maxlength="200"><input type="text" id="crt-recursos" class="crt-input" placeholder="Recursos usados / Observaciones" maxlength="200"></div>
-                <div class="horas-selector crt" style="margin-bottom:14px;"><label class="horas-title" style="color:var(--crt-mid)">🕐 Horas de uso del CRT</label><div class="horas-grid" id="crt-horas-grid"><label class="hora-chip crt-chip" onclick="toggleHoraCRT(this)"><input type="checkbox" value="1ERA">1ERA</label><label class="hora-chip crt-chip" onclick="toggleHoraCRT(this)"><input type="checkbox" value="2DA">2DA</label><label class="hora-chip crt-chip" onclick="toggleHoraCRT(this)"><input type="checkbox" value="3ERA">3ERA</label><label class="hora-chip crt-chip" onclick="toggleHoraCRT(this)"><input type="checkbox" value="4TA">4TA</label><label class="hora-chip crt-chip" onclick="toggleHoraCRT(this)"><input type="checkbox" value="5TA">5TA</label><label class="hora-chip crt-chip" onclick="toggleHoraCRT(this)"><input type="checkbox" value="6TA">6TA</label><label class="hora-chip crt-chip" onclick="toggleHoraCRT(this)"><input type="checkbox" value="7MA">7MA</label></div></div>
+                <div class="horas-selector crt" style="margin-bottom:14px;"><label class="horas-title" style="color:var(--crt-mid)">🕐 Horas de uso del CRT</label><div class="horas-grid" id="crt-horas-grid"><label class="hora-chip crt-chip" onclick="toggleHoraCRT(this)"><input type="checkbox" value="1ERA"><span class="chip-label">1ERA</span></label><label class="hora-chip crt-chip" onclick="toggleHoraCRT(this)"><input type="checkbox" value="2DA"><span class="chip-label">2DA</span></label><label class="hora-chip crt-chip" onclick="toggleHoraCRT(this)"><input type="checkbox" value="3ERA"><span class="chip-label">3ERA</span></label><label class="hora-chip crt-chip" onclick="toggleHoraCRT(this)"><input type="checkbox" value="4TA"><span class="chip-label">4TA</span></label><label class="hora-chip crt-chip" onclick="toggleHoraCRT(this)"><input type="checkbox" value="5TA"><span class="chip-label">5TA</span></label><label class="hora-chip crt-chip" onclick="toggleHoraCRT(this)"><input type="checkbox" value="6TA"><span class="chip-label">6TA</span></label><label class="hora-chip crt-chip" onclick="toggleHoraCRT(this)"><input type="checkbox" value="7MA"><span class="chip-label">7MA</span></label></div></div>
                 <div class="sesion-row"><span class="sesion-label-txt">📋 ¿Presentó su sesión de aprendizaje?</span><div class="sesion-toggle"><label class="sesion-chip si" id="crt-sesion-si" onclick="selectSesion('crt','SI')"><input type="radio" name="crt-sesion" value="SI"> ✔ Sí</label><label class="sesion-chip no" id="crt-sesion-no" onclick="selectSesion('crt','NO')"><input type="radio" name="crt-sesion" value="NO"> ✘ No</label></div></div>
                 <button class="btn-main btn-crt" id="btnCRT" onclick="registrarCRT()">✔ Registrar Asistencia — CRT</button>
             </div>
@@ -546,6 +619,18 @@
             <div class="panel-asistencia panel-ait">
                 <div class="form-grid"><input type="text" id="ait-aula" class="ait-input" placeholder="N° de Aula *" maxlength="10"><input type="text" id="ait-docente" class="ait-input" placeholder="Nombre del Docente *" maxlength="120"><select id="ait-tipo-atencion" class="ait-input"><option value="">Tipo de Atención *</option><option>Proyector / Multimedia</option><option>Computadora / Laptop</option><option>Impresora</option><option>Internet / Red</option><option>Software / Aplicación</option><option>Sonido / Audio</option><option>Tablet / Dispositivo móvil</option><option>Otro equipo tecnológico</option></select></div>
                 <div class="form-grid"><select id="ait-solucion" class="ait-input"><option value="">¿Tuvo solución? *</option><option value="SI">✅ SÍ — Solucionado</option><option value="NO">⚠️ NO — Pendiente</option><option value="BAJA">❌ NO — Dado de Baja</option></select><textarea id="ait-recomendacion" class="ait-input" rows="3" placeholder="Recomendación / Observaciones *" maxlength="500"></textarea></div>
+                <div class="horas-selector" style="background:var(--ait-bg);border:1.5px solid var(--ait-border);border-radius:10px;padding:14px 16px;margin-bottom:14px;">
+                    <label class="horas-title" style="color:var(--ait-mid);">🕐 Hora en que se realizó la atención <span style="font-weight:500;color:#9aa0b8;font-size:10px;text-transform:none;letter-spacing:0">(seleccione la hora)</span></label>
+                    <div class="horas-grid" id="ait-horas-grid">
+                        <label class="hora-chip ait-chip" onclick="toggleHoraAIT(this)"><input type="checkbox" value="1ERA"><span class="chip-label">1ERA</span></label>
+                        <label class="hora-chip ait-chip" onclick="toggleHoraAIT(this)"><input type="checkbox" value="2DA"><span class="chip-label">2DA</span></label>
+                        <label class="hora-chip ait-chip" onclick="toggleHoraAIT(this)"><input type="checkbox" value="3ERA"><span class="chip-label">3ERA</span></label>
+                        <label class="hora-chip ait-chip" onclick="toggleHoraAIT(this)"><input type="checkbox" value="4TA"><span class="chip-label">4TA</span></label>
+                        <label class="hora-chip ait-chip" onclick="toggleHoraAIT(this)"><input type="checkbox" value="5TA"><span class="chip-label">5TA</span></label>
+                        <label class="hora-chip ait-chip" onclick="toggleHoraAIT(this)"><input type="checkbox" value="6TA"><span class="chip-label">6TA</span></label>
+                        <label class="hora-chip ait-chip" onclick="toggleHoraAIT(this)"><input type="checkbox" value="7MA"><span class="chip-label">7MA</span></label>
+                    </div>
+                </div>
                 <button class="btn-main btn-ait" id="btnAIT" onclick="registrarAIT()">🔧 Registrar Incidencia Tecnológica</button>
                 <div id="ait-download-area" style="margin-top:12px;text-align:center;"></div>
             </div>
@@ -559,7 +644,7 @@
                     <div class="stats-dias-semana"><h4>📅 INCIDENCIAS POR DÍA DE LA SEMANA</h4><div class="dias-grid" id="ait-dias-grid"></div></div>
                     <div class="stats-semanas-mes"><h4>📊 ANÁLISIS POR SEMANA DEL MES</h4><div class="semanas-grid" id="ait-semanas-grid"></div></div>
                     <div class="graficos-grid"><div class="grafico-card"><div class="grafico-card-title ait">🔧 INCIDENCIAS POR TIPO</div><div class="chart-container"><canvas id="ait-grafico-tipo"></canvas></div></div><div class="grafico-card"><div class="grafico-card-title ait">✅ ESTADO DE SOLUCIÓN</div><div class="chart-container"><canvas id="ait-grafico-solucion"></canvas></div></div></div>
-                    <div class="tabla-container"><table><thead class="ait"><tr><th>FECHA/HORA</th><th>AULA</th><th>DOCENTE</th><th>TIPO</th><th>SOLUCIÓN</th><th>RECOMENDACIÓN</th><th>ACCIÓN</th><th>COMPROBANTE</th></tr></thead><tbody id="ait-tablaCuerpo"></tbody></table></div>
+                    <div class="tabla-container"><table><thead class="ait"><tr><th>FECHA/HORA</th><th>AULA</th><th>DOCENTE</th><th>TIPO</th><th>HORA ATENCIÓN</th><th>SOLUCIÓN</th><th>RECOMENDACIÓN</th><th>ACCIÓN</th><th>COMPROBANTE</th></tr></thead><tbody id="ait-tablaCuerpo"></tbody></table></div>
                     <button class="btn-cerrar ait" onclick="cerrarAdmin('ait')">✕ CERRAR INFORME</button>
                 </div>
             </div>
@@ -601,17 +686,38 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
+// ===== ESTADO DE CONEXIÓN FIREBASE =====
+db.ref('.info/connected').on('value', snap => {
+    const dot   = document.getElementById('fbDot');
+    const label = document.getElementById('fbLabel');
+    if (snap.val() === true) {
+        dot.className   = 'fb-dot conectado';
+        label.textContent = '● En línea';
+    } else {
+        dot.className   = 'fb-dot conectando';
+        label.textContent = 'Conectando...';
+    }
+});
+db.ref('.info/connected').once('value').catch(() => {
+    document.getElementById('fbDot').className    = 'fb-dot error';
+    document.getElementById('fbLabel').textContent = 'Sin conexión';
+});
+
 let adminAutenticado = false;
-let chartAIPDias, chartAIPSesion, chartAIPTop, chartCRTTipo, chartCRTActividad, chartATP, chartATPArea, chartATPTiempo, chartAITTipo, chartAITSolucion;
+let chartAIPDias, chartAIPSesion, chartAIPTop, chartAIPNoIngreso, chartCRTTipo, chartCRTActividad, chartATP, chartATPArea, chartATPTiempo, chartAITTipo, chartAITSolucion;
 
 // ===== HELPERS =====
 function getFechaHoy() {
     const d = new Date();
+    // Usar hora LOCAL (Lima, UTC-5) — NO toISOString que da UTC y puede cambiar el día/mes
+    const anio  = d.getFullYear();
+    const mes2  = String(d.getMonth()+1).padStart(2,'0');
+    const dia2  = String(d.getDate()).padStart(2,'0');
     let diaSemana = d.getDay();
     if(diaSemana === 0) diaSemana = 7;
     return {
-        mes: d.toISOString().slice(0,7),
-        fecha: `${String(d.getDate()).padStart(2,'0')}-${String(d.getMonth()+1).padStart(2,'0')}-${d.getFullYear()}`,
+        mes: `${anio}-${mes2}`,                   // local: "2026-04"
+        fecha: `${dia2}-${mes2}-${anio}`,          // local: "28-04-2026"
         hora: d.toLocaleTimeString('es-PE',{hour:'2-digit',minute:'2-digit'}),
         timestamp: Date.now(),
         diaSemana: diaSemana,
@@ -626,6 +732,7 @@ function toggleNoIngreso() { const cb=document.getElementById('aip-no-ingreso');
 function toggleHoraProg(label) { document.querySelectorAll('#aip-hora-programada-grid .hora-chip').forEach(c=>{c.classList.remove('selected');c.querySelector('input').checked=false;}); label.querySelector('input').checked=true; label.classList.add('selected'); }
 function toggleHora(label) { const cb=label.querySelector('input'); label.classList.toggle('selected',cb.checked); }
 function toggleHoraCRT(label) { const cb=label.querySelector('input'); label.classList.toggle('selected',cb.checked); }
+function toggleHoraAIT(label) { const cb=label.querySelector('input'); label.classList.toggle('selected',cb.checked); }
 function selectSesion(mod,val) { ['SI','NO'].forEach(v=>{const el=document.getElementById(`${mod}-sesion-${v.toLowerCase()}`);if(el)el.classList.toggle('selected',v===val);}); document.querySelector(`input[name="${mod}-sesion"][value="${val}"]`).checked=true; }
 function getSesion(mod) { const el=document.querySelector(`input[name="${mod}-sesion"]:checked`); return el?el.value:'—'; }
 function resetSesion(mod) { ['si','no'].forEach(v=>{const el=document.getElementById(`${mod}-sesion-${v}`);if(el)el.classList.remove('selected');}); document.querySelectorAll(`input[name="${mod}-sesion"]`).forEach(r=>r.checked=false); }
@@ -658,24 +765,25 @@ function registrarATP() {
     const tipo=document.getElementById("atp-tipo").value.trim(); const nom=document.getElementById("atp-nombre").value.trim(); const tem=document.getElementById("atp-tema").value.trim(); const tpo=document.getElementById("atp-tiempo").value.trim();
     if(!tipo||!nom||!tem||!tpo||isNaN(tpo)){ toast("Complete todos los campos"); return; }
     const btn=document.getElementById("btnATP"); btn.disabled=true; btn.innerHTML='<span class="spinner"></span> Guardando...';
-    const {mes,fecha,hora,timestamp}=getFechaHoy();
-    db.ref('atenciones_atp').push({ tipo, area:document.getElementById("atp-area").value.trim()||'—', nombre:nom, tema:tem, tiempo:parseInt(tpo), observaciones:document.getElementById("atp-recursos").value.trim()||"—", fecha, hora, mes, timestamp })
+    const {mes,fecha,hora,timestamp,diaSemana,fechaNumero,semanaMes}=getFechaHoy();
+    db.ref('atenciones_atp').push({ tipo, area:document.getElementById("atp-area").value.trim()||'—', nombre:nom, tema:tem, tiempo:parseInt(tpo), observaciones:document.getElementById("atp-recursos").value.trim()||"—", fecha, hora, mes, timestamp, diaSemana, fechaNumero, semanaMes })
     .then(()=>{ toast("✓ Atención registrada"); document.getElementById("atp-nombre").value=""; document.getElementById("atp-tema").value=""; document.getElementById("atp-tiempo").value=""; document.getElementById("atp-recursos").value=""; document.getElementById("atp-tipo").value=""; document.getElementById("atp-area").value=""; })
     .finally(()=>{ btn.disabled=false; btn.innerHTML="✔ Registrar Atención Personalizada"; });
 }
 function registrarAIT() {
     const aula=document.getElementById("ait-aula").value.trim(); const docente=document.getElementById("ait-docente").value.trim(); const tipoAtencion=document.getElementById("ait-tipo-atencion").value.trim(); const solucion=document.getElementById("ait-solucion").value.trim(); const recomendacion=document.getElementById("ait-recomendacion").value.trim();
+    const horasAIT=[...document.querySelectorAll('#ait-horas-grid input:checked')].map(c=>c.value);
     if(!aula||!docente||!tipoAtencion||!solucion||!recomendacion){ toast("Complete todos los campos del AIT"); return; }
     const btn=document.getElementById("btnAIT"); btn.disabled=true; btn.innerHTML='<span class="spinner"></span> Guardando...';
     const {mes,fecha,hora,timestamp,diaSemana,fechaNumero,semanaMes}=getFechaHoy();
     const solucionTexto = solucion === 'SI' ? '✅ SÍ - Solucionado' : (solucion === 'NO' ? '⚠️ NO - Pendiente' : '❌ NO - Dado de Baja');
     const newRef = db.ref('atenciones_ait').push();
-    newRef.set({ aula, docente, tipoAtencion, solucion: solucionTexto, solucionCodigo: solucion, recomendacion, fecha, hora, mes, timestamp, diaSemana, fechaNumero, semanaMes })
-    .then(()=>{ toast("✓ Incidencia registrada"); document.getElementById("ait-aula").value=""; document.getElementById("ait-docente").value=""; document.getElementById("ait-tipo-atencion").value=""; document.getElementById("ait-solucion").value=""; document.getElementById("ait-recomendacion").value=""; const downloadDiv=document.getElementById('ait-download-area'); downloadDiv.innerHTML=`<button class="btn-download-ait" style="background:#be185d;color:white;padding:10px;border-radius:8px;width:100%;font-weight:700;" onclick="descargarComprobanteAIT('${newRef.key}', ${JSON.stringify({aula,docente,tipoAtencion,solucion:solucionTexto,recomendacion,fecha,hora}).replace(/"/g, '&quot;')})">📄 DESCARGAR COMPROBANTE PARA FIRMA DEL DOCENTE</button>`; setTimeout(()=>{downloadDiv.innerHTML='';},10000); })
+    newRef.set({ aula, docente, tipoAtencion, solucion: solucionTexto, solucionCodigo: solucion, recomendacion, fecha, hora, horaAtencion: horasAIT.join(', ')||'—', mes, timestamp, diaSemana, fechaNumero, semanaMes })
+    .then(()=>{ toast("✓ Incidencia registrada"); document.getElementById("ait-aula").value=""; document.getElementById("ait-docente").value=""; document.getElementById("ait-tipo-atencion").value=""; document.getElementById("ait-solucion").value=""; document.getElementById("ait-recomendacion").value=""; document.querySelectorAll('#ait-horas-grid .hora-chip').forEach(c=>{c.classList.remove('selected');c.querySelector('input').checked=false;}); const downloadDiv=document.getElementById('ait-download-area'); downloadDiv.innerHTML=`<button class="btn-download-ait" style="background:#be185d;color:white;padding:10px;border-radius:8px;width:100%;font-weight:700;" onclick="descargarComprobanteAIT('${newRef.key}', ${JSON.stringify({aula,docente,tipoAtencion,solucion:solucionTexto,recomendacion,fecha,hora}).replace(/"/g, '&quot;')})">📄 DESCARGAR COMPROBANTE PARA FIRMA DEL DOCENTE</button>`; setTimeout(()=>{downloadDiv.innerHTML='';},10000); })
     .finally(()=>{ btn.disabled=false; btn.innerHTML="🔧 Registrar Incidencia Tecnológica"; });
 }
 function eliminarRegistro(modulo,key,desc) { if(!confirm(`¿Eliminar este registro?\n\n${desc||''}`)) return; db.ref(`${modulo==='aip'?'atenciones_aip':modulo==='crt'?'atenciones_crt':modulo==='atp'?'atenciones_atp':'atenciones_ait'}/${key}`).remove().then(()=>{ toast("Eliminado"); if(modulo==='aip') generarReporteAIP(); else if(modulo==='crt') generarReporteCRT(); else if(modulo==='atp') generarReporteATP(); else if(modulo==='ait') generarReporteAIT(); }); }
-function descargarComprobanteAIT(key, reg) { const {jsPDF}=window.jspdf; const pdf=new jsPDF(); pdf.setFontSize(16); pdf.text("INSTITUCIÓN EDUCATIVA N° 0148",20,20); pdf.setFontSize(12); pdf.text("AIT - Atención de Incidencia Tecnológica",20,35); pdf.text(`Fecha: ${reg.fecha} ${reg.hora}`,20,50); pdf.text(`Docente: ${reg.docente}`,20,60); pdf.text(`Aula: ${reg.aula}`,20,70); pdf.text(`Tipo: ${reg.tipoAtencion}`,20,80); pdf.text(`Solución: ${reg.solucion}`,20,90); pdf.text("Recomendación:",20,105); const lines=pdf.splitTextToSize(reg.recomendacion,170); pdf.text(lines,20,115); pdf.line(20,165,120,165); pdf.text("Firma del Docente",20,175); pdf.line(140,165,190,165); pdf.text("Fecha",150,175); pdf.save(`Comprobante_AIT_${reg.docente.replace(/\s/g,'_')}.pdf`); toast("Comprobante generado"); }
+function descargarComprobanteAIT(key, reg) { const {jsPDF}=window.jspdf; const pdf=new jsPDF(); pdf.setFontSize(16); pdf.text("INSTITUCIÓN EDUCATIVA N° 0148",20,20); pdf.setFontSize(12); pdf.text("AIT - Atención de Incidencia Tecnológica",20,35); pdf.text(`Fecha: ${reg.fecha} ${reg.hora}`,20,50); pdf.text(`Docente: ${reg.docente}`,20,60); pdf.text(`Aula: ${reg.aula}`,20,70); pdf.text(`Tipo: ${reg.tipoAtencion}`,20,80); pdf.text(`Hora de atención: ${reg.horaAtencion||'—'}`,20,90); pdf.text(`Solución: ${reg.solucion}`,20,100); pdf.text("Recomendación:",20,115); const lines=pdf.splitTextToSize(reg.recomendacion,170); pdf.text(lines,20,125); pdf.line(20,165,120,165); pdf.text("Firma del Docente",20,175); pdf.line(140,165,190,165); pdf.text("Fecha",150,175); pdf.save(`Comprobante_AIT_${reg.docente.replace(/\s/g,'_')}.pdf`); toast("Comprobante generado"); }
 
 // ===== ADMIN =====
 function checkAdmin() {
@@ -724,10 +832,38 @@ function abrirInformeGeneral() {
 function cerrarAdmin(modulo) { const ids={aip:'panelAdminAIP',crt:'panelAdminCRT',atp:'panelAdminATP',ait:'panelAdminAIT',gen:'panelAdminGEN'}; document.getElementById(ids[modulo]).style.display="none"; }
 
 // ===== REPORTES PROFESIONALES =====
+function parseFechaReg(r){
+    // Normaliza un registro: extrae dia, mes, anio, diaSemana, fechaNumero, semanaMes
+    // desde r.fecha (formato DD-MM-YYYY) si los campos no existen
+    if(r._parsed) return r;
+    if(r.fecha){
+        const p=r.fecha.split('-');
+        if(p.length===3){
+            const dia=parseInt(p[0]),mes=parseInt(p[1]),anio=parseInt(p[2]);
+            if(!r.fechaNumero) r.fechaNumero=dia;
+            if(!r.semanaMes)   r.semanaMes=Math.min(5,Math.ceil(dia/7));
+            if(!r.diaSemana){
+                const ds=new Date(anio,mes-1,dia).getDay();
+                r.diaSemana=ds===0?7:ds;
+            }
+            if(!r.mes) r.mes=`${anio}-${String(mes).padStart(2,'0')}`;
+        }
+    }
+    r._parsed=true; return r;
+}
+function filtrarPorMes(registros, mes){
+    const [anioF,mesF]=mes.split('-');
+    const mesUTC=new Date(mes+'-15T12:00:00Z').toISOString().slice(0,7);
+    return registros.map(r=>parseFechaReg(r)).filter(r=>{
+        if(r.mes===mes||r.mes===mesUTC) return true;
+        if(r.fecha){ const p=r.fecha.split('-'); if(p.length===3&&p[1]===mesF&&p[2]===anioF) return true; }
+        return false;
+    });
+}
 function generarReporteAIP() {
     const mes=document.getElementById('mesFiltroAIP').value; if(!mes||!mes.startsWith("2026")){toast("Seleccione un mes de 2026");return;}
-    db.ref('atenciones_aip').orderByChild('timestamp').once('value', snap=>{
-        const registros=Object.entries(snap.val()||{}).filter(([,r])=>r.mes===mes).map(([k,r])=>({...r,_key:k}));
+    db.ref('atenciones_aip').once('value', snap=>{
+        const registros=filtrarPorMes(Object.entries(snap.val()||{}).map(([k,r])=>({...r,_key:k})), mes);
         const total=registros.length; const asistencias=registros.filter(r=>r.estado==='ASISTIO').length; const noIngresos=registros.filter(r=>r.estado==='NO_INGRESO').length;
         const pctAsist=total?((asistencias/total)*100).toFixed(1):0; const pctNoIng=total?((noIngresos/total)*100).toFixed(1):0;
         document.getElementById('aip-stats-mes').innerHTML=`<div class="stat-card aip"><div class="stat-num stat-accent-aip">${total}</div><div class="stat-label">Total Registros</div></div><div class="stat-card aip"><div class="stat-num" style="color:#22c55e">${asistencias}</div><div class="stat-label">✅ Ingresaron (${pctAsist}%)</div></div><div class="stat-card aip"><div class="stat-num" style="color:#f59e0b">${noIngresos}</div><div class="stat-label">🚫 No Ingresaron (${pctNoIng}%)</div></div><div class="stat-card aip"><div class="stat-num">${new Set(registros.map(r=>r.docente)).size}</div><div class="stat-label">Docentes</div></div>`;
@@ -735,7 +871,8 @@ function generarReporteAIP() {
         /* ── ANÁLISIS POR DÍA EXACTO DEL MES ── */
         const diasDelMesObj={};
         registros.forEach(r=>{
-            const dn=r.fechaNumero; const fe=r.fecha||'';
+            const dn=r.fechaNumero||(r.fecha?parseInt(r.fecha.split('-')[0]):null);
+            const fe=r.fecha||'';
             if(!dn) return;
             if(!diasDelMesObj[dn]) diasDelMesObj[dn]={fecha:fe,asist:0,noAsist:0,total:0};
             diasDelMesObj[dn].total++;
@@ -787,18 +924,57 @@ function generarReporteAIP() {
         /* ── GRÁFICO TOP DOCENTES ── */
         const topPersonas=Object.entries(porPersona).sort((a,b)=>b[1]-a[1]).slice(0,6);
         const ctx3=document.getElementById('aip-grafico-top').getContext('2d'); if(chartAIPTop)chartAIPTop.destroy(); chartAIPTop=new Chart(ctx3,{type:'bar',data:{labels:topPersonas.map(p=>p[0].substring(0,20)),datasets:[{label:'Asistencias',data:topPersonas.map(p=>p[1]),backgroundColor:'#1a3080',borderRadius:8}]},options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false}}}});
+
+        /* ── GRÁFICO DOCENTES QUE NO INGRESARON ── */
+        const noIngRegs=registros.filter(r=>r.estado==='NO_INGRESO');
+        const noIngMap={};
+        noIngRegs.forEach(r=>{
+            const k=r.nombre||r.docente||'Sin nombre';
+            if(!noIngMap[k]) noIngMap[k]={count:0,fechas:[],horas:[]};
+            noIngMap[k].count++;
+            if(r.fecha) noIngMap[k].fechas.push(r.fecha);
+            if(r.horaProgramada&&r.horaProgramada!=='—') noIngMap[k].horas.push(r.horaProgramada);
+        });
+        const noIngKeys=Object.keys(noIngMap).sort((a,b)=>noIngMap[b].count-noIngMap[a].count);
+        const ctx4=document.getElementById('aip-grafico-no-ingreso').getContext('2d');
+        if(chartAIPNoIngreso) chartAIPNoIngreso.destroy();
+        if(noIngKeys.length===0){
+            ctx4.clearRect(0,0,ctx4.canvas.width,ctx4.canvas.height);
+            ctx4.save(); ctx4.fillStyle='#22c55e'; ctx4.font='bold 13px sans-serif'; ctx4.textAlign='center'; ctx4.textBaseline='middle';
+            ctx4.fillText('✅ Sin ausencias registradas',ctx4.canvas.width/2,ctx4.canvas.height/2); ctx4.restore();
+        } else {
+            chartAIPNoIngreso=new Chart(ctx4,{type:'bar',data:{labels:noIngKeys.map(l=>l.length>22?l.substring(0,21)+'…':l),datasets:[{label:'Veces que no ingresó',data:noIngKeys.map(k=>noIngMap[k].count),backgroundColor:noIngKeys.map((_,i)=>i===0?'#ef4444':i===1?'#f97316':'#f59e0b'),borderRadius:6}]},options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>`No ingresó: ${c.parsed.x} ${c.parsed.x===1?'vez':'veces'}`}}},scales:{x:{beginAtZero:true,ticks:{stepSize:1},grid:{color:'rgba(0,0,0,0.05)'}},y:{ticks:{font:{size:10}}}}}});
+        }
+
+        /* ── TABLA DETALLE NO INGRESARON ── */
+        const tblNoIng=document.getElementById('aip-no-ingreso-tabla');
+        if(noIngKeys.length===0){
+            tblNoIng.innerHTML='<div style="text-align:center;padding:20px;background:#f0fdf4;border-radius:10px;border:1.5px solid #86efac;color:#15803d;font-weight:700;font-size:14px">✅ ¡Excelente! Todos los docentes ingresaron al AIP este mes.</div>';
+        } else {
+            let htmlT='<div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;font-size:12px;">';
+            htmlT+='<thead><tr style="background:#fff8f0"><th style="padding:10px 8px;text-align:left;font-weight:800;color:#b45309;font-size:10px;text-transform:uppercase;border-bottom:2px solid #fde68a">DOCENTE / ÁREA</th><th style="padding:10px 8px;text-align:center;font-weight:800;color:#b45309;font-size:10px;text-transform:uppercase;border-bottom:2px solid #fde68a">N° AUSENCIAS</th><th style="padding:10px 8px;text-align:center;font-weight:800;color:#b45309;font-size:10px;text-transform:uppercase;border-bottom:2px solid #fde68a">FECHAS</th><th style="padding:10px 8px;text-align:center;font-weight:800;color:#b45309;font-size:10px;text-transform:uppercase;border-bottom:2px solid #fde68a">HORA PROGRAMADA</th></tr></thead><tbody>';
+            noIngKeys.forEach((k,i)=>{
+                const d=noIngMap[k];
+                const bg=i===0?'#fef2f2':i===1?'#fffbeb':'#fff8f0';
+                const badgeBg=d.count>=3?'#fee2e2':d.count===2?'#fef3c7':'#fff7ed';
+                const badgeColor=d.count>=3?'#b91c1c':d.count===2?'#b45309':'#92400e';
+                htmlT+=`<tr style="border-bottom:1px solid #fef3c7;background:${bg}"><td style="padding:10px 8px;font-weight:700;color:#1e293b">🚫 ${k}</td><td style="padding:10px 8px;text-align:center"><span style="background:${badgeBg};color:${badgeColor};padding:4px 14px;border-radius:20px;font-weight:800;font-size:14px;display:inline-block">${d.count} ${d.count===1?'vez':'veces'}</span></td><td style="padding:10px 8px;text-align:center;color:#64748b;font-size:11px">${d.fechas.join(' · ')}</td><td style="padding:10px 8px;text-align:center;color:#64748b;font-size:11px">${d.horas.length?d.horas.join(', '):'—'}</td></tr>`;
+            });
+            htmlT+='</tbody></table></div>';
+            tblNoIng.innerHTML=htmlT;
+        }
     });
 }
 function generarReporteCRT() {
     const mes=document.getElementById('mesFiltroCRT').value; if(!mes||!mes.startsWith("2026")){toast("Seleccione un mes");return;}
-    db.ref('atenciones_crt').orderByChild('timestamp').once('value', snap=>{
-        const registros=Object.entries(snap.val()||{}).filter(([,r])=>r.mes===mes).map(([k,r])=>({...r,_key:k}));
+    db.ref('atenciones_crt').once('value', snap=>{
+        const registros=filtrarPorMes(Object.entries(snap.val()||{}).map(([k,r])=>parseFechaReg({...r,_key:k})), mes);
         const total=registros.length; const personas=new Set(registros.map(r=>r.docente)).size;
         document.getElementById('crt-stats-mes').innerHTML=`<div class="stat-card crt"><div class="stat-num stat-accent-crt">${total}</div><div class="stat-label">Total Registros</div></div><div class="stat-card crt"><div class="stat-num">${personas}</div><div class="stat-label">Personas Atendidas</div></div><div class="stat-card crt"><div class="stat-num">${new Set(registros.map(r=>r.fecha)).size}</div><div class="stat-label">Días con Actividad</div></div><div class="stat-card crt"><div class="stat-num">${total>0?(total/Math.max(1,new Set(registros.map(r=>r.fecha)).size)).toFixed(1):0}</div><div class="stat-label">Prom. por Día</div></div>`;
 
         /* ── POR DÍA EXACTO ── */
         const diasExactos={};
-        registros.forEach(r=>{ const dn=r.fechaNumero; const fe=r.fecha||''; if(!dn)return; if(!diasExactos[dn]) diasExactos[dn]={fecha:fe,total:0}; diasExactos[dn].total++; });
+        registros.forEach(r=>{ const dn=r.fechaNumero||(r.fecha?parseInt(r.fecha.split('-')[0]):null); const fe=r.fecha||''; if(!dn)return; if(!diasExactos[dn]) diasExactos[dn]={fecha:fe,total:0}; diasExactos[dn].total++; });
         const diasOrd=Object.entries(diasExactos).sort((a,b)=>+a[0]-+b[0]);
         const nomDia=['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
         let htmlDiasE='';
@@ -836,14 +1012,14 @@ function generarReporteCRT() {
 }
 function generarReporteATP() {
     const mes=document.getElementById('mesFiltroATP').value; if(!mes||!mes.startsWith("2026")){toast("Seleccione un mes");return;}
-    db.ref('atenciones_atp').orderByChild('timestamp').once('value', snap=>{
-        const registros=Object.entries(snap.val()||{}).filter(([,r])=>r.mes===mes).map(([k,r])=>({...r,_key:k}));
+    db.ref('atenciones_atp').once('value', snap=>{
+        const registros=filtrarPorMes(Object.entries(snap.val()||{}).map(([k,r])=>parseFechaReg({...r,_key:k})), mes);
         const total=registros.length; const minutos=registros.reduce((s,r)=>s+(r.tiempo||0),0);
         document.getElementById('atp-statTotal').textContent=total; document.getElementById('atp-statPersonas').textContent=new Set(registros.map(r=>r.nombre)).size; document.getElementById('atp-statMinutos').textContent=minutos; document.getElementById('atp-statPromMin').textContent=total>0?(minutos/total).toFixed(0):0;
 
         /* ── POR DÍA EXACTO ── */
         const diasExactos={};
-        registros.forEach(r=>{ const dn=r.fechaNumero; const fe=r.fecha||''; if(!dn)return; if(!diasExactos[dn]) diasExactos[dn]={fecha:fe,total:0,minutos:0}; diasExactos[dn].total++; diasExactos[dn].minutos+=(r.tiempo||0); });
+        registros.forEach(r=>{ const dn=r.fechaNumero||(r.fecha?parseInt(r.fecha.split('-')[0]):null); const fe=r.fecha||''; if(!dn)return; if(!diasExactos[dn]) diasExactos[dn]={fecha:fe,total:0,minutos:0}; diasExactos[dn].total++; diasExactos[dn].minutos+=(r.tiempo||0); });
         const diasOrd=Object.entries(diasExactos).sort((a,b)=>+a[0]-+b[0]);
         const nomDia=['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
         let htmlDiasE='';
@@ -884,15 +1060,15 @@ function generarReporteATP() {
 }
 function generarReporteAIT() {
     const mes=document.getElementById('mesFiltroAIT').value; if(!mes||!mes.startsWith("2026")){toast("Seleccione un mes");return;}
-    db.ref('atenciones_ait').orderByChild('timestamp').once('value', snap=>{
-        const registros=Object.entries(snap.val()||{}).filter(([,r])=>r.mes===mes).map(([k,r])=>({...r,_key:k}));
+    db.ref('atenciones_ait').once('value', snap=>{
+        const registros=filtrarPorMes(Object.entries(snap.val()||{}).map(([k,r])=>parseFechaReg({...r,_key:k})), mes);
         const total=registros.length; const solucionadas=registros.filter(r=>r.solucionCodigo==='SI').length; const pendientes=registros.filter(r=>r.solucionCodigo==='NO').length; const bajas=registros.filter(r=>r.solucionCodigo==='BAJA').length;
         const pctSol=total?((solucionadas/total)*100).toFixed(1):0;
         document.getElementById('ait-statTotal').textContent=total; document.getElementById('ait-statSolucionadas').textContent=solucionadas; document.getElementById('ait-statPendientes').textContent=pendientes; document.getElementById('ait-statBaja').textContent=bajas;
 
         /* ── POR DÍA EXACTO ── */
         const diasExactos={};
-        registros.forEach(r=>{ const dn=r.fechaNumero; const fe=r.fecha||''; if(!dn)return; if(!diasExactos[dn]) diasExactos[dn]={fecha:fe,total:0,sol:0,pend:0}; diasExactos[dn].total++; if(r.solucionCodigo==='SI') diasExactos[dn].sol++; else if(r.solucionCodigo==='NO') diasExactos[dn].pend++; });
+        registros.forEach(r=>{ const dn=r.fechaNumero||(r.fecha?parseInt(r.fecha.split('-')[0]):null); const fe=r.fecha||''; if(!dn)return; if(!diasExactos[dn]) diasExactos[dn]={fecha:fe,total:0,sol:0,pend:0}; diasExactos[dn].total++; if(r.solucionCodigo==='SI') diasExactos[dn].sol++; else if(r.solucionCodigo==='NO') diasExactos[dn].pend++; });
         const diasOrd=Object.entries(diasExactos).sort((a,b)=>+a[0]-+b[0]);
         const nomDia=['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
         let htmlDiasE='';
@@ -920,7 +1096,7 @@ function generarReporteAIT() {
         registros.forEach(r=>{ if(r.semanaMes && semanas[r.semanaMes]){ semanas[r.semanaMes].total++; if(r.solucionCodigo==='SI') semanas[r.semanaMes].sol++; else if(r.solucionCodigo==='NO') semanas[r.semanaMes].pend++; } });
         document.getElementById('ait-semanas-grid').innerHTML=Object.entries(semanas).filter(([_,v])=>v.total>0).map(([sem,v])=>`<div class="semana-card" style="min-width:140px"><div class="semana-nombre">Semana ${sem}</div><div class="semana-cantidad">${v.total}</div><div style="font-size:11px;color:#15803d;font-weight:700;margin-top:4px">✅ Solucionadas: ${v.sol} (${v.total?((v.sol/v.total)*100).toFixed(0):0}%)</div><div style="font-size:11px;color:#b91c1c;font-weight:700;margin-top:2px">⚠️ Pendientes: ${v.pend} (${v.total?((v.pend/v.total)*100).toFixed(0):0}%)</div></div>`).join('');
 
-        document.getElementById('ait-tablaCuerpo').innerHTML=registros.sort((a,b)=>b.timestamp-a.timestamp).map(r=>{let bc=r.solucionCodigo==='SI'?'solucionado':(r.solucionCodigo==='NO'?'pendiente':'dadobaja');return `<tr><td><b>${r.fecha}</b><br><small>${r.hora}</small></td><td>${r.aula}</td><td>${r.docente}</td><td>${r.tipoAtencion}</td><td><span class="badge-tipo ${bc}">${r.solucion}</span></td><td>${r.recomendacion.substring(0,50)}</td><td><button class="btn-eliminar" onclick="eliminarRegistro('ait','${r._key}','${r.docente.replace(/'/g,"\\'")}')">Eliminar</button></td><td><button class="btn-descargar" onclick="descargarComprobanteAIT('${r._key}',${JSON.stringify(r).replace(/"/g, '&quot;')})">📄 Firmar</button></td></tr>`;}).join('');
+        document.getElementById('ait-tablaCuerpo').innerHTML=registros.sort((a,b)=>b.timestamp-a.timestamp).map(r=>{let bc=r.solucionCodigo==='SI'?'solucionado':(r.solucionCodigo==='NO'?'pendiente':'dadobaja');return `<tr><td><b>${r.fecha}</b><br><small>${r.hora}</small></td><td>${r.aula}</td><td>${r.docente}</td><td>${r.tipoAtencion}</td><td><span style="background:var(--ait-bg);color:var(--ait-mid);padding:3px 10px;border-radius:20px;font-size:11px;font-weight:800;border:1px solid var(--ait-border);">${r.horaAtencion||'—'}</span></td><td><span class="badge-tipo ${bc}">${r.solucion}</span></td><td>${r.recomendacion.substring(0,50)}</td><td><button class="btn-eliminar" onclick="eliminarRegistro('ait','${r._key}','${r.docente.replace(/'/g,"\\'")}')">Eliminar</button></td><td><button class="btn-descargar" onclick="descargarComprobanteAIT('${r._key}',${JSON.stringify(r).replace(/"/g, '&quot;')})">📄 Firmar</button></td></tr>`;}).join('');
         const tipoCount={}; registros.forEach(r=>{ tipoCount[r.tipoAtencion]=(tipoCount[r.tipoAtencion]||0)+1; });
         const ctx=document.getElementById('ait-grafico-tipo').getContext('2d'); if(chartAITTipo)chartAITTipo.destroy(); chartAITTipo=new Chart(ctx,{type:'pie',data:{labels:Object.keys(tipoCount),datasets:[{data:Object.values(tipoCount),backgroundColor:['#be185d','#db2777','#f43f5e','#fda4af','#831843']}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'}}}});
         const ctx2=document.getElementById('ait-grafico-solucion').getContext('2d'); if(chartAITSolucion)chartAITSolucion.destroy(); chartAITSolucion=new Chart(ctx2,{type:'doughnut',data:{labels:['✅ Solucionados','⚠️ Pendientes','❌ Dados de Baja'],datasets:[{data:[solucionadas,pendientes,bajas],backgroundColor:['#22c55e','#ef4444','#f59e0b']}]},options:{responsive:true,maintainAspectRatio:false,cutout:'55%',plugins:{legend:{position:'bottom'}}}});
@@ -930,10 +1106,10 @@ function generarReporteGeneral() {
     const mes=document.getElementById('mesFiltroGEN').value; if(!mes||!mes.startsWith("2026")){toast("Seleccione un mes de 2026");return;}
     const contenido=document.getElementById('genContenido'); contenido.innerHTML='<div class="empty-state">⏳ Cargando datos consolidados...</div>';
     Promise.all([db.ref('atenciones_aip').once('value'), db.ref('atenciones_crt').once('value'), db.ref('atenciones_atp').once('value'), db.ref('atenciones_ait').once('value')]).then(([aip,crt,atp,ait])=>{
-        const aipR=Object.values(aip.val()||{}).filter(r=>r.mes===mes);
-        const crtR=Object.values(crt.val()||{}).filter(r=>r.mes===mes);
-        const atpR=Object.values(atp.val()||{}).filter(r=>r.mes===mes);
-        const aitR=Object.values(ait.val()||{}).filter(r=>r.mes===mes);
+        const aipR=filtrarPorMes(Object.values(aip.val()||{}).map(r=>parseFechaReg({...r})), mes);
+        const crtR=filtrarPorMes(Object.values(crt.val()||{}).map(r=>parseFechaReg({...r})), mes);
+        const atpR=filtrarPorMes(Object.values(atp.val()||{}).map(r=>parseFechaReg({...r})), mes);
+        const aitR=filtrarPorMes(Object.values(ait.val()||{}).map(r=>parseFechaReg({...r})), mes);
         const mesLabel=new Date(mes+'-01').toLocaleDateString('es-PE',{year:'numeric',month:'long'});
         const grandTotal=aipR.length+crtR.length+atpR.length+aitR.length;
         const personasTotal=new Set([...aipR.map(r=>r.docente),...crtR.map(r=>r.docente),...atpR.map(r=>r.nombre),...aitR.map(r=>r.docente)]).size;
@@ -1013,6 +1189,13 @@ function generarReporteGeneral() {
             <div class="grafico-card"><div class="grafico-card-title" style="color:#155724">🖥️ CRT — REGISTROS POR DÍA</div><div class="chart-container"><canvas id="gen-crt-chart"></canvas></div></div>
             <div class="grafico-card"><div class="grafico-card-title" style="color:#6b21a8">🧑‍🏫 ATP — ATENCIONES POR TIPO</div><div class="chart-container"><canvas id="gen-atp-chart"></canvas></div></div>
             <div class="grafico-card"><div class="grafico-card-title" style="color:#831843">🔧 AIT — ESTADO DE INCIDENCIAS</div><div class="chart-container"><canvas id="gen-ait-chart"></canvas></div></div>
+            <div class="grafico-card" style="border-left:4px solid #f59e0b;"><div class="grafico-card-title" style="color:#b45309">🚫 AIP — DOCENTES QUE NO INGRESARON (RANKING)</div><div class="chart-container"><canvas id="gen-no-ingreso-chart"></canvas></div></div>
+        </div>
+
+        <!-- TABLA GENERAL: DOCENTES QUE NO INGRESARON AIP -->
+        <div style="background:white;border-radius:14px;padding:20px;border:1.5px solid #fde68a;margin-bottom:24px;">
+            <div style="font-family:'Space Mono',monospace;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;color:#b45309;margin-bottom:16px;border-left:4px solid #f59e0b;padding-left:12px;">🚫 DOCENTES QUE NO INGRESARON AL AIP — DETALLE DEL MES</div>
+            <div id="gen-no-ingreso-tabla"></div>
         </div>
 
         <!-- ANÁLISIS POR DÍA DE SEMANA CONSOLIDADO -->
@@ -1058,15 +1241,27 @@ function generarReporteGeneral() {
         /* ── GRÁFICO: DÍAS DE SEMANA CONSOLIDADO ── */
         const diasConsolidados=[0,0,0,0,0];
         const diasAIP=[0,0,0,0,0]; const diasCRT=[0,0,0,0,0]; const diasATP=[0,0,0,0,0]; const diasAIT=[0,0,0,0,0];
-        aipR.forEach(r=>{if(r.diaSemana>=1&&r.diaSemana<=5){diasConsolidados[r.diaSemana-1]++;diasAIP[r.diaSemana-1]++;}});
-        crtR.forEach(r=>{if(r.diaSemana>=1&&r.diaSemana<=5){diasConsolidados[r.diaSemana-1]++;diasCRT[r.diaSemana-1]++;}});
-        atpR.forEach(r=>{if(r.diaSemana>=1&&r.diaSemana<=5){diasConsolidados[r.diaSemana-1]++;diasATP[r.diaSemana-1]++;}});
-        aitR.forEach(r=>{if(r.diaSemana>=1&&r.diaSemana<=5){diasConsolidados[r.diaSemana-1]++;diasAIT[r.diaSemana-1]++;}});
+        // Helper: obtiene diaSemana desde el campo o lo calcula desde la fecha (para datos antiguos sin ese campo)
+        function getDiaSemana(r){
+            if(r.diaSemana>=1&&r.diaSemana<=5) return r.diaSemana;
+            if(r.fecha){ const p=r.fecha.split('-'); if(p.length===3){ const d=new Date(+p[2],+p[1]-1,+p[0]); const ds=d.getDay(); if(ds>=1&&ds<=5) return ds; } }
+            return null;
+        }
+        function getSemanaMes(r){
+            if(r.semanaMes>=1&&r.semanaMes<=5) return r.semanaMes;
+            if(r.fechaNumero&&r.fechaNumero>=1) return Math.min(5,Math.ceil(r.fechaNumero/7));
+            if(r.fecha){ const p=r.fecha.split('-'); if(p.length===3){ const dia=+p[0]; return Math.min(5,Math.ceil(dia/7)); } }
+            return null;
+        }
+        aipR.forEach(r=>{const ds=getDiaSemana(r);if(ds){diasConsolidados[ds-1]++;diasAIP[ds-1]++;}});
+        crtR.forEach(r=>{const ds=getDiaSemana(r);if(ds){diasConsolidados[ds-1]++;diasCRT[ds-1]++;}});
+        atpR.forEach(r=>{const ds=getDiaSemana(r);if(ds){diasConsolidados[ds-1]++;diasATP[ds-1]++;}});
+        aitR.forEach(r=>{const ds=getDiaSemana(r);if(ds){diasConsolidados[ds-1]++;diasAIT[ds-1]++;}});
         new Chart(document.getElementById('gen-diasem-chart').getContext('2d'),{type:'bar',data:{labels:['LUN','MAR','MIÉ','JUE','VIE'],datasets:[{label:'AIP',data:diasAIP,backgroundColor:'#2348c0',borderRadius:4},{label:'CRT',data:diasCRT,backgroundColor:'#22c55e',borderRadius:4},{label:'ATP',data:diasATP,backgroundColor:'#9333ea',borderRadius:4},{label:'AIT',data:diasAIT,backgroundColor:'#db2777',borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,scales:{x:{stacked:true},y:{stacked:true,beginAtZero:true}},plugins:{legend:{position:'bottom',labels:{font:{size:10}}}}}});
 
         /* ── GRÁFICO AIP ── */
         const aipDiasSemana=[0,0,0,0,0]; const aipNoIngDS=[0,0,0,0,0];
-        aipR.forEach(r=>{if(r.diaSemana>=1&&r.diaSemana<=5){if(r.estado==='ASISTIO')aipDiasSemana[r.diaSemana-1]++;else aipNoIngDS[r.diaSemana-1]++;}});
+        aipR.forEach(r=>{const ds=getDiaSemana(r);if(ds){if(r.estado==='ASISTIO')aipDiasSemana[ds-1]++;else aipNoIngDS[ds-1]++;}});
         new Chart(document.getElementById('gen-aip-chart').getContext('2d'),{type:'bar',data:{labels:['LUN','MAR','MIÉ','JUE','VIE'],datasets:[{label:'✅ Asistió',data:aipDiasSemana,backgroundColor:'#22c55e',borderRadius:4},{label:'🚫 No ingresó',data:aipNoIngDS,backgroundColor:'#f59e0b',borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,scales:{x:{stacked:true},y:{stacked:true,beginAtZero:true}},plugins:{legend:{position:'bottom',labels:{font:{size:10}}}}}});
 
         /* ── GRÁFICO CRT ── */
@@ -1081,16 +1276,57 @@ function generarReporteGeneral() {
         const aitPend=aitR.filter(r=>r.solucionCodigo==='NO').length; const aitBaja=aitR.filter(r=>r.solucionCodigo==='BAJA').length;
         new Chart(document.getElementById('gen-ait-chart').getContext('2d'),{type:'doughnut',data:{labels:['✅ Solucionados','⚠️ Pendientes','❌ Dados de Baja'],datasets:[{data:[aitSol,aitPend,aitBaja],backgroundColor:['#22c55e','#ef4444','#f59e0b'],borderWidth:3,borderColor:'#fff'}]},options:{responsive:true,maintainAspectRatio:false,cutout:'50%',plugins:{legend:{position:'bottom',labels:{font:{size:9}}},tooltip:{callbacks:{label:ctx=>`${ctx.label}: ${ctx.parsed} (${aitR.length?((ctx.parsed/aitR.length)*100).toFixed(1):0}%)`}}}}});
 
+        /* ── GRÁFICO + TABLA: DOCENTES QUE NO INGRESARON AIP ── */
+        const genNoIngRegs=aipR.filter(r=>r.estado==='NO_INGRESO');
+        const genNoIngMap={};
+        genNoIngRegs.forEach(r=>{
+            const k=r.nombre||r.docente||'Sin nombre';
+            if(!genNoIngMap[k]) genNoIngMap[k]={count:0,fechas:[],horas:[],grado:r.grado||'',seccion:r.seccion||''};
+            genNoIngMap[k].count++;
+            if(r.fecha) genNoIngMap[k].fechas.push(r.fecha);
+            if(r.horaProgramada&&r.horaProgramada!=='—') genNoIngMap[k].horas.push(r.horaProgramada);
+        });
+        const genNoIngKeys=Object.keys(genNoIngMap).sort((a,b)=>genNoIngMap[b].count-genNoIngMap[a].count);
+        const ctxNoIng=document.getElementById('gen-no-ingreso-chart').getContext('2d');
+        if(genNoIngKeys.length===0){
+            ctxNoIng.clearRect(0,0,ctxNoIng.canvas.width,ctxNoIng.canvas.height);
+            ctxNoIng.save(); ctxNoIng.fillStyle='#22c55e'; ctxNoIng.font='bold 13px sans-serif'; ctxNoIng.textAlign='center'; ctxNoIng.textBaseline='middle';
+            ctxNoIng.fillText('✅ Sin ausencias registradas este mes',ctxNoIng.canvas.width/2,ctxNoIng.canvas.height/2); ctxNoIng.restore();
+        } else {
+            const palette=genNoIngKeys.map((_,i)=>{const colors=['#ef4444','#f97316','#f59e0b','#fbbf24','#fcd34d']; return colors[Math.min(i,colors.length-1)];});
+            new Chart(ctxNoIng,{type:'bar',data:{labels:genNoIngKeys.map(l=>l.length>24?l.substring(0,23)+'…':l),datasets:[{label:'Veces que no ingresó',data:genNoIngKeys.map(k=>genNoIngMap[k].count),backgroundColor:palette,borderRadius:6}]},options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>`No ingresó: ${c.parsed.x} ${c.parsed.x===1?'vez':'veces'}`}}},scales:{x:{beginAtZero:true,ticks:{stepSize:1},grid:{color:'rgba(0,0,0,0.05)'}},y:{ticks:{font:{size:10}}}}}});
+        }
+        /* ── TABLA DETALLE NO INGRESARON GENERAL ── */
+        const genTblNoIng=document.getElementById('gen-no-ingreso-tabla');
+        if(genNoIngKeys.length===0){
+            genTblNoIng.innerHTML='<div style="text-align:center;padding:20px;background:#f0fdf4;border-radius:10px;border:1.5px solid #86efac;color:#15803d;font-weight:700;font-size:14px">✅ ¡Excelente! Todos los docentes registraron ingreso al AIP este mes.</div>';
+        } else {
+            let htmlGen='<div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;font-size:12px;">';
+            htmlGen+='<thead><tr style="background:#fff8f0"><th style="padding:10px 8px;text-align:left;font-weight:800;color:#b45309;font-size:10px;text-transform:uppercase;border-bottom:2px solid #fde68a">#</th><th style="padding:10px 8px;text-align:left;font-weight:800;color:#b45309;font-size:10px;text-transform:uppercase;border-bottom:2px solid #fde68a">DOCENTE / ÁREA</th><th style="padding:10px 8px;text-align:center;font-weight:800;color:#b45309;font-size:10px;text-transform:uppercase;border-bottom:2px solid #fde68a">GRADO/SECC.</th><th style="padding:10px 8px;text-align:center;font-weight:800;color:#b45309;font-size:10px;text-transform:uppercase;border-bottom:2px solid #fde68a">N° AUSENCIAS</th><th style="padding:10px 8px;text-align:center;font-weight:800;color:#b45309;font-size:10px;text-transform:uppercase;border-bottom:2px solid #fde68a">FECHAS</th><th style="padding:10px 8px;text-align:center;font-weight:800;color:#b45309;font-size:10px;text-transform:uppercase;border-bottom:2px solid #fde68a">HORA PROGRAMADA</th></tr></thead><tbody>';
+            genNoIngKeys.forEach((k,i)=>{
+                const d=genNoIngMap[k];
+                const bg=i%2===0?'#fff8f0':'#fffbeb';
+                const badgeBg=d.count>=3?'#fee2e2':d.count===2?'#fef3c7':'#fff7ed';
+                const badgeColor=d.count>=3?'#b91c1c':d.count===2?'#b45309':'#92400e';
+                const medal=i===0?'🥇':i===1?'🥈':i===2?'🥉':'';
+                htmlGen+=`<tr style="border-bottom:1px solid #fef3c7;background:${bg}"><td style="padding:10px 8px;text-align:center;font-size:14px;color:#94a3b8;font-weight:700">${medal||i+1}</td><td style="padding:10px 8px;font-weight:700;color:#1e293b">🚫 ${k}</td><td style="padding:10px 8px;text-align:center;color:#64748b;font-size:11px">${d.grado?d.grado+' '+d.seccion:'—'}</td><td style="padding:10px 8px;text-align:center"><span style="background:${badgeBg};color:${badgeColor};padding:4px 14px;border-radius:20px;font-weight:800;font-size:14px;display:inline-block">${d.count} ${d.count===1?'vez':'veces'}</span></td><td style="padding:10px 8px;text-align:center;color:#64748b;font-size:11px">${d.fechas.join(' · ')}</td><td style="padding:10px 8px;text-align:center;color:#64748b;font-size:11px">${d.horas.length?d.horas.join(', '):'—'}</td></tr>`;
+            });
+            const totalAus=genNoIngKeys.reduce((s,k)=>s+genNoIngMap[k].count,0);
+            htmlGen+=`<tr style="background:#fff8f0;font-weight:800;border-top:2px solid #fde68a"><td colspan="3" style="padding:10px 8px;color:#b45309;font-size:11px;text-transform:uppercase">TOTAL AUSENCIAS REGISTRADAS</td><td style="padding:10px 8px;text-align:center"><span style="background:#fee2e2;color:#b91c1c;padding:4px 14px;border-radius:20px;font-weight:800;font-size:14px">${totalAus}</span></td><td colspan="2" style="padding:10px 8px;text-align:center;color:#94a3b8;font-size:11px">${genNoIngKeys.length} docente${genNoIngKeys.length!==1?'s':''} con ausencias</td></tr>`;
+            htmlGen+='</tbody></table></div>';
+            genTblNoIng.innerHTML=htmlGen;
+        }
+
         /* ── DÍAS DE SEMANA CARDS ── */
         const totalConsolidado=diasConsolidados.reduce((a,b)=>a+b,0);
         document.getElementById('gen-dias-grid').innerHTML=['LUN','MAR','MIÉ','JUE','VIE'].map((d,i)=>`<div class="dia-card" style="min-width:100px"><div class="dia-nombre">${d}</div><div class="dia-cantidad">${diasConsolidados[i]}</div><div class="dia-porcentaje">${totalConsolidado?((diasConsolidados[i]/totalConsolidado)*100).toFixed(0):0}%</div><div style="font-size:9px;color:#64748b;margin-top:4px">AIP:${diasAIP[i]} CRT:${diasCRT[i]}<br>ATP:${diasATP[i]} AIT:${diasAIT[i]}</div></div>`).join('');
 
         /* ── SEMANAS DEL MES CONSOLIDADO ── */
         const semanasGen={1:{aip:0,crt:0,atp:0,ait:0},2:{aip:0,crt:0,atp:0,ait:0},3:{aip:0,crt:0,atp:0,ait:0},4:{aip:0,crt:0,atp:0,ait:0},5:{aip:0,crt:0,atp:0,ait:0}};
-        aipR.forEach(r=>{if(r.semanaMes&&semanasGen[r.semanaMes])semanasGen[r.semanaMes].aip++;});
-        crtR.forEach(r=>{if(r.semanaMes&&semanasGen[r.semanaMes])semanasGen[r.semanaMes].crt++;});
-        atpR.forEach(r=>{if(r.semanaMes&&semanasGen[r.semanaMes])semanasGen[r.semanaMes].atp++;});
-        aitR.forEach(r=>{if(r.semanaMes&&semanasGen[r.semanaMes])semanasGen[r.semanaMes].ait++;});
+        aipR.forEach(r=>{const s=getSemanaMes(r);if(s&&semanasGen[s])semanasGen[s].aip++;});
+        crtR.forEach(r=>{const s=getSemanaMes(r);if(s&&semanasGen[s])semanasGen[s].crt++;});
+        atpR.forEach(r=>{const s=getSemanaMes(r);if(s&&semanasGen[s])semanasGen[s].atp++;});
+        aitR.forEach(r=>{const s=getSemanaMes(r);if(s&&semanasGen[s])semanasGen[s].ait++;});
         document.getElementById('gen-semanas-grid').innerHTML=Object.entries(semanasGen).map(([sem,v])=>{
             const tot=v.aip+v.crt+v.atp+v.ait;
             if(!tot) return '';
