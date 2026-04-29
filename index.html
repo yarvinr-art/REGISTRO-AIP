@@ -570,7 +570,7 @@
                 </div>
                 <div class="form-grid" style="grid-template-columns:1fr 1fr;"><input type="text" id="crt-tema" class="crt-input" placeholder="Tema / Motivo *" maxlength="200"><input type="text" id="crt-recursos" class="crt-input" placeholder="Recursos usados / Observaciones" maxlength="200"></div>
                 <div class="horas-selector crt" style="margin-bottom:14px;"><label class="horas-title" style="color:var(--crt-mid)">🕐 Horas de uso del CRT</label><div class="horas-grid" id="crt-horas-grid"><label class="hora-chip crt-chip" onclick="toggleHoraCRT(this)"><input type="checkbox" value="1ERA"><span class="chip-label">1ERA</span></label><label class="hora-chip crt-chip" onclick="toggleHoraCRT(this)"><input type="checkbox" value="2DA"><span class="chip-label">2DA</span></label><label class="hora-chip crt-chip" onclick="toggleHoraCRT(this)"><input type="checkbox" value="3ERA"><span class="chip-label">3ERA</span></label><label class="hora-chip crt-chip" onclick="toggleHoraCRT(this)"><input type="checkbox" value="4TA"><span class="chip-label">4TA</span></label><label class="hora-chip crt-chip" onclick="toggleHoraCRT(this)"><input type="checkbox" value="5TA"><span class="chip-label">5TA</span></label><label class="hora-chip crt-chip" onclick="toggleHoraCRT(this)"><input type="checkbox" value="6TA"><span class="chip-label">6TA</span></label><label class="hora-chip crt-chip" onclick="toggleHoraCRT(this)"><input type="checkbox" value="7MA"><span class="chip-label">7MA</span></label></div></div>
-                <div class="sesion-row"><span class="sesion-label-txt">📋 ¿Presentó su sesión de aprendizaje?</span><div class="sesion-toggle"><label class="sesion-chip si" id="crt-sesion-si" onclick="selectSesion('crt','SI')"><input type="radio" name="crt-sesion" value="SI"> ✔ Sí</label><label class="sesion-chip no" id="crt-sesion-no" onclick="selectSesion('crt','NO')"><input type="radio" name="crt-sesion" value="NO"> ✘ No</label></div></div>
+                <div class="sesion-row" id="crt-sesion-row"><span class="sesion-label-txt">📋 ¿Presentó su sesión de aprendizaje?</span><div class="sesion-toggle"><label class="sesion-chip si" id="crt-sesion-si" onclick="selectSesion('crt','SI')"><input type="radio" name="crt-sesion" value="SI"> ✔ Sí</label><label class="sesion-chip no" id="crt-sesion-no" onclick="selectSesion('crt','NO')"><input type="radio" name="crt-sesion" value="NO"> ✘ No</label></div></div>
                 <button class="btn-main btn-crt" id="btnCRT" onclick="registrarCRT()">✔ Registrar Asistencia — CRT</button>
             </div>
             <div id="acceso-informe-crt" style="display:none;margin-top:40px;border-top:1px solid #e8eaf0;padding-top:20px;text-align:center;"><button class="btn-admin crt-admin" onclick="abrirInforme('crt')">📊 Ver Informe CRT</button></div>
@@ -584,7 +584,7 @@
                     <div class="stats-semanas-mes"><h4>📊 ANÁLISIS POR SEMANA</h4><div class="semanas-grid" id="crt-semanas-grid"></div></div>
                     <div class="stats-personal crt"><h4>👥 TOP PERSONAS CON MÁS REGISTROS</h4><div class="stats-personal-grid" id="crt-statsPersonal"></div></div>
                     <div class="graficos-grid"><div class="grafico-card"><div class="grafico-card-title crt">👤 DISTRIBUCIÓN POR TIPO DE PERSONA</div><div class="chart-container"><canvas id="crt-grafico-tipo"></canvas></div></div><div class="grafico-card"><div class="grafico-card-title crt">🖥️ ACTIVIDADES MÁS REALIZADAS</div><div class="chart-container"><canvas id="crt-grafico-actividad"></canvas></div></div></div>
-                    <div class="tabla-container"><table><thead class="crt"><tr><th>FECHA/HORA</th><th>TIPO</th><th>NOMBRE</th><th>ÁREA</th><th>ACTIVIDAD</th><th>HORAS</th><th>TEMA</th><th>ACCIÓN</th></tr></thead><tbody id="crt-tablaCuerpo"></tbody></table></div>
+                    <div class="tabla-container"><table><thead class="crt"><tr><th>FECHA/HORA</th><th>TIPO</th><th>NOMBRE</th><th>ÁREA</th><th>GRADO/SEC.</th><th>ACTIVIDAD</th><th>HORAS</th><th>TEMA / MOTIVO</th><th>ACCIÓN</th></tr></thead><tbody id="crt-tablaCuerpo"></tbody></table></div>
                     <button class="btn-cerrar crt" onclick="cerrarAdmin('crt')">✕ CERRAR INFORME</button>
                 </div>
             </div>
@@ -736,7 +736,44 @@ function toggleHoraAIT(label) { const cb=label.querySelector('input'); label.cla
 function selectSesion(mod,val) { ['SI','NO'].forEach(v=>{const el=document.getElementById(`${mod}-sesion-${v.toLowerCase()}`);if(el)el.classList.toggle('selected',v===val);}); document.querySelector(`input[name="${mod}-sesion"][value="${val}"]`).checked=true; }
 function getSesion(mod) { const el=document.querySelector(`input[name="${mod}-sesion"]:checked`); return el?el.value:'—'; }
 function resetSesion(mod) { ['si','no'].forEach(v=>{const el=document.getElementById(`${mod}-sesion-${v}`);if(el)el.classList.remove('selected');}); document.querySelectorAll(`input[name="${mod}-sesion"]`).forEach(r=>r.checked=false); }
-function selectTipoCRT(label,tipo) { document.querySelectorAll('.tipo-chip.crt-tipo').forEach(c=>c.classList.remove('selected')); label.classList.add('selected'); const wrap=document.getElementById('crt-grado-seccion-wrap'); if(tipo==='DOCENTE'){wrap.style.maxHeight='80px';wrap.style.opacity='1';}else{wrap.style.maxHeight='0';wrap.style.opacity='0';document.getElementById('crt-grado').value='';document.getElementById('crt-seccion').value='';} }
+function selectTipoCRT(label,tipo) {
+    document.querySelectorAll('.tipo-chip.crt-tipo').forEach(c=>c.classList.remove('selected'));
+    label.classList.add('selected');
+    // Grado/Sección: solo para DOCENTE
+    const wrap=document.getElementById('crt-grado-seccion-wrap');
+    if(tipo==='DOCENTE'){
+        wrap.style.maxHeight='80px'; wrap.style.opacity='1'; wrap.style.pointerEvents='auto';
+    } else {
+        wrap.style.maxHeight='0'; wrap.style.opacity='0'; wrap.style.pointerEvents='none';
+        document.getElementById('crt-grado').value='';
+        document.getElementById('crt-seccion').value='';
+    }
+    // Sesión de aprendizaje: solo para DOCENTE
+    const sesionRow=document.getElementById('crt-sesion-row');
+    if(sesionRow) sesionRow.style.display=(tipo==='DOCENTE')?'flex':'none';
+    if(tipo!=='DOCENTE') resetSesion('crt');
+    // Adaptar placeholders de tema y recursos según tipo
+    const temaInput=document.getElementById('crt-tema');
+    const recursosInput=document.getElementById('crt-recursos');
+    const temas={
+        DOCENTE:'Tema de clase / Motivo de uso *',
+        DIRECTIVO:'Motivo / Actividad realizada *',
+        ESPECIALISTA:'Motivo de visita / Actividad *',
+        AUXILIAR:'Motivo de uso / Actividad *',
+        UGEL:'Motivo de visita / Actividad *',
+        OTRO:'Motivo de uso / Actividad *'
+    };
+    const recursos={
+        DOCENTE:'Recursos usados / Observaciones',
+        DIRECTIVO:'Observaciones / Acuerdos',
+        ESPECIALISTA:'Observaciones / Acuerdos',
+        AUXILIAR:'Observaciones',
+        UGEL:'Observaciones',
+        OTRO:'Observaciones'
+    };
+    if(temaInput) temaInput.placeholder=temas[tipo]||'Motivo / Actividad *';
+    if(recursosInput) recursosInput.placeholder=recursos[tipo]||'Observaciones';
+}
 
 // ===== REGISTROS =====
 function registrarAIP() {
@@ -753,12 +790,37 @@ function registrarAIP() {
     .finally(()=>{ btn.disabled=false; btn.innerHTML="✔ Registrar Asistencia — AIP"; btn.style.background=''; });
 }
 function registrarCRT() {
-    const tipoEl=document.querySelector('input[name="crt-tipo"]:checked'); const tipo=tipoEl?tipoEl.value:'DOCENTE'; const nom=document.getElementById("crt-nombre").value.trim(); const act=document.getElementById("crt-actividad").value.trim(); const tem=document.getElementById("crt-tema").value.trim(); const horasCRT=[...document.querySelectorAll('#crt-horas-grid input:checked')].map(c=>c.value); const esDocente=tipo==='DOCENTE'; const gra=esDocente?document.getElementById("crt-grado").value.trim():'—'; const sec=esDocente?document.getElementById("crt-seccion").value.trim():'—';
-    if(!nom||!act||!tem||horasCRT.length===0){toast("Complete campos requeridos");return;} if(esDocente && (!gra||!sec)){toast("Seleccione grado y sección");return;}
+    const tipoEl=document.querySelector('input[name="crt-tipo"]:checked');
+    const tipo=tipoEl?tipoEl.value:'DOCENTE';
+    const nom=document.getElementById("crt-nombre").value.trim();
+    const act=document.getElementById("crt-actividad").value.trim();
+    const tem=document.getElementById("crt-tema").value.trim();
+    const horasCRT=[...document.querySelectorAll('#crt-horas-grid input:checked')].map(c=>c.value);
+    const esDocente=tipo==='DOCENTE';
+    const gra=esDocente?document.getElementById("crt-grado").value.trim():'—';
+    const sec=esDocente?document.getElementById("crt-seccion").value.trim():'—';
+    const area=document.getElementById("crt-area").value.trim()||'—';
+    if(!nom){toast("Ingrese el nombre completo");return;}
+    if(!act){toast("Seleccione el tipo de actividad");return;}
+    if(!tem){toast("Ingrese el motivo o tema");return;}
+    if(horasCRT.length===0){toast("Seleccione al menos una hora");return;}
+    if(esDocente && !gra){toast("Seleccione el grado");return;}
+    if(esDocente && !sec){toast("Seleccione la sección");return;}
+    const sesion=esDocente?getSesion('crt'):'—';
     const btn=document.getElementById("btnCRT"); btn.disabled=true; btn.innerHTML='<span class="spinner"></span> Guardando...';
     const {mes,fecha,hora,timestamp,diaSemana,fechaNumero,semanaMes}=getFechaHoy();
-    db.ref('atenciones_crt').push({ tipo, docente:nom, area:document.getElementById("crt-area").value.trim()||'—', grado:gra, seccion:sec, actividad:act, tema:tem, horas:horasCRT.join(', '), observaciones:document.getElementById("crt-recursos").value.trim()||"—", fecha, hora, mes, timestamp, sesionPresentada:getSesion('crt'), diaSemana, fechaNumero, semanaMes })
-    .then(()=>{ toast("✓ Registro CRT guardado"); document.getElementById("crt-nombre").value=""; document.getElementById("crt-tema").value=""; document.getElementById("crt-recursos").value=""; document.getElementById("crt-area").value=""; document.getElementById("crt-actividad").value=""; if(esDocente){document.getElementById("crt-grado").value="";document.getElementById("crt-seccion").value="";} document.querySelectorAll('#crt-horas-grid .hora-chip').forEach(c=>{c.classList.remove('selected');c.querySelector('input').checked=false;}); resetSesion('crt'); })
+    db.ref('atenciones_crt').push({ tipo, docente:nom, area, grado:gra, seccion:sec, actividad:act, tema:tem, horas:horasCRT.join(', '), observaciones:document.getElementById("crt-recursos").value.trim()||"—", fecha, hora, mes, timestamp, sesionPresentada:sesion, diaSemana, fechaNumero, semanaMes })
+    .then(()=>{
+        toast("✓ Registro CRT guardado");
+        document.getElementById("crt-nombre").value="";
+        document.getElementById("crt-tema").value="";
+        document.getElementById("crt-recursos").value="";
+        document.getElementById("crt-area").value="";
+        document.getElementById("crt-actividad").value="";
+        if(esDocente){document.getElementById("crt-grado").value="";document.getElementById("crt-seccion").value="";}
+        document.querySelectorAll('#crt-horas-grid .hora-chip').forEach(c=>{c.classList.remove('selected');c.querySelector('input').checked=false;});
+        resetSesion('crt');
+    })
     .finally(()=>{ btn.disabled=false; btn.innerHTML="✔ Registrar Asistencia — CRT"; });
 }
 function registrarATP() {
@@ -1003,7 +1065,7 @@ function generarReporteCRT() {
         /* ── TOP PERSONAS ── */
         const porPersona={}; registros.forEach(r=>{ porPersona[r.docente]=(porPersona[r.docente]||0)+1; });
         document.getElementById('crt-statsPersonal').innerHTML=Object.entries(porPersona).sort((a,b)=>b[1]-a[1]).slice(0,10).map(([lbl,cnt])=>`<div class="stat-persona-badge">${lbl}<span class="cnt crt">${cnt}</span></div>`).join('');
-        document.getElementById('crt-tablaCuerpo').innerHTML=registros.sort((a,b)=>b.timestamp-a.timestamp).map(r=>`<tr><td><b>${r.fecha}</b><br><small>${r.hora}</small></td><td>${r.tipo||'—'}</td><td>${r.docente}</td><td>${r.area||'—'}</td><td>${r.actividad||'—'}</td><td>${r.horas||'—'}</td><td>${r.tema}</td><td><button class="btn-eliminar" onclick="eliminarRegistro('crt','${r._key}','${r.docente.replace(/'/g,"\\'")}')">Eliminar</button></td></tr>`).join('');
+        document.getElementById('crt-tablaCuerpo').innerHTML=registros.sort((a,b)=>b.timestamp-a.timestamp).map(r=>`<tr><td><b>${r.fecha}</b><br><small>${r.hora}</small></td><td>${r.tipo||'—'}</td><td>${r.docente}</td><td>${r.area||'—'}</td><td>${r.tipo==='DOCENTE'&&r.grado&&r.grado!=='—'?`${r.grado} ${r.seccion}`:'—'}</td><td>${r.actividad||'—'}</td><td>${r.horas||'—'}</td><td>${r.tema}</td><td><button class="btn-eliminar" onclick="eliminarRegistro('crt','${r._key}','${r.docente.replace(/'/g,"\\'")}')">Eliminar</button></td></tr>`).join('');
         const tipoCount={}; registros.forEach(r=>{ tipoCount[r.tipo||'OTRO']=(tipoCount[r.tipo||'OTRO']||0)+1; });
         const ctx=document.getElementById('crt-grafico-tipo').getContext('2d'); if(chartCRTTipo)chartCRTTipo.destroy(); chartCRTTipo=new Chart(ctx,{type:'doughnut',data:{labels:Object.keys(tipoCount),datasets:[{data:Object.values(tipoCount),backgroundColor:['#22c55e','#fbbf24','#3b82f6','#a855f7','#ef4444','#ec4899']}]},options:{responsive:true,maintainAspectRatio:false,cutout:'55%',plugins:{legend:{position:'bottom'}}}});
         const actCount={}; registros.forEach(r=>{ actCount[r.actividad||'OTRO']=(actCount[r.actividad||'OTRO']||0)+1; });
