@@ -524,6 +524,9 @@
                         <div class="grafico-card"><div class="grafico-card-title aip">📋 SESIÓN DE APRENDIZAJE PRESENTADA</div><div class="chart-container"><canvas id="aip-grafico-sesion"></canvas></div></div>
                         <div class="grafico-card"><div class="grafico-card-title aip">🏆 TOP DOCENTES POR ASISTENCIA</div><div class="chart-container"><canvas id="aip-grafico-top"></canvas></div></div>
                         <div class="grafico-card" style="border-left:4px solid #f59e0b;"><div class="grafico-card-title" style="color:#b45309">🚫 FRECUENCIA DE NO INGRESO POR DOCENTE</div><div class="chart-container"><canvas id="aip-grafico-no-ingreso"></canvas></div></div>
+                        <div class="grafico-card" style="border-left:4px solid #2348c0;"><div class="grafico-card-title" style="color:#1a3080">📊 % GRADOS QUE INGRESARON AL AIP</div><div class="chart-container"><canvas id="aip-grafico-grados"></canvas></div></div>
+                        <div class="grafico-card" style="border-left:4px solid #2348c0;"><div class="grafico-card-title" style="color:#1a3080">🏫 % SECCIONES QUE INGRESARON AL AIP</div><div class="chart-container"><canvas id="aip-grafico-secciones"></canvas></div></div>
+                        <div class="grafico-card" style="border-left:4px solid #f4a020;"><div class="grafico-card-title" style="color:#b45309">👩‍🏫 % DOCENTES QUE INGRESARON AL AIP (sobre 33)</div><div class="chart-container"><canvas id="aip-grafico-docentes-pct"></canvas></div></div>
                     </div>
 
                     <!-- DOCENTES QUE NO INGRESARON — DETALLE -->
@@ -583,7 +586,7 @@
                     <div class="stats-dias-semana"><h4>📅 ASISTENCIAS POR DÍA DE LA SEMANA</h4><div class="dias-grid" id="crt-dias-grid"></div></div>
                     <div class="stats-semanas-mes"><h4>📊 ANÁLISIS POR SEMANA</h4><div class="semanas-grid" id="crt-semanas-grid"></div></div>
                     <div class="stats-personal crt"><h4>👥 TOP PERSONAS CON MÁS REGISTROS</h4><div class="stats-personal-grid" id="crt-statsPersonal"></div></div>
-                    <div class="graficos-grid"><div class="grafico-card"><div class="grafico-card-title crt">👤 DISTRIBUCIÓN POR TIPO DE PERSONA</div><div class="chart-container"><canvas id="crt-grafico-tipo"></canvas></div></div><div class="grafico-card"><div class="grafico-card-title crt">🖥️ ACTIVIDADES MÁS REALIZADAS</div><div class="chart-container"><canvas id="crt-grafico-actividad"></canvas></div></div></div>
+                    <div class="graficos-grid"><div class="grafico-card"><div class="grafico-card-title crt">👤 DISTRIBUCIÓN POR TIPO DE PERSONA</div><div class="chart-container"><canvas id="crt-grafico-tipo"></canvas></div></div><div class="grafico-card"><div class="grafico-card-title crt">🖥️ ACTIVIDADES MÁS REALIZADAS</div><div class="chart-container"><canvas id="crt-grafico-actividad"></canvas></div></div><div class="grafico-card" style="border-left:4px solid #1e7a3a;"><div class="grafico-card-title" style="color:#155724">📊 % GRADOS QUE INGRESARON AL CRT</div><div class="chart-container"><canvas id="crt-grafico-grados"></canvas></div></div><div class="grafico-card" style="border-left:4px solid #1e7a3a;"><div class="grafico-card-title" style="color:#155724">🏫 % SECCIONES QUE INGRESARON AL CRT</div><div class="chart-container"><canvas id="crt-grafico-secciones"></canvas></div></div><div class="grafico-card" style="border-left:4px solid #4ade80;"><div class="grafico-card-title" style="color:#155724">👩‍🏫 % DOCENTES QUE INGRESARON AL CRT (sobre 33)</div><div class="chart-container"><canvas id="crt-grafico-docentes-pct"></canvas></div></div></div>
                     <div class="tabla-container"><table><thead class="crt"><tr><th>FECHA/HORA</th><th>TIPO</th><th>NOMBRE</th><th>ÁREA</th><th>GRADO/SEC.</th><th>ACTIVIDAD</th><th>HORAS</th><th>TEMA / MOTIVO</th><th>ACCIÓN</th></tr></thead><tbody id="crt-tablaCuerpo"></tbody></table></div>
                     <button class="btn-cerrar crt" onclick="cerrarAdmin('crt')">✕ CERRAR INFORME</button>
                 </div>
@@ -704,7 +707,10 @@ db.ref('.info/connected').once('value').catch(() => {
 });
 
 let adminAutenticado = false;
-let chartAIPDias, chartAIPSesion, chartAIPTop, chartAIPNoIngreso, chartCRTTipo, chartCRTActividad, chartATP, chartATPArea, chartATPTiempo, chartAITTipo, chartAITSolucion;
+let chartAIPDias, chartAIPSesion, chartAIPTop, chartAIPNoIngreso, chartAIPGrados, chartAIPSecciones, chartAIPDocentesPct;
+let chartCRTTipo, chartCRTActividad, chartCRTGrados, chartCRTSecciones, chartCRTDocentesPct;
+let chartATP, chartATPArea, chartATPTiempo, chartAITTipo, chartAITSolucion;
+const TOTAL_DOCENTES = 33;
 
 // ===== HELPERS =====
 function getFechaHoy() {
@@ -1025,6 +1031,31 @@ function generarReporteAIP() {
             htmlT+='</tbody></table></div>';
             tblNoIng.innerHTML=htmlT;
         }
+
+        /* ── GRÁFICO GRADOS AIP ── */
+        const aipSoloAsist=registros.filter(r=>r.estado==='ASISTIO');
+        const gradosAIP={}; aipSoloAsist.forEach(r=>{ if(r.grado) gradosAIP[r.grado]=(gradosAIP[r.grado]||new Set()); gradosAIP[r.grado].add(r.seccion?r.grado+r.seccion:r.grado+Math.random()); });
+        const gradosLab=['1°','2°','3°','4°','5°'];
+        const gradosTotAIP=[5,5,5,5,5]; // 5 secciones por grado aprox, ajustable
+        const gradosCntAIP=gradosLab.map(g=>{ const s=aipSoloAsist.filter(r=>r.grado===g); return new Set(s.map(r=>r.seccion)).size; });
+        const ctx5=document.getElementById('aip-grafico-grados').getContext('2d');
+        if(chartAIPGrados) chartAIPGrados.destroy();
+        chartAIPGrados=new Chart(ctx5,{type:'bar',data:{labels:gradosLab,datasets:[{label:'Secciones que ingresaron',data:gradosCntAIP,backgroundColor:'#2348c0',borderRadius:8}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>`${c.parsed.y} sección(es) de ${c.label} (${(c.parsed.y/5*100).toFixed(0)}%)`}}},scales:{y:{beginAtZero:true,max:5,ticks:{stepSize:1},title:{display:true,text:'N° secciones'}},x:{grid:{display:false}}}}});
+
+        /* ── GRÁFICO SECCIONES AIP ── */
+        const seccionesAIP=['A','B','C','D','E'];
+        const seccionesCntAIP=seccionesAIP.map(sec=>{ return new Set(aipSoloAsist.filter(r=>r.seccion===sec).map(r=>r.grado+''+sec)).size; });
+        const seccionesTotAIP=5; // 5 grados por sección
+        const ctx6=document.getElementById('aip-grafico-secciones').getContext('2d');
+        if(chartAIPSecciones) chartAIPSecciones.destroy();
+        chartAIPSecciones=new Chart(ctx6,{type:'bar',data:{labels:seccionesAIP.map(s=>'Sección '+s),datasets:[{label:'Grados que ingresaron',data:seccionesCntAIP,backgroundColor:['#1a3080','#2348c0','#3b5de0','#5272e8','#6b87f0'],borderRadius:8}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>`${c.parsed.y} grado(s) de ${c.label} (${(c.parsed.y/5*100).toFixed(0)}%)`}}},scales:{y:{beginAtZero:true,max:5,ticks:{stepSize:1},title:{display:true,text:'N° grados'}},x:{grid:{display:false}}}}});
+
+        /* ── GRÁFICO DOCENTES % AIP ── */
+        const docentesUnicosAIP=new Set(aipSoloAsist.map(r=>r.nombre||r.docente)).size;
+        const docentesNoAIP=Math.max(0,TOTAL_DOCENTES-docentesUnicosAIP);
+        const ctx7=document.getElementById('aip-grafico-docentes-pct').getContext('2d');
+        if(chartAIPDocentesPct) chartAIPDocentesPct.destroy();
+        chartAIPDocentesPct=new Chart(ctx7,{type:'doughnut',data:{labels:[`✅ Ingresaron (${docentesUnicosAIP})`,`🚫 No ingresaron (${docentesNoAIP})`],datasets:[{data:[docentesUnicosAIP,docentesNoAIP],backgroundColor:['#22c55e','#ef4444'],borderWidth:3,borderColor:'#fff'}]},options:{responsive:true,maintainAspectRatio:false,cutout:'58%',plugins:{legend:{position:'bottom',labels:{font:{size:11},padding:12}},tooltip:{callbacks:{label:c=>`${c.label}: ${c.parsed} de ${TOTAL_DOCENTES} docentes (${((c.parsed/TOTAL_DOCENTES)*100).toFixed(1)}%)`}}}}});
     });
 }
 function generarReporteCRT() {
@@ -1070,6 +1101,28 @@ function generarReporteCRT() {
         const ctx=document.getElementById('crt-grafico-tipo').getContext('2d'); if(chartCRTTipo)chartCRTTipo.destroy(); chartCRTTipo=new Chart(ctx,{type:'doughnut',data:{labels:Object.keys(tipoCount),datasets:[{data:Object.values(tipoCount),backgroundColor:['#22c55e','#fbbf24','#3b82f6','#a855f7','#ef4444','#ec4899']}]},options:{responsive:true,maintainAspectRatio:false,cutout:'55%',plugins:{legend:{position:'bottom'}}}});
         const actCount={}; registros.forEach(r=>{ actCount[r.actividad||'OTRO']=(actCount[r.actividad||'OTRO']||0)+1; });
         const ctx2=document.getElementById('crt-grafico-actividad').getContext('2d'); if(chartCRTActividad)chartCRTActividad.destroy(); chartCRTActividad=new Chart(ctx2,{type:'bar',data:{labels:Object.keys(actCount).slice(0,6),datasets:[{data:Object.values(actCount).slice(0,6),backgroundColor:'#1e7a3a',borderRadius:8}]},options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false}}}});
+
+        /* ── GRÁFICO GRADOS CRT ── */
+        const crtSoloDoc=registros.filter(r=>r.tipo==='DOCENTE'&&r.grado&&r.grado!=='—');
+        const gradosLab2=['1°','2°','3°','4°','5°'];
+        const gradosCntCRT=gradosLab2.map(g=>new Set(crtSoloDoc.filter(r=>r.grado===g).map(r=>r.grado+(r.seccion||''))).size);
+        const ctxCG=document.getElementById('crt-grafico-grados').getContext('2d');
+        if(chartCRTGrados) chartCRTGrados.destroy();
+        chartCRTGrados=new Chart(ctxCG,{type:'bar',data:{labels:gradosLab2,datasets:[{label:'Secciones que ingresaron',data:gradosCntCRT,backgroundColor:'#22c55e',borderRadius:8}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>`${c.parsed.y} sección(es) de ${c.label} (${(c.parsed.y/5*100).toFixed(0)}%)`}}},scales:{y:{beginAtZero:true,max:5,ticks:{stepSize:1},title:{display:true,text:'N° secciones'}},x:{grid:{display:false}}}}});
+
+        /* ── GRÁFICO SECCIONES CRT ── */
+        const seccionesLab2=['A','B','C','D','E'];
+        const seccionesCntCRT=seccionesLab2.map(sec=>new Set(crtSoloDoc.filter(r=>r.seccion===sec).map(r=>r.grado+sec)).size);
+        const ctxCS=document.getElementById('crt-grafico-secciones').getContext('2d');
+        if(chartCRTSecciones) chartCRTSecciones.destroy();
+        chartCRTSecciones=new Chart(ctxCS,{type:'bar',data:{labels:seccionesLab2.map(s=>'Sección '+s),datasets:[{label:'Grados que ingresaron',data:seccionesCntCRT,backgroundColor:['#15803d','#1e7a3a','#22c55e','#4ade80','#86efac'],borderRadius:8}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>`${c.parsed.y} grado(s) (${(c.parsed.y/5*100).toFixed(0)}%)`}}},scales:{y:{beginAtZero:true,max:5,ticks:{stepSize:1},title:{display:true,text:'N° grados'}},x:{grid:{display:false}}}}});
+
+        /* ── GRÁFICO DOCENTES % CRT ── */
+        const docentesUnicosCRT=new Set(crtSoloDoc.map(r=>r.docente)).size;
+        const docentesNoCRT=Math.max(0,TOTAL_DOCENTES-docentesUnicosCRT);
+        const ctxCD=document.getElementById('crt-grafico-docentes-pct').getContext('2d');
+        if(chartCRTDocentesPct) chartCRTDocentesPct.destroy();
+        chartCRTDocentesPct=new Chart(ctxCD,{type:'doughnut',data:{labels:[`✅ Ingresaron (${docentesUnicosCRT})`,`🚫 No ingresaron (${docentesNoCRT})`],datasets:[{data:[docentesUnicosCRT,docentesNoCRT],backgroundColor:['#22c55e','#ef4444'],borderWidth:3,borderColor:'#fff'}]},options:{responsive:true,maintainAspectRatio:false,cutout:'58%',plugins:{legend:{position:'bottom',labels:{font:{size:11},padding:12}},tooltip:{callbacks:{label:c=>`${c.label}: ${c.parsed} de ${TOTAL_DOCENTES} docentes (${((c.parsed/TOTAL_DOCENTES)*100).toFixed(1)}%)`}}}}});
     });
 }
 function generarReporteATP() {
