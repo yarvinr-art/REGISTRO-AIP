@@ -1465,130 +1465,255 @@ function generarReporteGeneral() {
     });
 }
 
-// ===== PDF =====
+// ===== PDF — Impresión nativa A4 =====
+function _abrirVentanaImpresion(tituloDoc, htmlContenido) {
+    const w = window.open('', '_blank', 'width=900,height=700');
+    if (!w) { toast("❌ Permita ventanas emergentes para imprimir"); return; }
+    w.document.write(`<!DOCTYPE html><html lang="es"><head>
+<meta charset="UTF-8">
+<title>${tituloDoc}</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap');
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  @page { size: A4 portrait; margin: 12mm 14mm; }
+  body { font-family: 'DM Sans', sans-serif; font-size: 11px; color: #1a1f3a; background: white; }
+
+  /* ENCABEZADO */
+  .pdf-header { display: flex; align-items: center; gap: 14px; background: linear-gradient(135deg,#0d1b4b,#1a3080,#2348c0); color: white; padding: 14px 18px; border-radius: 10px; margin-bottom: 16px; page-break-inside: avoid; }
+  .pdf-header-logo { width: 56px; height: 56px; border-radius: 8px; border: 2px solid rgba(255,255,255,0.35); object-fit: cover; flex-shrink: 0; }
+  .pdf-header-texto .ie { font-size: 8px; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; opacity: 0.7; margin-bottom: 4px; }
+  .pdf-header-texto .titulo { font-size: 16px; font-weight: 800; }
+  .pdf-header-texto .subtitulo { font-size: 9px; opacity: 0.8; margin-top: 3px; }
+  .pdf-fecha { font-size: 8px; opacity: 0.7; margin-top: 6px; }
+
+  /* STATS */
+  .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 14px; page-break-inside: avoid; }
+  .stat-card { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px 8px; text-align: center; }
+  .stat-num { font-size: 22px; font-weight: 800; color: #0d1b4b; line-height: 1; }
+  .stat-label { font-size: 8px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 4px; }
+
+  /* SECCIONES */
+  .seccion { margin-bottom: 18px; page-break-inside: avoid; }
+  .seccion-titulo { font-family: 'Space Mono', monospace; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; color: #475569; border-bottom: 2px solid #e2e8f0; padding-bottom: 6px; margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+  .seccion-titulo .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
+
+  /* TABLAS */
+  table { width: 100%; border-collapse: collapse; font-size: 9.5px; margin-bottom: 12px; page-break-inside: auto; }
+  thead { display: table-header-group; }
+  tr { page-break-inside: avoid; }
+  thead th { background: #f1f5f9; color: #1e293b; padding: 7px 8px; text-align: left; font-weight: 800; font-size: 8px; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 2px solid #e2e8f0; }
+  td { padding: 7px 8px; border-bottom: 1px solid #f1f5f9; color: #334155; vertical-align: top; }
+  tr:nth-child(even) td { background: #f8fafc; }
+
+  /* BADGES */
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 20px; font-size: 8px; font-weight: 800; }
+  .badge-verde { background: #dcfce7; color: #15803d; }
+  .badge-rojo { background: #fee2e2; color: #b91c1c; }
+  .badge-amarillo { background: #fef3c7; color: #92400e; }
+  .badge-azul { background: #dbeafe; color: #1e40af; }
+
+  /* AVISO NO-INGRESO */
+  .alerta-card { background: #fff8f0; border: 1.5px solid #fdd8a0; border-radius: 8px; padding: 10px 14px; margin-bottom: 12px; page-break-inside: avoid; }
+  .alerta-card-titulo { font-size: 9px; font-weight: 800; color: #b45309; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+
+  /* SALTO DE PÁGINA ENTRE MÓDULOS */
+  .modulo-break { page-break-before: always; }
+
+  /* FOOTER */
+  .pdf-footer { margin-top: 20px; padding-top: 8px; border-top: 1px solid #e2e8f0; font-size: 8px; color: #94a3b8; text-align: center; page-break-inside: avoid; }
+
+  /* OCULTAR EN PANTALLA LO QUE NO VA AL PDF */
+  .no-print { display: none !important; }
+</style>
+</head><body>
+${htmlContenido}
+<div class="pdf-footer">IE N° 0148 — Maestro Víctor Raúl Haya de la Torre &nbsp;|&nbsp; Generado el ${new Date().toLocaleDateString('es-PE',{weekday:'long',year:'numeric',month:'long',day:'numeric'})} &nbsp;|&nbsp; Sistema de Registro AIP 2026</div>
+<script>
+  window.onload = function() {
+    setTimeout(function() { window.print(); }, 800);
+  };
+<\/script>
+</body></html>`);
+    w.document.close();
+}
+
+function _buildHeaderHTML(moduloLabel, subtitulo) {
+    return `<div class="pdf-header">
+        <img src="logo.jpeg" class="pdf-header-logo" onerror="this.style.display='none'">
+        <div class="pdf-header-texto">
+            <div class="ie">IE N° 0148 — Maestro Víctor Raúl Haya de la Torre</div>
+            <div class="titulo">${moduloLabel}</div>
+            <div class="subtitulo">${subtitulo}</div>
+            <div class="pdf-fecha">Fecha de generación: ${new Date().toLocaleDateString('es-PE',{weekday:'long',year:'numeric',month:'long',day:'numeric'}).toUpperCase()}</div>
+        </div>
+    </div>`;
+}
+
+function _buildStatsHTML(statCards) {
+    // statCards: array de {num, label, color}
+    return `<div class="stats-grid">${statCards.map(s => `<div class="stat-card"><div class="stat-num" style="color:${s.color||'#0d1b4b'}">${s.num}</div><div class="stat-label">${s.label}</div></div>`).join('')}</div>`;
+}
+
+function _buildTablaHTML(headers, filas, colores) {
+    if (!filas || filas.length === 0) return `<p style="color:#94a3b8;text-align:center;padding:14px;background:#f8fafc;border-radius:8px;font-size:10px;">📭 Sin registros para este período</p>`;
+    const ths = headers.map(h => `<th>${h}</th>`).join('');
+    const trs = filas.map((f, i) => {
+        const tds = f.map(c => `<td>${c ?? '—'}</td>`).join('');
+        return `<tr>${tds}</tr>`;
+    }).join('');
+    return `<table><thead><tr>${ths}</tr></thead><tbody>${trs}</tbody></table>`;
+}
+
+function _tablaDesdeDom(tbodyId) {
+    const tbody = document.getElementById(tbodyId);
+    if (!tbody) return '';
+    // Clonar y limpiar botones de acción
+    const clone = tbody.cloneNode(true);
+    clone.querySelectorAll('button, .btn-eliminar, .btn-descargar').forEach(b => b.remove());
+    return clone.innerHTML
+        .replace(/style="[^"]*background[^"]*"/gi, '') // simplificar inline styles de fondo
+        .replace(/<td([^>]*)>\s*<\/td>/gi, '<td$1>—</td>');
+}
+
 async function descargarPDF(modulo) {
-    toast("📄 Generando PDF... por favor espera");
-    const seccion = document.getElementById('seccion' + modulo.toUpperCase());
-    if (!seccion) { toast("❌ Sección no encontrada"); return; }
+    toast("📄 Preparando PDF...");
+    const nombres = { aip: 'Aula de Innovación Pedagógica', crt: 'Centro de Recursos Tecnológicos', atp: 'Atención Personalizada — ATP', ait: 'Atención de Incidencias Tecnológicas', gen: 'Informe General Consolidado' };
+    const etiquetas = { aip: 'Registro de Asistencia AIP 2026', crt: 'Registro CRT 2026', atp: 'Registro ATP 2026', ait: 'Registro AIT 2026', gen: 'Informe General 2026' };
+    const colores = { aip: '#2348c0', crt: '#1e7a3a', atp: '#9333ea', ait: '#db2777', gen: '#78716c' };
+    const color = colores[modulo] || '#0d1b4b';
+    const dot = `<span class="dot" style="background:${color}"></span>`;
 
-    // Guardar estado original
-    const originalDisplay = seccion.style.display;
-    seccion.style.display = 'block';
+    let html = _buildHeaderHTML(etiquetas[modulo], nombres[modulo]);
 
-    try {
-        const { jsPDF } = window.jspdf;
-        const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-        const pageW = 210, pageH = 297, margin = 10;
-        const contentW = pageW - margin * 2;
-
-        // Capturar la sección con html2canvas
-        const canvas = await html2canvas(seccion, {
-            scale: 2,
-            useCORS: true,
-            allowTaint: true,
-            backgroundColor: '#ffffff',
-            scrollX: 0,
-            scrollY: 0,
-            width: seccion.scrollWidth,
-            height: seccion.scrollHeight
-        });
-
-        const imgData = canvas.toDataURL('image/jpeg', 0.92);
-        const imgW = contentW;
-        const imgH = (canvas.height * imgW) / canvas.width;
-        const pageContentH = pageH - margin * 2;
-
-        let posY = margin;
-        let heightLeft = imgH;
-        let page = 0;
-
-        while (heightLeft > 0) {
-            if (page > 0) pdf.addPage();
-            const sliceH = Math.min(heightLeft, pageContentH);
-            pdf.addImage(imgData, 'JPEG', margin, posY, imgW, imgH, '', 'FAST', 0);
-            // Clip trick: draw white rectangles to hide overflow
-            if (heightLeft > pageContentH) {
-                pdf.setFillColor(255, 255, 255);
-                pdf.rect(0, posY + sliceH, pageW, pageH - (posY + sliceH) + 1, 'F');
-            }
-            posY = margin - (page + 1) * pageContentH;
-            heightLeft -= pageContentH;
-            page++;
+    // Stats
+    const statsEl = document.getElementById(modulo + '-stats-mes') || document.getElementById(modulo === 'gen' ? 'genContenido' : null);
+    if (statsEl) {
+        const nums = [...statsEl.querySelectorAll('.stat-num')].map(el => el.textContent.trim());
+        const labels = [...statsEl.querySelectorAll('.stat-label')].map(el => el.textContent.trim());
+        if (nums.length) {
+            html += `<div class="stats-grid">${nums.map((n,i) => `<div class="stat-card"><div class="stat-num" style="color:${color}">${n}</div><div class="stat-label">${labels[i]||''}</div></div>`).join('')}</div>`;
         }
-
-        const nombres = { aip: 'AIP', crt: 'CRT', atp: 'ATP', ait: 'AIT', gen: 'General' };
-        const fecha = new Date().toISOString().split('T')[0];
-        pdf.save(`Registro_${nombres[modulo] || modulo}_${fecha}.pdf`);
-        toast("✅ PDF descargado correctamente");
-    } catch (err) {
-        console.error(err);
-        toast("❌ Error al generar PDF: " + err.message);
     }
+
+    // Tabla principal de registros
+    const tbodyIds = { aip: 'aip-tablaCuerpo', crt: 'crt-tablaCuerpo', atp: 'atp-tablaCuerpo', ait: 'ait-tablaCuerpo' };
+    const theaders = {
+        aip: ['FECHA', 'ESTADO', 'ÁREA', 'DOCENTE', 'GRADO/SECC', 'HORA', 'TEMA / ACTIVIDAD'],
+        crt: ['FECHA', 'DOCENTE', 'ÁREA', 'GRADO/SECC', 'HORA', 'MOTIVO'],
+        atp: ['FECHA', 'TIPO', 'NOMBRE', 'TEMA', 'TIEMPO'],
+        ait: ['FECHA/HORA', 'AULA', 'DOCENTE', 'TIPO', 'HORA ATENCIÓN', 'SOLUCIÓN', 'RECOMENDACIÓN']
+    };
+
+    if (tbodyIds[modulo]) {
+        const tbody = document.getElementById(tbodyIds[modulo]);
+        if (tbody && tbody.children.length > 0) {
+            html += `<div class="seccion"><div class="seccion-titulo">${dot} REGISTROS DEL MES</div>`;
+            // Reconstruir tabla con datos limpios
+            const filas = [...tbody.querySelectorAll('tr')].map(tr =>
+                [...tr.querySelectorAll('td')].slice(0, theaders[modulo]?.length || 99).map(td => {
+                    // Limpiar botones y simplificar
+                    const clone2 = td.cloneNode(true);
+                    clone2.querySelectorAll('button').forEach(b => b.remove());
+                    return clone2.textContent.trim().replace(/\s+/g, ' ');
+                })
+            ).filter(f => f.length > 0);
+            html += _buildTablaHTML(theaders[modulo] || [], filas);
+            html += `</div>`;
+        }
+    }
+
+    // Tabla de No Ingresos AIP
+    if (modulo === 'aip') {
+        const noIng = document.getElementById('aip-no-ingreso-tabla');
+        if (noIng && noIng.querySelector('table')) {
+            html += `<div class="seccion"><div class="seccion-titulo">${dot} DOCENTES QUE NO INGRESARON AL AIP</div>`;
+            const filas = [...noIng.querySelectorAll('tbody tr')].map(tr =>
+                [...tr.querySelectorAll('td')].map(td => td.textContent.trim())
+            ).filter(f => f.length > 0);
+            html += _buildTablaHTML(['DOCENTE / ÁREA', 'N° AUSENCIAS', 'FECHAS', 'HORA PROGRAMADA'], filas);
+            html += `</div>`;
+        }
+    }
+
+    // Análisis por día del mes
+    const diasIds = { aip: 'aip-dias-exactos-grid', crt: 'crt-dias-exactos-grid', atp: 'atp-dias-exactos-grid', ait: 'ait-dias-exactos-grid' };
+    if (diasIds[modulo]) {
+        const diasEl = document.getElementById(diasIds[modulo]);
+        if (diasEl && diasEl.querySelector('table')) {
+            html += `<div class="seccion"><div class="seccion-titulo">${dot} ACTIVIDAD POR DÍA DEL MES</div>`;
+            const filas = [...diasEl.querySelectorAll('tbody tr')].map(tr =>
+                [...tr.querySelectorAll('td')].map(td => td.textContent.trim())
+            ).filter(f => f.length > 0);
+            const hdrs = { aip: ['DÍA / FECHA', 'TOTAL', '✅ INGRESARON', '🚫 NO INGRESARON', '% ASISTENCIA'], crt: ['DÍA / FECHA', 'REGISTROS', '% DEL MES'], atp: ['DÍA / FECHA', 'REGISTROS', '% DEL MES'], ait: ['DÍA / FECHA', 'INCIDENCIAS', '% DEL MES'] };
+            html += _buildTablaHTML(hdrs[modulo] || ['DÍA', 'TOTAL', '%'], filas);
+            html += `</div>`;
+        }
+    }
+
+    _abrirVentanaImpresion(etiquetas[modulo], html);
+    setTimeout(() => toast("✅ Listo — guarda como PDF desde el diálogo de impresión"), 400);
 }
 
 async function descargarPDFGeneral() {
-    toast("📄 Generando PDF General... por favor espera");
-    const secciones = ['AIP', 'CRT', 'ATP', 'AIT', 'GEN'];
-    const moduloActual = document.querySelector('.modulo-btn.activo')?.classList[1] || 'aip';
+    toast("📄 Preparando informe general...");
+    const modulos = ['aip', 'crt', 'atp', 'ait'];
+    const etiquetas = { aip: 'AIP — Aula de Innovación Pedagógica', crt: 'CRT — Centro de Recursos Tecnológicos', atp: 'ATP — Atención Personalizada', ait: 'AIT — Incidencias Tecnológicas' };
+    const colores = { aip: '#2348c0', crt: '#1e7a3a', atp: '#9333ea', ait: '#db2777' };
+    const theaders = {
+        aip: ['FECHA', 'ESTADO', 'ÁREA', 'DOCENTE', 'GRADO/SECC', 'HORA', 'TEMA'],
+        crt: ['FECHA', 'DOCENTE', 'ÁREA', 'GRADO/SECC', 'HORA', 'MOTIVO'],
+        atp: ['FECHA', 'TIPO', 'NOMBRE', 'TEMA', 'TIEMPO'],
+        ait: ['FECHA/HORA', 'AULA', 'DOCENTE', 'TIPO', 'HORA', 'SOLUCIÓN', 'RECOMENDACIÓN']
+    };
+    const tbodyIds = { aip: 'aip-tablaCuerpo', crt: 'crt-tablaCuerpo', atp: 'atp-tablaCuerpo', ait: 'ait-tablaCuerpo' };
 
-    // Hacer visibles todas las secciones temporalmente
-    secciones.forEach(s => { document.getElementById('seccion' + s).style.display = 'block'; });
+    let html = _buildHeaderHTML('INFORME EJECUTIVO GENERAL CONSOLIDADO 2026', 'IE N° 0148 — Todas las secciones');
 
-    try {
-        const { jsPDF } = window.jspdf;
-        const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-        const pageW = 210, pageH = 297, margin = 10;
-        const contentW = pageW - margin * 2;
-        const pageContentH = pageH - margin * 2;
+    // Resumen general desde el panel GEN si existe
+    const genContenido = document.getElementById('genContenido');
+    if (genContenido) {
+        const nums = [...genContenido.querySelectorAll('.stat-num')].map(el => el.textContent.trim());
+        const labels = [...genContenido.querySelectorAll('.stat-label')].map(el => el.textContent.trim());
+        if (nums.length) {
+            html += `<div class="seccion"><div class="seccion-titulo"><span class="dot" style="background:#78716c"></span> RESUMEN GENERAL</div>`;
+            html += `<div class="stats-grid">${nums.map((n,i) => `<div class="stat-card"><div class="stat-num">${n}</div><div class="stat-label">${labels[i]||''}</div></div>`).join('')}</div></div>`;
+        }
+    }
 
-        for (let i = 0; i < secciones.length; i++) {
-            const seccion = document.getElementById('seccion' + secciones[i]);
-            const canvas = await html2canvas(seccion, {
-                scale: 2,
-                useCORS: true,
-                allowTaint: true,
-                backgroundColor: '#ffffff',
-                scrollX: 0,
-                scrollY: 0,
-                width: seccion.scrollWidth,
-                height: seccion.scrollHeight
-            });
+    for (const modulo of modulos) {
+        const color = colores[modulo];
+        const dot = `<span class="dot" style="background:${color}"></span>`;
+        html += `<div class="modulo-break"></div>`;
+        html += `<div style="border-left: 4px solid ${color}; padding: 10px 14px; margin-bottom: 14px; background: #f8fafc; border-radius: 0 8px 8px 0; page-break-inside:avoid;"><div style="font-size:14px; font-weight:800; color:${color};">${etiquetas[modulo]}</div></div>`;
 
-            const imgData = canvas.toDataURL('image/jpeg', 0.90);
-            const imgW = contentW;
-            const imgH = (canvas.height * imgW) / canvas.width;
-            let posY = margin;
-            let heightLeft = imgH;
-            let page = 0;
-
-            while (heightLeft > 0) {
-                if (i > 0 || page > 0) pdf.addPage();
-                const sliceH = Math.min(heightLeft, pageContentH);
-                pdf.addImage(imgData, 'JPEG', margin, posY, imgW, imgH, '', 'FAST', 0);
-                if (heightLeft > pageContentH) {
-                    pdf.setFillColor(255, 255, 255);
-                    pdf.rect(0, posY + sliceH, pageW, pageH - (posY + sliceH) + 1, 'F');
-                }
-                posY = margin - (page + 1) * pageContentH;
-                heightLeft -= pageContentH;
-                page++;
+        // Stats del módulo
+        const statsEl = document.getElementById(modulo + '-stats-mes');
+        if (statsEl) {
+            const nums = [...statsEl.querySelectorAll('.stat-num')].map(el => el.textContent.trim());
+            const lbls = [...statsEl.querySelectorAll('.stat-label')].map(el => el.textContent.trim());
+            if (nums.length) {
+                html += `<div class="stats-grid">${nums.map((n,i) => `<div class="stat-card"><div class="stat-num" style="color:${color}">${n}</div><div class="stat-label">${lbls[i]||''}</div></div>`).join('')}</div>`;
             }
-            toast(`📄 Procesando módulo ${i + 1}/${secciones.length}...`);
         }
 
-        const fecha = new Date().toISOString().split('T')[0];
-        pdf.save(`Informe_General_IE0148_${fecha}.pdf`);
-        toast("✅ PDF General descargado");
-    } catch (err) {
-        console.error(err);
-        toast("❌ Error al generar PDF: " + err.message);
-    } finally {
-        // Restaurar solo la sección activa
-        secciones.forEach(s => {
-            document.getElementById('seccion' + s).style.display =
-                s.toLowerCase() === moduloActual ? 'block' : 'none';
-        });
+        // Tabla del módulo
+        const tbody = document.getElementById(tbodyIds[modulo]);
+        if (tbody && tbody.children.length > 0) {
+            html += `<div class="seccion"><div class="seccion-titulo">${dot} REGISTROS</div>`;
+            const filas = [...tbody.querySelectorAll('tr')].map(tr =>
+                [...tr.querySelectorAll('td')].slice(0, theaders[modulo].length).map(td => {
+                    const cl = td.cloneNode(true);
+                    cl.querySelectorAll('button').forEach(b => b.remove());
+                    return cl.textContent.trim().replace(/\s+/g, ' ');
+                })
+            ).filter(f => f.length > 0);
+            html += _buildTablaHTML(theaders[modulo], filas);
+            html += `</div>`;
+        }
     }
+
+    _abrirVentanaImpresion('Informe General Consolidado 2026', html);
+    setTimeout(() => toast("✅ Listo — guarda como PDF desde el diálogo de impresión"), 400);
 }
 
 function cambiarModulo(modulo) {
