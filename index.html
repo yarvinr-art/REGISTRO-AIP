@@ -376,6 +376,21 @@
         .spinner { display:inline-block; width:16px; height:16px; border:2px solid rgba(255,255,255,0.3); border-top-color:white; border-radius:50%; animation:spin 0.6s linear infinite; vertical-align:middle; margin-right:8px; }
         @keyframes spin { to{transform:rotate(360deg)} }
 
+        @media print {
+            @page { size: A4 portrait; margin: 10mm; }
+            body { background: white !important; padding: 0 !important; }
+            body::before, body::after { display: none !important; }
+            .page-wrap { max-width: 100% !important; }
+            .modulo-selector, .btn-imprimir, .btn-cerrar, .btn-eliminar, .btn-descargar, #toast { display: none !important; }
+            .container { box-shadow: none !important; border-radius: 0 !important; }
+            .container-inner { padding: 0 !important; }
+            .graficos-grid { grid-template-columns: repeat(2, 1fr) !important; }
+            .grafico-card .chart-container { height: 160px !important; }
+            section { page-break-after: always; }
+            table { font-size: 10px !important; }
+            td, thead th { padding: 6px 8px !important; }
+        }
+
         @media (max-width:640px) {
             body { padding:10px 8px 32px; }
             .container-inner { padding:0 12px 24px; }
@@ -1451,8 +1466,130 @@ function generarReporteGeneral() {
 }
 
 // ===== PDF =====
-async function descargarPDF(modulo) { toast("📄 Generando PDF... (simulación)"); setTimeout(()=>toast("✅ PDF generado"),1500); }
-async function descargarPDFGeneral() { toast("📄 Generando PDF General..."); setTimeout(()=>toast("✅ PDF General generado"),1500); }
+async function descargarPDF(modulo) {
+    toast("📄 Generando PDF... por favor espera");
+    const seccion = document.getElementById('seccion' + modulo.toUpperCase());
+    if (!seccion) { toast("❌ Sección no encontrada"); return; }
+
+    // Guardar estado original
+    const originalDisplay = seccion.style.display;
+    seccion.style.display = 'block';
+
+    try {
+        const { jsPDF } = window.jspdf;
+        const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+        const pageW = 210, pageH = 297, margin = 10;
+        const contentW = pageW - margin * 2;
+
+        // Capturar la sección con html2canvas
+        const canvas = await html2canvas(seccion, {
+            scale: 2,
+            useCORS: true,
+            allowTaint: true,
+            backgroundColor: '#ffffff',
+            scrollX: 0,
+            scrollY: 0,
+            width: seccion.scrollWidth,
+            height: seccion.scrollHeight
+        });
+
+        const imgData = canvas.toDataURL('image/jpeg', 0.92);
+        const imgW = contentW;
+        const imgH = (canvas.height * imgW) / canvas.width;
+        const pageContentH = pageH - margin * 2;
+
+        let posY = margin;
+        let heightLeft = imgH;
+        let page = 0;
+
+        while (heightLeft > 0) {
+            if (page > 0) pdf.addPage();
+            const sliceH = Math.min(heightLeft, pageContentH);
+            pdf.addImage(imgData, 'JPEG', margin, posY, imgW, imgH, '', 'FAST', 0);
+            // Clip trick: draw white rectangles to hide overflow
+            if (heightLeft > pageContentH) {
+                pdf.setFillColor(255, 255, 255);
+                pdf.rect(0, posY + sliceH, pageW, pageH - (posY + sliceH) + 1, 'F');
+            }
+            posY = margin - (page + 1) * pageContentH;
+            heightLeft -= pageContentH;
+            page++;
+        }
+
+        const nombres = { aip: 'AIP', crt: 'CRT', atp: 'ATP', ait: 'AIT', gen: 'General' };
+        const fecha = new Date().toISOString().split('T')[0];
+        pdf.save(`Registro_${nombres[modulo] || modulo}_${fecha}.pdf`);
+        toast("✅ PDF descargado correctamente");
+    } catch (err) {
+        console.error(err);
+        toast("❌ Error al generar PDF: " + err.message);
+    }
+}
+
+async function descargarPDFGeneral() {
+    toast("📄 Generando PDF General... por favor espera");
+    const secciones = ['AIP', 'CRT', 'ATP', 'AIT', 'GEN'];
+    const moduloActual = document.querySelector('.modulo-btn.activo')?.classList[1] || 'aip';
+
+    // Hacer visibles todas las secciones temporalmente
+    secciones.forEach(s => { document.getElementById('seccion' + s).style.display = 'block'; });
+
+    try {
+        const { jsPDF } = window.jspdf;
+        const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+        const pageW = 210, pageH = 297, margin = 10;
+        const contentW = pageW - margin * 2;
+        const pageContentH = pageH - margin * 2;
+
+        for (let i = 0; i < secciones.length; i++) {
+            const seccion = document.getElementById('seccion' + secciones[i]);
+            const canvas = await html2canvas(seccion, {
+                scale: 2,
+                useCORS: true,
+                allowTaint: true,
+                backgroundColor: '#ffffff',
+                scrollX: 0,
+                scrollY: 0,
+                width: seccion.scrollWidth,
+                height: seccion.scrollHeight
+            });
+
+            const imgData = canvas.toDataURL('image/jpeg', 0.90);
+            const imgW = contentW;
+            const imgH = (canvas.height * imgW) / canvas.width;
+            let posY = margin;
+            let heightLeft = imgH;
+            let page = 0;
+
+            while (heightLeft > 0) {
+                if (i > 0 || page > 0) pdf.addPage();
+                const sliceH = Math.min(heightLeft, pageContentH);
+                pdf.addImage(imgData, 'JPEG', margin, posY, imgW, imgH, '', 'FAST', 0);
+                if (heightLeft > pageContentH) {
+                    pdf.setFillColor(255, 255, 255);
+                    pdf.rect(0, posY + sliceH, pageW, pageH - (posY + sliceH) + 1, 'F');
+                }
+                posY = margin - (page + 1) * pageContentH;
+                heightLeft -= pageContentH;
+                page++;
+            }
+            toast(`📄 Procesando módulo ${i + 1}/${secciones.length}...`);
+        }
+
+        const fecha = new Date().toISOString().split('T')[0];
+        pdf.save(`Informe_General_IE0148_${fecha}.pdf`);
+        toast("✅ PDF General descargado");
+    } catch (err) {
+        console.error(err);
+        toast("❌ Error al generar PDF: " + err.message);
+    } finally {
+        // Restaurar solo la sección activa
+        secciones.forEach(s => {
+            document.getElementById('seccion' + s).style.display =
+                s.toLowerCase() === moduloActual ? 'block' : 'none';
+        });
+    }
+}
 
 function cambiarModulo(modulo) {
     document.querySelectorAll('.modulo-btn').forEach(b=>b.classList.remove('activo'));
