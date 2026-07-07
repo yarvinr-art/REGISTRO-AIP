@@ -1524,6 +1524,12 @@ function _abrirVentanaImpresion(tituloDoc, htmlContenido) {
 
   /* OCULTAR EN PANTALLA LO QUE NO VA AL PDF */
   .no-print { display: none !important; }
+
+  /* GRÁFICOS EN PDF */
+  .graficos-grid-pdf { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+  .grafico-pdf-card { border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px; background: #fff; page-break-inside: avoid; }
+  .grafico-pdf-card img { width: 100%; height: auto; display: block; }
+  .grafico-pdf-title { font-size: 8.5px; font-weight: 800; color: #475569; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; text-align: center; }
 </style>
 </head><body>
 ${htmlContenido}
@@ -1554,6 +1560,29 @@ function _buildStatsHTML(statCards) {
     return `<div class="stats-grid">${statCards.map(s => `<div class="stat-card"><div class="stat-num" style="color:${s.color||'#0d1b4b'}">${s.num}</div><div class="stat-label">${s.label}</div></div>`).join('')}</div>`;
 }
 
+function _renderChartImg(config, width, height) {
+    // Renderiza un gráfico Chart.js "en memoria" (sin insertarlo en pantalla) y devuelve un dataURL PNG
+    width = width || 480; height = height || 260;
+    const canvas = document.createElement('canvas');
+    canvas.width = width; canvas.height = height;
+    const cfg = JSON.parse(JSON.stringify(config, (k, v) => typeof v === 'function' ? undefined : v));
+    cfg.options = cfg.options || {};
+    cfg.options.responsive = false;
+    cfg.options.animation = false;
+    cfg.options.maintainAspectRatio = false;
+    const chart = new Chart(canvas.getContext('2d'), cfg);
+    const dataUrl = chart.toBase64Image('image/png', 1);
+    chart.destroy();
+    return dataUrl;
+}
+function _buildGraficosHTML(items) {
+    // items: [{titulo, config}]
+    const cards = items.map(it => {
+        const img = _renderChartImg(it.config);
+        return `<div class="grafico-pdf-card"><div class="grafico-pdf-title">${it.titulo}</div><img src="${img}"></div>`;
+    }).join('');
+    return `<div class="graficos-grid-pdf">${cards}</div>`;
+}
 function _buildTablaHTML(headers, filas, colores) {
     if (!filas || filas.length === 0) return `<p style="color:#94a3b8;text-align:center;padding:14px;background:#f8fafc;border-radius:8px;font-size:10px;">📭 Sin registros para este período</p>`;
     const ths = headers.map(h => `<th>${h}</th>`).join('');
@@ -1691,31 +1720,76 @@ async function descargarPDFGeneral() {
     html += `<div class="seccion"><div class="seccion-titulo"><span class="dot" style="background:#78716c"></span> RESUMEN GENERAL \u2014 ${mesLabel}</div>`;
     html += `<div class="stats-grid">${resumen.map(([n,l]) => `<div class="stat-card"><div class="stat-num">${n}</div><div class="stat-label">${l}</div></div>`).join('')}</div></div>`;
 
+    /* \u2500\u2500 GR\u00c1FICOS GENERALES \u2500\u2500 */
+    const diasSemNombres = ['LUN','MAR','MI\u00c9','JUE','VIE','S\u00c1B','DOM'];
+    const diasConsolidados = [0,0,0,0,0,0,0];
+    [...aipR,...crtR,...atpR,...aitR].forEach(r => { if (r.diaSemana) diasConsolidados[r.diaSemana-1]++; });
+    toast("\ud83d\udcca Generando gr\u00e1ficos...");
+    html += _buildGraficosHTML([
+        { titulo: '\ud83d\udcca Distribuci\u00f3n por M\u00f3dulo', config: { type:'doughnut', data:{ labels:['AIP','CRT','ATP','AIT'], datasets:[{ data:[aipR.length,crtR.length,atpR.length,aitR.length], backgroundColor:['#2348c0','#1e7a3a','#9333ea','#db2777'] }] }, options:{ cutout:'55%', plugins:{ legend:{ position:'bottom' } } } } },
+        { titulo: '\ud83d\udcc5 Registros por D\u00eda de Semana', config: { type:'bar', data:{ labels:diasSemNombres.slice(0,5), datasets:[{ data:diasConsolidados.slice(0,5), backgroundColor:'#1a3080', borderRadius:6 }] }, options:{ plugins:{ legend:{ display:false } } } } }
+    ]);
+
     /* \u2500\u2500 CONFIGURACI\u00d3N POR M\u00d3DULO \u2500\u2500 */
     const modulos = {
         aip: {
             etiqueta: 'AIP \u2014 Aula de Innovaci\u00f3n Pedag\u00f3gica', color: '#2348c0', regs: aipR,
             stats: () => [[aipR.length,'Total Registros'],[aipAsist,`\u2705 Ingresaron (${aipR.length?((aipAsist/aipR.length)*100).toFixed(1):0}%)`],[aipR.length-aipAsist,`\ud83d\udeab No Ingresaron`],[new Set(aipR.map(r=>r.docente)).size,'Docentes']],
             headers: ['FECHA','HORA','DOCENTE','NOMBRE','GRADO/SECC','HORAS','ESTADO','TEMA'],
-            fila: r => [r.fecha, r.hora, r.docente, r.nombre||'\u2014', `${r.grado||''} ${r.seccion||''}`.trim()||'\u2014', r.horas||'\u2014', r.estado==='NO_INGRESO'?'\ud83d\udeab NO INGRES\u00d3':'\u2705 ASISTI\u00d3', r.tema||'\u2014']
+            fila: r => [r.fecha, r.hora, r.docente, r.nombre||'\u2014', `${r.grado||''} ${r.seccion||''}`.trim()||'\u2014', r.horas||'\u2014', r.estado==='NO_INGRESO'?'\ud83d\udeab NO INGRES\u00d3':'\u2705 ASISTI\u00d3', r.tema||'\u2014'],
+            graficos: () => {
+                const porPersona = {}; aipR.forEach(r => { const lbl = r.docente||'\u2014'; porPersona[lbl] = (porPersona[lbl]||0)+1; });
+                const top = Object.entries(porPersona).sort((a,b)=>b[1]-a[1]).slice(0,6);
+                return [
+                    { titulo: '\u2705 Ingresaron vs \ud83d\udeab No Ingresaron', config: { type:'doughnut', data:{ labels:['\u2705 Ingresaron','\ud83d\udeab No Ingresaron'], datasets:[{ data:[aipAsist, aipR.length-aipAsist], backgroundColor:['#22c55e','#f59e0b'] }] }, options:{ cutout:'58%', plugins:{ legend:{ position:'bottom' } } } } },
+                    { titulo: '\ud83c\udfc6 Top Docentes por Asistencia', config: { type:'bar', data:{ labels:top.map(p=>p[0].substring(0,18)), datasets:[{ data:top.map(p=>p[1]), backgroundColor:'#2348c0', borderRadius:6 }] }, options:{ indexAxis:'y', plugins:{ legend:{ display:false } } } } }
+                ];
+            }
         },
         crt: {
             etiqueta: 'CRT \u2014 Centro de Recursos Tecnol\u00f3gicos', color: '#1e7a3a', regs: crtR,
             stats: () => [[crtR.length,'Total Registros'],[new Set(crtR.map(r=>r.docente)).size,'Personas Atendidas'],[new Set(crtR.map(r=>r.fecha)).size,'D\u00edas con Actividad'],[crtR.length?(crtR.length/Math.max(1,new Set(crtR.map(r=>r.fecha)).size)).toFixed(1):0,'Prom. por D\u00eda']],
             headers: ['FECHA','HORA','TIPO','DOCENTE','\u00c1REA','GRADO/SECC','ACTIVIDAD','HORAS','TEMA / MOTIVO'],
-            fila: r => [r.fecha, r.hora, r.tipo||'\u2014', r.docente, r.area||'\u2014', (r.tipo==='DOCENTE'&&r.grado&&r.grado!=='\u2014')?`${r.grado} ${r.seccion}`:'\u2014', r.actividad||'\u2014', r.horas||'\u2014', r.tema||'\u2014']
+            fila: r => [r.fecha, r.hora, r.tipo||'\u2014', r.docente, r.area||'\u2014', (r.tipo==='DOCENTE'&&r.grado&&r.grado!=='\u2014')?`${r.grado} ${r.seccion}`:'\u2014', r.actividad||'\u2014', r.horas||'\u2014', r.tema||'\u2014'],
+            graficos: () => {
+                const tipoCount = {}; crtR.forEach(r => { tipoCount[r.tipo||'\u2014'] = (tipoCount[r.tipo||'\u2014']||0)+1; });
+                const actCount = {}; crtR.forEach(r => { actCount[r.actividad||'\u2014'] = (actCount[r.actividad||'\u2014']||0)+1; });
+                const topAct = Object.entries(actCount).sort((a,b)=>b[1]-a[1]).slice(0,6);
+                return [
+                    { titulo: '\ud83d\udc64 Distribuci\u00f3n por Tipo de Persona', config: { type:'doughnut', data:{ labels:Object.keys(tipoCount), datasets:[{ data:Object.values(tipoCount), backgroundColor:['#22c55e','#fbbf24','#3b82f6','#a855f7','#ef4444','#ec4899'] }] }, options:{ cutout:'55%', plugins:{ legend:{ position:'bottom' } } } } },
+                    { titulo: '\ud83d\udda5\ufe0f Actividades M\u00e1s Realizadas', config: { type:'bar', data:{ labels:topAct.map(p=>p[0].substring(0,18)), datasets:[{ data:topAct.map(p=>p[1]), backgroundColor:'#1e7a3a', borderRadius:6 }] }, options:{ indexAxis:'y', plugins:{ legend:{ display:false } } } } }
+                ];
+            }
         },
         atp: {
             etiqueta: 'ATP \u2014 Atenci\u00f3n Personalizada', color: '#9333ea', regs: atpR,
             stats: () => [[atpR.length,'Total Atenciones'],[new Set(atpR.map(r=>r.nombre)).size,'Personas'],[atpMin,'Minutos Totales'],[atpR.length?(atpMin/atpR.length).toFixed(0):0,'Prom. Min/Atenci\u00f3n']],
             headers: ['FECHA','HORA','TIPO','NOMBRE','TEMA','TIEMPO'],
-            fila: r => [r.fecha, r.hora, r.tipo||'\u2014', r.nombre||'\u2014', r.tema||'\u2014', `${r.tiempo||0} min`]
+            fila: r => [r.fecha, r.hora, r.tipo||'\u2014', r.nombre||'\u2014', r.tema||'\u2014', `${r.tiempo||0} min`],
+            graficos: () => {
+                const tipoCount = {}; atpR.forEach(r => { tipoCount[r.tipo||'\u2014'] = (tipoCount[r.tipo||'\u2014']||0)+1; });
+                const rangos = { '0-15 min':0, '16-30 min':0, '31-60 min':0, '60+ min':0 };
+                atpR.forEach(r => { const t = r.tiempo||0; if (t<=15) rangos['0-15 min']++; else if (t<=30) rangos['16-30 min']++; else if (t<=60) rangos['31-60 min']++; else rangos['60+ min']++; });
+                return [
+                    { titulo: '\ud83d\udc64 Atenciones por Tipo', config: { type:'doughnut', data:{ labels:Object.keys(tipoCount), datasets:[{ data:Object.values(tipoCount), backgroundColor:['#6b21a8','#9333ea','#c084fc','#f0abfc'] }] }, options:{ cutout:'55%', plugins:{ legend:{ position:'bottom' } } } } },
+                    { titulo: '\u23f1\ufe0f Distribuci\u00f3n por Tiempo', config: { type:'bar', data:{ labels:Object.keys(rangos), datasets:[{ data:Object.values(rangos), backgroundColor:'#9333ea', borderRadius:6 }] }, options:{ plugins:{ legend:{ display:false } } } } }
+                ];
+            }
         },
         ait: {
             etiqueta: 'AIT \u2014 Incidencias Tecnol\u00f3gicas', color: '#db2777', regs: aitR,
             stats: () => [[aitR.length,'Total Incidencias'],[aitSol,`\u2705 Solucionadas (${aitR.length?((aitSol/aitR.length)*100).toFixed(1):0}%)`],[aitR.filter(r=>r.solucionCodigo==='NO').length,'\u26a0\ufe0f Pendientes'],[aitR.filter(r=>r.solucionCodigo==='BAJA').length,'\u274c Dados de Baja']],
             headers: ['FECHA','HORA','AULA','DOCENTE','TIPO','HORA ATENCI\u00d3N','SOLUCI\u00d3N','RECOMENDACI\u00d3N'],
-            fila: r => [r.fecha, r.hora, r.aula||'\u2014', r.docente||'\u2014', r.tipoAtencion||'\u2014', r.horaAtencion||'\u2014', r.solucion||'\u2014', (r.recomendacion||'\u2014').substring(0,80)]
+            fila: r => [r.fecha, r.hora, r.aula||'\u2014', r.docente||'\u2014', r.tipoAtencion||'\u2014', r.horaAtencion||'\u2014', r.solucion||'\u2014', (r.recomendacion||'\u2014').substring(0,80)],
+            graficos: () => {
+                const tipoCount = {}; aitR.forEach(r => { tipoCount[r.tipoAtencion||'\u2014'] = (tipoCount[r.tipoAtencion||'\u2014']||0)+1; });
+                const pendientes = aitR.filter(r=>r.solucionCodigo==='NO').length;
+                const bajas = aitR.filter(r=>r.solucionCodigo==='BAJA').length;
+                return [
+                    { titulo: '\ud83d\udd27 Incidencias por Tipo', config: { type:'pie', data:{ labels:Object.keys(tipoCount), datasets:[{ data:Object.values(tipoCount), backgroundColor:['#be185d','#db2777','#f43f5e','#fda4af','#831843'] }] }, options:{ plugins:{ legend:{ position:'bottom' } } } } },
+                    { titulo: '\u2705 Estado de Soluci\u00f3n', config: { type:'doughnut', data:{ labels:['\u2705 Solucionadas','\u26a0\ufe0f Pendientes','\u274c Dadas de Baja'], datasets:[{ data:[aitSol, pendientes, bajas], backgroundColor:['#22c55e','#ef4444','#f59e0b'] }] }, options:{ cutout:'55%', plugins:{ legend:{ position:'bottom' } } } } }
+                ];
+            }
         }
     };
 
@@ -1725,6 +1799,9 @@ async function descargarPDFGeneral() {
         html += `<div class="modulo-break"></div>`;
         html += `<div style="border-left: 4px solid ${m.color}; padding: 10px 14px; margin-bottom: 14px; background: #f8fafc; border-radius: 0 8px 8px 0; page-break-inside:avoid;"><div style="font-size:14px; font-weight:800; color:${m.color};">${m.etiqueta}</div></div>`;
         html += `<div class="stats-grid">${m.stats().map(([n,l]) => `<div class="stat-card"><div class="stat-num" style="color:${m.color}">${n}</div><div class="stat-label">${l}</div></div>`).join('')}</div>`;
+        if (m.regs.length > 0) {
+            html += _buildGraficosHTML(m.graficos());
+        }
         html += `<div class="seccion"><div class="seccion-titulo">${dot} REGISTROS DEL MES (${m.regs.length})</div>`;
         html += _buildTablaHTML(m.headers, m.regs.map(m.fila));
         html += `</div>`;
