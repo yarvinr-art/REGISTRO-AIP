@@ -1655,65 +1655,83 @@ async function descargarPDF(modulo) {
 }
 
 async function descargarPDFGeneral() {
-    toast("📄 Preparando informe general...");
-    const modulos = ['aip', 'crt', 'atp', 'ait'];
-    const etiquetas = { aip: 'AIP — Aula de Innovación Pedagógica', crt: 'CRT — Centro de Recursos Tecnológicos', atp: 'ATP — Atención Personalizada', ait: 'AIT — Incidencias Tecnológicas' };
-    const colores = { aip: '#2348c0', crt: '#1e7a3a', atp: '#9333ea', ait: '#db2777' };
-    const theaders = {
-        aip: ['FECHA', 'ESTADO', 'ÁREA', 'DOCENTE', 'GRADO/SECC', 'HORA', 'TEMA'],
-        crt: ['FECHA', 'DOCENTE', 'ÁREA', 'GRADO/SECC', 'HORA', 'MOTIVO'],
-        atp: ['FECHA', 'TIPO', 'NOMBRE', 'TEMA', 'TIEMPO'],
-        ait: ['FECHA/HORA', 'AULA', 'DOCENTE', 'TIPO', 'HORA', 'SOLUCIÓN', 'RECOMENDACIÓN']
+    const mes = document.getElementById('mesFiltroGEN').value;
+    if (!mes || !mes.startsWith("2026")) { toast("Seleccione un mes de 2026 en el filtro"); return; }
+    toast("\ud83d\udcc4 Preparando informe general...");
+
+    const [aipS, crtS, atpS, aitS] = await Promise.all([
+        db.ref('atenciones_aip').once('value'),
+        db.ref('atenciones_crt').once('value'),
+        db.ref('atenciones_atp').once('value'),
+        db.ref('atenciones_ait').once('value')
+    ]);
+    const ordFecha = (a,b) => (b.timestamp||0)-(a.timestamp||0);
+    const aipR = filtrarPorMes(Object.values(aipS.val()||{}).map(r=>parseFechaReg({...r})), mes).sort(ordFecha);
+    const crtR = filtrarPorMes(Object.values(crtS.val()||{}).map(r=>parseFechaReg({...r})), mes).sort(ordFecha);
+    const atpR = filtrarPorMes(Object.values(atpS.val()||{}).map(r=>parseFechaReg({...r})), mes).sort(ordFecha);
+    const aitR = filtrarPorMes(Object.values(aitS.val()||{}).map(r=>parseFechaReg({...r})), mes).sort(ordFecha);
+
+    const mesLabel = new Date(mes+'-15T12:00:00').toLocaleDateString('es-PE',{year:'numeric',month:'long'}).toUpperCase();
+    let html = _buildHeaderHTML('INFORME EJECUTIVO GENERAL CONSOLIDADO 2026', `IE N\u00b0 0148 \u2014 Todas las secciones \u2014 ${mesLabel}`);
+
+    /* \u2500\u2500 RESUMEN GENERAL (calculado desde Firebase, no desde pantalla) \u2500\u2500 */
+    const grandTotal = aipR.length + crtR.length + atpR.length + aitR.length;
+    const personasTotal = new Set([...aipR.map(r=>r.docente),...crtR.map(r=>r.docente),...atpR.map(r=>r.nombre),...aitR.map(r=>r.docente)].filter(Boolean)).size;
+    const aipAsist = aipR.filter(r=>r.estado==='ASISTIO').length;
+    const aitSol = aitR.filter(r=>r.solucionCodigo==='SI').length;
+    const atpMin = atpR.reduce((s,r)=>s+(r.tiempo||0),0);
+    const resumen = [
+        [grandTotal,'Registros Totales'],
+        [aipR.length,`AIP (${grandTotal?((aipR.length/grandTotal)*100).toFixed(1):0}%)`],
+        [crtR.length,`CRT (${grandTotal?((crtR.length/grandTotal)*100).toFixed(1):0}%)`],
+        [atpR.length,`ATP (${grandTotal?((atpR.length/grandTotal)*100).toFixed(1):0}%)`],
+        [aitR.length,`AIT (${grandTotal?((aitR.length/grandTotal)*100).toFixed(1):0}%)`],
+        [personasTotal,'Personas Atendidas']
+    ];
+    html += `<div class="seccion"><div class="seccion-titulo"><span class="dot" style="background:#78716c"></span> RESUMEN GENERAL \u2014 ${mesLabel}</div>`;
+    html += `<div class="stats-grid">${resumen.map(([n,l]) => `<div class="stat-card"><div class="stat-num">${n}</div><div class="stat-label">${l}</div></div>`).join('')}</div></div>`;
+
+    /* \u2500\u2500 CONFIGURACI\u00d3N POR M\u00d3DULO \u2500\u2500 */
+    const modulos = {
+        aip: {
+            etiqueta: 'AIP \u2014 Aula de Innovaci\u00f3n Pedag\u00f3gica', color: '#2348c0', regs: aipR,
+            stats: () => [[aipR.length,'Total Registros'],[aipAsist,`\u2705 Ingresaron (${aipR.length?((aipAsist/aipR.length)*100).toFixed(1):0}%)`],[aipR.length-aipAsist,`\ud83d\udeab No Ingresaron`],[new Set(aipR.map(r=>r.docente)).size,'Docentes']],
+            headers: ['FECHA','HORA','DOCENTE','NOMBRE','GRADO/SECC','HORAS','ESTADO','TEMA'],
+            fila: r => [r.fecha, r.hora, r.docente, r.nombre||'\u2014', `${r.grado||''} ${r.seccion||''}`.trim()||'\u2014', r.horas||'\u2014', r.estado==='NO_INGRESO'?'\ud83d\udeab NO INGRES\u00d3':'\u2705 ASISTI\u00d3', r.tema||'\u2014']
+        },
+        crt: {
+            etiqueta: 'CRT \u2014 Centro de Recursos Tecnol\u00f3gicos', color: '#1e7a3a', regs: crtR,
+            stats: () => [[crtR.length,'Total Registros'],[new Set(crtR.map(r=>r.docente)).size,'Personas Atendidas'],[new Set(crtR.map(r=>r.fecha)).size,'D\u00edas con Actividad'],[crtR.length?(crtR.length/Math.max(1,new Set(crtR.map(r=>r.fecha)).size)).toFixed(1):0,'Prom. por D\u00eda']],
+            headers: ['FECHA','HORA','TIPO','DOCENTE','\u00c1REA','GRADO/SECC','ACTIVIDAD','HORAS','TEMA / MOTIVO'],
+            fila: r => [r.fecha, r.hora, r.tipo||'\u2014', r.docente, r.area||'\u2014', (r.tipo==='DOCENTE'&&r.grado&&r.grado!=='\u2014')?`${r.grado} ${r.seccion}`:'\u2014', r.actividad||'\u2014', r.horas||'\u2014', r.tema||'\u2014']
+        },
+        atp: {
+            etiqueta: 'ATP \u2014 Atenci\u00f3n Personalizada', color: '#9333ea', regs: atpR,
+            stats: () => [[atpR.length,'Total Atenciones'],[new Set(atpR.map(r=>r.nombre)).size,'Personas'],[atpMin,'Minutos Totales'],[atpR.length?(atpMin/atpR.length).toFixed(0):0,'Prom. Min/Atenci\u00f3n']],
+            headers: ['FECHA','HORA','TIPO','NOMBRE','TEMA','TIEMPO'],
+            fila: r => [r.fecha, r.hora, r.tipo||'\u2014', r.nombre||'\u2014', r.tema||'\u2014', `${r.tiempo||0} min`]
+        },
+        ait: {
+            etiqueta: 'AIT \u2014 Incidencias Tecnol\u00f3gicas', color: '#db2777', regs: aitR,
+            stats: () => [[aitR.length,'Total Incidencias'],[aitSol,`\u2705 Solucionadas (${aitR.length?((aitSol/aitR.length)*100).toFixed(1):0}%)`],[aitR.filter(r=>r.solucionCodigo==='NO').length,'\u26a0\ufe0f Pendientes'],[aitR.filter(r=>r.solucionCodigo==='BAJA').length,'\u274c Dados de Baja']],
+            headers: ['FECHA','HORA','AULA','DOCENTE','TIPO','HORA ATENCI\u00d3N','SOLUCI\u00d3N','RECOMENDACI\u00d3N'],
+            fila: r => [r.fecha, r.hora, r.aula||'\u2014', r.docente||'\u2014', r.tipoAtencion||'\u2014', r.horaAtencion||'\u2014', r.solucion||'\u2014', (r.recomendacion||'\u2014').substring(0,80)]
+        }
     };
-    const tbodyIds = { aip: 'aip-tablaCuerpo', crt: 'crt-tablaCuerpo', atp: 'atp-tablaCuerpo', ait: 'ait-tablaCuerpo' };
 
-    let html = _buildHeaderHTML('INFORME EJECUTIVO GENERAL CONSOLIDADO 2026', 'IE N° 0148 — Todas las secciones');
-
-    // Resumen general desde el panel GEN si existe
-    const genContenido = document.getElementById('genContenido');
-    if (genContenido) {
-        const nums = [...genContenido.querySelectorAll('.stat-num')].map(el => el.textContent.trim());
-        const labels = [...genContenido.querySelectorAll('.stat-label')].map(el => el.textContent.trim());
-        if (nums.length) {
-            html += `<div class="seccion"><div class="seccion-titulo"><span class="dot" style="background:#78716c"></span> RESUMEN GENERAL</div>`;
-            html += `<div class="stats-grid">${nums.map((n,i) => `<div class="stat-card"><div class="stat-num">${n}</div><div class="stat-label">${labels[i]||''}</div></div>`).join('')}</div></div>`;
-        }
-    }
-
-    for (const modulo of modulos) {
-        const color = colores[modulo];
-        const dot = `<span class="dot" style="background:${color}"></span>`;
+    for (const key of ['aip','crt','atp','ait']) {
+        const m = modulos[key];
+        const dot = `<span class="dot" style="background:${m.color}"></span>`;
         html += `<div class="modulo-break"></div>`;
-        html += `<div style="border-left: 4px solid ${color}; padding: 10px 14px; margin-bottom: 14px; background: #f8fafc; border-radius: 0 8px 8px 0; page-break-inside:avoid;"><div style="font-size:14px; font-weight:800; color:${color};">${etiquetas[modulo]}</div></div>`;
-
-        // Stats del módulo
-        const statsEl = document.getElementById(modulo + '-stats-mes');
-        if (statsEl) {
-            const nums = [...statsEl.querySelectorAll('.stat-num')].map(el => el.textContent.trim());
-            const lbls = [...statsEl.querySelectorAll('.stat-label')].map(el => el.textContent.trim());
-            if (nums.length) {
-                html += `<div class="stats-grid">${nums.map((n,i) => `<div class="stat-card"><div class="stat-num" style="color:${color}">${n}</div><div class="stat-label">${lbls[i]||''}</div></div>`).join('')}</div>`;
-            }
-        }
-
-        // Tabla del módulo
-        const tbody = document.getElementById(tbodyIds[modulo]);
-        if (tbody && tbody.children.length > 0) {
-            html += `<div class="seccion"><div class="seccion-titulo">${dot} REGISTROS</div>`;
-            const filas = [...tbody.querySelectorAll('tr')].map(tr =>
-                [...tr.querySelectorAll('td')].slice(0, theaders[modulo].length).map(td => {
-                    const cl = td.cloneNode(true);
-                    cl.querySelectorAll('button').forEach(b => b.remove());
-                    return cl.textContent.trim().replace(/\s+/g, ' ');
-                })
-            ).filter(f => f.length > 0);
-            html += _buildTablaHTML(theaders[modulo], filas);
-            html += `</div>`;
-        }
+        html += `<div style="border-left: 4px solid ${m.color}; padding: 10px 14px; margin-bottom: 14px; background: #f8fafc; border-radius: 0 8px 8px 0; page-break-inside:avoid;"><div style="font-size:14px; font-weight:800; color:${m.color};">${m.etiqueta}</div></div>`;
+        html += `<div class="stats-grid">${m.stats().map(([n,l]) => `<div class="stat-card"><div class="stat-num" style="color:${m.color}">${n}</div><div class="stat-label">${l}</div></div>`).join('')}</div>`;
+        html += `<div class="seccion"><div class="seccion-titulo">${dot} REGISTROS DEL MES (${m.regs.length})</div>`;
+        html += _buildTablaHTML(m.headers, m.regs.map(m.fila));
+        html += `</div>`;
     }
 
     _abrirVentanaImpresion('Informe General Consolidado 2026', html);
-    setTimeout(() => toast("✅ Listo — guarda como PDF desde el diálogo de impresión"), 400);
+    setTimeout(() => toast("\u2705 Listo \u2014 guarda como PDF desde el di\u00e1logo de impresi\u00f3n"), 400);
 }
 
 function cambiarModulo(modulo) {
