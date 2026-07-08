@@ -1886,80 +1886,144 @@ async function descargarInformeGestion() {
     }
 
     /* \u2500\u2500 AN\u00c1LISIS AUTOM\u00c1TICO \u2500\u2500 */
+    const noIngRegs = aipR.filter(r=>r.estado==='NO_INGRESO');
     const noIngMap = {};
-    aipR.filter(r=>r.estado==='NO_INGRESO').forEach(r => {
+    noIngRegs.forEach(r => {
         const k = r.nombre || r.docente || 'Sin nombre';
-        if (!noIngMap[k]) noIngMap[k] = 0;
-        noIngMap[k]++;
+        if (!noIngMap[k]) noIngMap[k] = { count:0, grado:r.grado||'', seccion:r.seccion||'' };
+        noIngMap[k].count++;
     });
-    const recurrentes = Object.entries(noIngMap).filter(([k,c])=>c>=3).sort((a,b)=>b[1]-a[1]);
+    const recurrentes = Object.entries(noIngMap).filter(([k,v])=>v.count>=3).sort((a,b)=>b[1].count-a[1].count);
+    const moderados = Object.entries(noIngMap).filter(([k,v])=>v.count===2);
+
+    const gradoNoIng = {};
+    noIngRegs.forEach(r => { const g = `${r.grado||''} ${r.seccion||''}`.trim() || 'Sin especificar'; gradoNoIng[g] = (gradoNoIng[g]||0)+1; });
+    const topGradoNoIng = Object.entries(gradoNoIng).sort((a,b)=>b[1]-a[1])[0];
+
+    const aipDiasSem = [0,0,0,0,0]; const aipNoIngDiasSem = [0,0,0,0,0];
+    aipR.forEach(r => { if (r.diaSemana>=1 && r.diaSemana<=5) { if (r.estado==='ASISTIO') aipDiasSem[r.diaSemana-1]++; else aipNoIngDiasSem[r.diaSemana-1]++; } });
+    const diaMaxNoIng = aipNoIngDiasSem.reduce((a,b)=>Math.max(a,b),0) > 0 ? aipNoIngDiasSem.indexOf(Math.max(...aipNoIngDiasSem)) : -1;
+
+    const tipoCountCRT = {}; crtR.forEach(r => { const t = r.tipo||'\u2014'; tipoCountCRT[t] = (tipoCountCRT[t]||0)+1; });
+    const topTipoCRT = Object.entries(tipoCountCRT).sort((a,b)=>b[1]-a[1])[0];
+    const pctTopTipoCRT = topTipoCRT && crtR.length ? ((topTipoCRT[1]/crtR.length)*100).toFixed(1) : 0;
+    const actCountCRT = {}; crtR.forEach(r => { const a = r.actividad||'\u2014'; actCountCRT[a] = (actCountCRT[a]||0)+1; });
+    const topActCRT = Object.entries(actCountCRT).sort((a,b)=>b[1]-a[1])[0];
+    const pctTopActCRT = topActCRT && crtR.length ? ((topActCRT[1]/crtR.length)*100).toFixed(1) : 0;
+
+    const tipoCountATP = {}; atpR.forEach(r => { const t = r.tipo||'\u2014'; tipoCountATP[t] = (tipoCountATP[t]||0)+1; });
+    const topTipoATP = Object.entries(tipoCountATP).sort((a,b)=>b[1]-a[1])[0];
+    const pctTopTipoATP = topTipoATP && atpR.length ? ((topTipoATP[1]/atpR.length)*100).toFixed(1) : 0;
+    const promMinATP = atpR.length ? (atpMin/atpR.length) : 0;
 
     const tipoCountAIT = {}; aitR.forEach(r => { const t = r.tipoAtencion||'\u2014'; tipoCountAIT[t] = (tipoCountAIT[t]||0)+1; });
     const topTipoAIT = Object.entries(tipoCountAIT).sort((a,b)=>b[1]-a[1])[0];
     const pctTopTipoAIT = topTipoAIT && aitR.length ? ((topTipoAIT[1]/aitR.length)*100).toFixed(1) : 0;
+    const aulaCountAIT = {}; aitR.forEach(r => { const a = r.aula||'\u2014'; aulaCountAIT[a] = (aulaCountAIT[a]||0)+1; });
+    const topAulaAIT = Object.entries(aulaCountAIT).sort((a,b)=>b[1]-a[1])[0];
 
     const diasSemNombres = ['LUN','MAR','MI\u00c9','JUE','VIE'];
     const diasConsolidados = [0,0,0,0,0];
-    [...aipR,...crtR,...atpR,...aitR].forEach(r => { if (r.diaSemana>=1 && r.diaSemana<=5) diasConsolidados[r.diaSemana-1]++; });
+    const diasAIPc=[0,0,0,0,0], diasCRTc=[0,0,0,0,0], diasATPc=[0,0,0,0,0], diasAITc=[0,0,0,0,0];
+    aipR.forEach(r=>{ if(r.diaSemana>=1&&r.diaSemana<=5){diasConsolidados[r.diaSemana-1]++;diasAIPc[r.diaSemana-1]++;} });
+    crtR.forEach(r=>{ if(r.diaSemana>=1&&r.diaSemana<=5){diasConsolidados[r.diaSemana-1]++;diasCRTc[r.diaSemana-1]++;} });
+    atpR.forEach(r=>{ if(r.diaSemana>=1&&r.diaSemana<=5){diasConsolidados[r.diaSemana-1]++;diasATPc[r.diaSemana-1]++;} });
+    aitR.forEach(r=>{ if(r.diaSemana>=1&&r.diaSemana<=5){diasConsolidados[r.diaSemana-1]++;diasAITc[r.diaSemana-1]++;} });
     const totalDiasSem = diasConsolidados.reduce((a,b)=>a+b,0);
-    const diaMax = diasConsolidados.indexOf(Math.max(...diasConsolidados));
+    const diaMax = totalDiasSem ? diasConsolidados.indexOf(Math.max(...diasConsolidados)) : -1;
+    const diaMin = totalDiasSem ? diasConsolidados.indexOf(Math.min(...diasConsolidados.filter(v=>v>=0))) : -1;
     const pctDiaMax = totalDiasSem ? ((diasConsolidados[diaMax]/totalDiasSem)*100).toFixed(1) : 0;
+
+    const semanasGen = {1:0,2:0,3:0,4:0,5:0};
+    [...aipR,...crtR,...atpR,...aitR].forEach(r => { if (r.semanaMes>=1 && r.semanaMes<=5) semanasGen[r.semanaMes]++; });
+    const semanaTop = Object.entries(semanasGen).sort((a,b)=>b[1]-a[1])[0];
+    const pctSemanaTop = grandTotal ? ((semanaTop[1]/grandTotal)*100).toFixed(1) : 0;
+
+    // Servicio con menor uso relativo (para diagnosticar brecha de adopci\u00f3n)
+    const usoModulos = [['AIP',aipR.length],['CRT',crtR.length],['ATP',atpR.length],['AIT',aitR.length]];
+    const modulosActivos = usoModulos.filter(m=>m[1]>0);
+    const moduloMenor = usoModulos.reduce((min,m)=> m[1]<min[1] ? m : min, usoModulos[0]);
 
     const hallazgos = [];
 
-    // AIP \u2014 asistencia
+    // AIP \u2014 asistencia general
     if (aipR.length > 0) {
         if (+pctAipAsist >= 85) {
-            hallazgos.push({ tipo:'logro', texto:`El AIP registr\u00f3 una asistencia docente del ${pctAipAsist}% (${aipAsist} de ${aipR.length} sesiones), evidenciando un uso constante del aula de innovaci\u00f3n pedag\u00f3gica.` });
+            hallazgos.push({ tipo:'logro', texto:`El AIP registr\u00f3 una asistencia docente del ${pctAipAsist}% (${aipAsist} de ${aipR.length} sesiones), evidenciando un uso constante y comprometido del aula de innovaci\u00f3n pedag\u00f3gica por parte de la plana docente. Este nivel de asistencia contribuye directamente al desarrollo de competencias digitales en los estudiantes y al aprovechamiento de la inversi\u00f3n en equipamiento tecnol\u00f3gico de la instituci\u00f3n.` });
         } else if (+pctAipAsist < 70) {
-            hallazgos.push({ tipo:'dificultad', texto:`La asistencia al AIP fue baja: solo ${pctAipAsist}% (${aipR.length-aipAsist} de ${aipR.length} sesiones programadas no se registr\u00f3 ingreso).`, accion:'Reforzar la comunicaci\u00f3n de horarios asignados al AIP mediante recordatorios semanales y dar seguimiento directo a los docentes con mayor n\u00famero de inasistencias.' });
+            hallazgos.push({ tipo:'dificultad', texto:`La asistencia al AIP fue baja: solo ${pctAipAsist}% (${aipR.length-aipAsist} de ${aipR.length} sesiones programadas no registraron ingreso). Este nivel de inasistencia representa una brecha significativa en el aprovechamiento del aula de innovaci\u00f3n y puede estar limitando el desarrollo de competencias TIC planificadas en la programaci\u00f3n curricular.`, accion:['Reforzar la comunicaci\u00f3n de horarios asignados al AIP mediante recordatorios semanales por los canales oficiales de la instituci\u00f3n (grupos de WhatsApp, murales, correo).','Dar seguimiento directo y personalizado a los docentes con mayor n\u00famero de inasistencias, identificando si las causas son de horario, log\u00edstica o desconocimiento del recurso.','Presentar un reporte mensual de asistencia al AIP en la reuni\u00f3n de coordinaci\u00f3n pedag\u00f3gica para visibilizar el indicador ante la plana docente.'] });
         } else {
-            hallazgos.push({ tipo:'dificultad', texto:`La asistencia al AIP fue moderada (${pctAipAsist}%), con margen de mejora respecto al uso pleno del aula.`, accion:'Verificar la disponibilidad de equipos y horarios del AIP, y sensibilizar a los docentes sobre la importancia del uso peri\u00f3dico del aula.' });
+            hallazgos.push({ tipo:'dificultad', texto:`La asistencia al AIP fue moderada (${pctAipAsist}%, ${aipR.length-aipAsist} sesiones sin ingreso de ${aipR.length} programadas), con margen de mejora respecto al uso pleno del aula de innovaci\u00f3n.`, accion:['Verificar la disponibilidad de equipos y el estado operativo del AIP para descartar causas log\u00edsticas de la inasistencia.','Sensibilizar a los docentes sobre la importancia del uso peri\u00f3dico del aula mediante una comunicaci\u00f3n breve en la pr\u00f3xima reuni\u00f3n docente.'] });
         }
     }
 
     // AIP \u2014 docentes recurrentes sin ingreso
     if (recurrentes.length > 0) {
-        const nombres = recurrentes.map(([k,c])=>`${k} (${c} veces)`).join(', ');
-        hallazgos.push({ tipo:'dificultad', texto:`${recurrentes.length} docente(s) no ingresaron al AIP en 3 o m\u00e1s oportunidades durante el mes: ${nombres}.`, accion:'Coordinar una reuni\u00f3n individual con los docentes de inasistencia reiterada para identificar causas y establecer compromisos de mejora, con seguimiento del pr\u00f3ximo mes.' });
+        const nombres = recurrentes.map(([k,v])=>`${k}${v.grado?` (${v.grado} ${v.seccion})`:''}: ${v.count} veces`).join('; ');
+        hallazgos.push({ tipo:'dificultad', texto:`${recurrentes.length} docente(s) no ingresaron al AIP en 3 o m\u00e1s oportunidades durante el mes \u2014 ${nombres}. La reiteraci\u00f3n de estas inasistencias sugiere un patr\u00f3n sostenido que amerita atenci\u00f3n individualizada antes de que se consolide como una pr\u00e1ctica habitual.${moderados.length ? ` Adicionalmente, ${moderados.length} docente(s) registraron 2 inasistencias, un nivel a monitorear para evitar que escale.` : ''}`, accion:['Coordinar una reuni\u00f3n individual con cada docente de inasistencia reiterada para identificar las causas espec\u00edficas (carga horaria, desconocimiento del horario, falta de inter\u00e9s, dificultades log\u00edsticas).','Establecer compromisos de mejora por escrito con fecha de seguimiento en el pr\u00f3ximo informe mensual.','Informar a la subdirecci\u00f3n o coordinaci\u00f3n acad\u00e9mica sobre los casos reiterados para su conocimiento y respaldo institucional.'] });
     } else if (aipR.length > 0) {
-        hallazgos.push({ tipo:'logro', texto:'Ning\u00fan docente registr\u00f3 3 o m\u00e1s inasistencias al AIP durante el mes, lo que indica un uso regular y sostenido del aula por parte de la plana docente.' });
+        hallazgos.push({ tipo:'logro', texto:'Ning\u00fan docente registr\u00f3 3 o m\u00e1s inasistencias al AIP durante el mes, lo que indica un uso regular y sostenido del aula por parte de toda la plana docente y refleja un buen nivel de compromiso institucional con el uso de las TIC.' });
+    }
+    if (topGradoNoIng && topGradoNoIng[0] !== 'Sin especificar' && topGradoNoIng[1] >= 3) {
+        hallazgos.push({ tipo:'dificultad', texto:`La secci\u00f3n "${topGradoNoIng[0]}" concentra el mayor n\u00famero de inasistencias al AIP registradas en el mes (${topGradoNoIng[1]} en total), lo que podr\u00eda indicar dificultades espec\u00edficas de horario o disponibilidad de ese grado/secci\u00f3n para acceder al aula.`, accion:['Revisar el horario asignado al AIP para la secci\u00f3n con mayor incidencia de inasistencias y evaluar si existe cruce con otras actividades curriculares.','Coordinar directamente con el/los docente(s) responsable(s) de esa secci\u00f3n para identificar y resolver la causa puntual.'] });
+    }
+    if (diaMaxNoIng >= 0 && aipNoIngDiasSem[diaMaxNoIng] >= 3) {
+        hallazgos.push({ tipo:'dificultad', texto:`El d\u00eda ${diasSemNombres[diaMaxNoIng]} concentra el mayor n\u00famero de inasistencias al AIP (${aipNoIngDiasSem[diaMaxNoIng]} registradas en el mes), lo que sugiere revisar si ese d\u00eda presenta alguna dificultad particular de horario o carga acad\u00e9mica.`, accion:['Analizar la programaci\u00f3n de horarios del AIP para el d\u00eda con mayor inasistencia y considerar reubicar sesiones si es pertinente.'] });
     }
 
     // CRT \u2014 uso del centro de recursos
     if (crtR.length > 0) {
-        hallazgos.push({ tipo:'logro', texto:`El CRT registr\u00f3 ${crtR.length} atenciones a ${new Set(crtR.map(r=>r.docente)).size} personas distintas en ${new Set(crtR.map(r=>r.fecha)).size} d\u00edas del mes, mostrando un uso activo del centro de recursos tecnol\u00f3gicos.` });
+        hallazgos.push({ tipo:'logro', texto:`El CRT registr\u00f3 ${crtR.length} atenciones a ${new Set(crtR.map(r=>r.docente)).size} persona(s) distinta(s) en ${new Set(crtR.map(r=>r.fecha)).size} d\u00eda(s) del mes, mostrando un uso activo del centro de recursos tecnol\u00f3gicos.${topTipoCRT ? ` El tipo de usuario predominante fue "${topTipoCRT[0]}" con ${topTipoCRT[1]} atenciones (${pctTopTipoCRT}% del total).` : ''}${topActCRT ? ` La actividad m\u00e1s solicitada fue "${topActCRT[0]}", registrada ${topActCRT[1]} veces (${pctTopActCRT}% del total de atenciones).` : ''}` });
+        if (topActCRT && +pctTopActCRT >= 60 && Object.keys(actCountCRT).length > 1) {
+            hallazgos.push({ tipo:'dificultad', texto:`La actividad "${topActCRT[0]}" concentra el ${pctTopActCRT}% de las atenciones del CRT, lo que sugiere una oferta de servicios poco diversificada durante el mes.`, accion:['Promover activamente entre docentes y estudiantes el resto de actividades y recursos disponibles en el CRT para diversificar su uso.','Elaborar un cronograma o cartelera mensual de actividades sugeridas por \u00e1rea curricular para el CRT.'] });
+        }
     } else {
-        hallazgos.push({ tipo:'dificultad', texto:'El CRT no registr\u00f3 ninguna atenci\u00f3n durante el mes.', accion:'Difundir entre los docentes los recursos y equipos disponibles en el CRT, y promover su uso activo en la planificaci\u00f3n de clases.' });
+        hallazgos.push({ tipo:'dificultad', texto:'El CRT no registr\u00f3 ninguna atenci\u00f3n durante el mes, lo que representa un servicio institucional completamente sin uso en el periodo evaluado.', accion:['Difundir entre los docentes los recursos y equipos disponibles en el CRT a trav\u00e9s de una comunicaci\u00f3n oficial o reuni\u00f3n de coordinaci\u00f3n.','Promover activamente su uso en la planificaci\u00f3n curricular mensual de cada \u00e1rea.','Verificar que el CRT se encuentre operativo y accesible, descartando causas log\u00edsticas de la falta de uso.'] });
     }
 
     // ATP \u2014 atenci\u00f3n personalizada
     if (atpR.length > 0) {
-        hallazgos.push({ tipo:'logro', texto:`Se brindaron ${atpR.length} atenciones personalizadas (ATP) a ${new Set(atpR.map(r=>r.nombre)).size} persona(s), totalizando ${atpMin} minutos de acompa\u00f1amiento durante el mes.` });
+        hallazgos.push({ tipo:'logro', texto:`Se brindaron ${atpR.length} atenciones personalizadas (ATP) a ${new Set(atpR.map(r=>r.nombre)).size} persona(s), totalizando ${atpMin} minutos de acompa\u00f1amiento durante el mes (promedio de ${promMinATP.toFixed(0)} min por atenci\u00f3n).${topTipoATP ? ` El tipo de atenci\u00f3n m\u00e1s frecuente fue "${topTipoATP[0]}" con ${topTipoATP[1]} casos (${pctTopTipoATP}% del total).` : ''}` });
+        if (promMinATP > 0 && promMinATP < 10) {
+            hallazgos.push({ tipo:'dificultad', texto:`El tiempo promedio por atenci\u00f3n ATP fue de solo ${promMinATP.toFixed(0)} minutos, un lapso breve que podr\u00eda ser insuficiente para un acompa\u00f1amiento personalizado de calidad seg\u00fan el tipo de caso atendido.`, accion:['Evaluar si el tiempo asignado por atenci\u00f3n es suficiente seg\u00fan la complejidad de los casos y ajustar la programaci\u00f3n de horarios si es necesario.'] });
+        }
     } else {
-        hallazgos.push({ tipo:'dificultad', texto:'No se registraron atenciones personalizadas (ATP) durante el mes.', accion:'Evaluar si existe demanda de acompa\u00f1amiento pedag\u00f3gico o socioemocional no atendida, y habilitar horarios visibles para solicitar atenci\u00f3n personalizada.' });
+        hallazgos.push({ tipo:'dificultad', texto:'No se registraron atenciones personalizadas (ATP) durante el mes, lo que podr\u00eda indicar que este servicio de acompa\u00f1amiento no est\u00e1 llegando a la comunidad educativa que podr\u00eda necesitarlo.', accion:['Evaluar si existe demanda de acompa\u00f1amiento pedag\u00f3gico o socioemocional no atendida mediante una consulta breve a tutores y docentes.','Habilitar y difundir horarios visibles para solicitar atenci\u00f3n personalizada.'] });
     }
 
     // AIT \u2014 soluci\u00f3n de incidencias
     if (aitR.length > 0) {
         if (+pctAitSol >= 85) {
-            hallazgos.push({ tipo:'logro', texto:`El ${pctAitSol}% de las incidencias tecnol\u00f3gicas reportadas fueron solucionadas durante el mes (${aitSol} de ${aitR.length}).` });
+            hallazgos.push({ tipo:'logro', texto:`El ${pctAitSol}% de las incidencias tecnol\u00f3gicas reportadas fueron solucionadas durante el mes (${aitSol} de ${aitR.length}), reflejando una respuesta \u00e1gil y efectiva del soporte t\u00e9cnico institucional ante los problemas reportados por los docentes.` });
         } else {
-            hallazgos.push({ tipo:'dificultad', texto:`Solo el ${pctAitSol}% de las incidencias tecnol\u00f3gicas fueron solucionadas; quedan ${aitPend} incidencia(s) pendiente(s) de atenci\u00f3n.`, accion:'Priorizar la atenci\u00f3n de las incidencias tecnol\u00f3gicas pendientes y evaluar si se requiere soporte t\u00e9cnico externo o reposici\u00f3n de equipos.' });
+            hallazgos.push({ tipo:'dificultad', texto:`Solo el ${pctAitSol}% de las incidencias tecnol\u00f3gicas fueron solucionadas (${aitSol} de ${aitR.length}); quedan ${aitPend} incidencia(s) pendiente(s) de atenci\u00f3n al cierre del mes, lo que puede afectar la continuidad de las actividades pedag\u00f3gicas que dependen de estos equipos.`, accion:['Priorizar la atenci\u00f3n de las incidencias pendientes seg\u00fan su impacto en el servicio educativo (aulas con mayor uso primero).','Evaluar si se requiere soporte t\u00e9cnico externo especializado para los casos que no se han podido resolver con recursos internos.','Establecer un plazo m\u00e1ximo de atenci\u00f3n para incidencias nuevas y darle seguimiento en el pr\u00f3ximo corte mensual.'] });
         }
         if (aitBaja > 0) {
-            hallazgos.push({ tipo:'dificultad', texto:`${aitBaja} equipo(s) fueron dados de baja durante el mes por incidencias no solucionables.`, accion:'Gestionar ante la instancia correspondiente (UGEL/Direcci\u00f3n) la reposici\u00f3n de los equipos dados de baja para no afectar la continuidad pedag\u00f3gica.' });
+            hallazgos.push({ tipo:'dificultad', texto:`${aitBaja} equipo(s) fueron dados de baja durante el mes por incidencias no solucionables, reduciendo el parque tecnol\u00f3gico disponible para la instituci\u00f3n.`, accion:['Gestionar ante la instancia correspondiente (UGEL/Direcci\u00f3n) la reposici\u00f3n de los equipos dados de baja para no afectar la continuidad pedag\u00f3gica.','Documentar el historial t\u00e9cnico de los equipos de baja para sustentar el pedido de reposici\u00f3n.'] });
         }
         if (topTipoAIT && +pctTopTipoAIT >= 40 && Object.keys(tipoCountAIT).length > 1) {
-            hallazgos.push({ tipo:'dificultad', texto:`El ${pctTopTipoAIT}% de las incidencias tecnol\u00f3gicas corresponden al tipo "${topTipoAIT[0]}", lo que sugiere un problema recurrente.`, accion:`Investigar la causa ra\u00edz de las incidencias de tipo "${topTipoAIT[0]}" y aplicar una soluci\u00f3n preventiva o mantenimiento espec\u00edfico.` });
+            hallazgos.push({ tipo:'dificultad', texto:`El ${pctTopTipoAIT}% de las incidencias tecnol\u00f3gicas corresponden al tipo "${topTipoAIT[0]}" (${topTipoAIT[1]} de ${aitR.length}), lo que sugiere un problema recurrente que no se ha resuelto de ra\u00edz.`, accion:[`Investigar la causa ra\u00edz de las incidencias de tipo "${topTipoAIT[0]}" y aplicar una soluci\u00f3n preventiva o mantenimiento espec\u00edfico.`,'Considerar capacitaci\u00f3n b\u00e1sica a los docentes sobre el manejo correcto de los equipos si la incidencia est\u00e1 asociada a uso indebido.'] });
+        }
+        if (topAulaAIT && topAulaAIT[1] >= 3) {
+            hallazgos.push({ tipo:'dificultad', texto:`El aula "${topAulaAIT[0]}" concentra el mayor n\u00famero de incidencias tecnol\u00f3gicas del mes (${topAulaAIT[1]} reportes), lo que sugiere revisar de forma prioritaria el estado de sus equipos e instalaciones.`, accion:[`Programar una revisi\u00f3n t\u00e9cnica preventiva del aula "${topAulaAIT[0]}" antes de que se acumulen nuevas incidencias.`] });
         }
     } else {
-        hallazgos.push({ tipo:'logro', texto:'No se reportaron incidencias tecnol\u00f3gicas durante el mes, lo que indica un funcionamiento estable de los equipos.' });
+        hallazgos.push({ tipo:'logro', texto:'No se reportaron incidencias tecnol\u00f3gicas durante el mes, lo que indica un funcionamiento estable de los equipos y la infraestructura tecnol\u00f3gica de la instituci\u00f3n.' });
     }
 
-    // Concentraci\u00f3n de actividad en un solo d\u00eda
+    // Distribuci\u00f3n semanal y mensual consolidada
     if (totalDiasSem > 0 && +pctDiaMax >= 40) {
-        hallazgos.push({ tipo:'dificultad', texto:`Existe una fuerte concentraci\u00f3n de actividad el d\u00eda ${diasSemNombres[diaMax]} (${pctDiaMax}% del total de registros de la semana), lo que puede generar saturaci\u00f3n de los servicios ese d\u00eda.`, accion:'Redistribuir la programaci\u00f3n de horarios de AIP, CRT y ATP a lo largo de la semana para equilibrar la demanda diaria.' });
+        hallazgos.push({ tipo:'dificultad', texto:`Existe una fuerte concentraci\u00f3n de actividad el d\u00eda ${diasSemNombres[diaMax]} (${diasConsolidados[diaMax]} de ${totalDiasSem} registros de la semana, ${pctDiaMax}%), mientras que el d\u00eda ${diasSemNombres[diaMin]} registra la menor actividad (${diasConsolidados[diaMin]} registros). Esta concentraci\u00f3n puede generar saturaci\u00f3n de los servicios el d\u00eda de mayor demanda y subutilizaci\u00f3n el resto de la semana.`, accion:['Redistribuir la programaci\u00f3n de horarios de AIP, CRT y ATP a lo largo de la semana para equilibrar la demanda diaria.','Evaluar con los docentes las razones de la baja actividad en el d\u00eda de menor uso y promover su aprovechamiento.'] });
+    } else if (totalDiasSem > 0) {
+        hallazgos.push({ tipo:'logro', texto:`La actividad se distribuy\u00f3 de manera razonablemente equilibrada entre los d\u00edas de la semana (el d\u00eda de mayor uso, ${diasSemNombres[diaMax]}, concentra el ${pctDiaMax}% del total), lo que evidencia una buena planificaci\u00f3n de horarios entre los servicios AIP, CRT, ATP y AIT.` });
+    }
+    if (grandTotal > 0 && +pctSemanaTop >= 40) {
+        hallazgos.push({ tipo:'dificultad', texto:`La semana ${semanaTop[0]} del mes concentr\u00f3 el ${pctSemanaTop}% del total de registros (${semanaTop[1]} de ${grandTotal}), lo que indica una distribuci\u00f3n irregular de la actividad institucional a lo largo del mes.`, accion:['Analizar si la concentraci\u00f3n en una semana espec\u00edfica responde a un evento puntual (evaluaciones, actividades especiales) o a una planificaci\u00f3n desigual, y ajustar el cronograma del pr\u00f3ximo mes en consecuencia.'] });
+    }
+
+    // Brecha de adopci\u00f3n entre servicios
+    if (modulosActivos.length >= 2 && moduloMenor[1] === 0) {
+        hallazgos.push({ tipo:'dificultad', texto:`El servicio ${moduloMenor[0]} no registr\u00f3 ninguna atenci\u00f3n durante el mes, mientras que los dem\u00e1s servicios s\u00ed presentaron actividad, evidenciando una brecha de adopci\u00f3n entre los distintos servicios que ofrece la instituci\u00f3n.`, accion:[`Indagar las causas espec\u00edficas de la falta de uso del servicio ${moduloMenor[0]} (desconocimiento, log\u00edstica, falta de personal a cargo) y definir un plan de reactivaci\u00f3n para el pr\u00f3ximo mes.`] });
     }
 
     const logros = hallazgos.filter(h => h.tipo === 'logro');
@@ -1996,9 +2060,9 @@ async function descargarInformeGestion() {
     html += dificultades.length ? dificultades.map(d => `<div class="hallazgo-item hallazgo-dificultad">\u26a0\ufe0f ${d.texto}</div>`).join('') : `<div class="hallazgo-item hallazgo-logro">No se identificaron dificultades relevantes este mes.</div>`;
     html += `</div>`;
 
-    const acciones = dificultades.filter(d => d.accion);
+    const acciones = dificultades.filter(d => d.accion).flatMap(d => Array.isArray(d.accion) ? d.accion : [d.accion]);
     html += `<div class="seccion"><div class="seccion-titulo"><span class="dot" style="background:#2348c0"></span> ACCIONES DE MEJORA RECOMENDADAS (${acciones.length})</div>`;
-    html += acciones.length ? acciones.map((a,i) => `<div class="accion-item"><span class="accion-num">${i+1}.</span><span>${a.accion}</span></div>`).join('') : `<div class="hallazgo-item hallazgo-logro">No se requieren acciones correctivas adicionales este mes; se recomienda mantener las pr\u00e1cticas actuales.</div>`;
+    html += acciones.length ? acciones.map((a,i) => `<div class="accion-item"><span class="accion-num">${i+1}.</span><span>${a}</span></div>`).join('') : `<div class="hallazgo-item hallazgo-logro">No se requieren acciones correctivas adicionales este mes; se recomienda mantener las pr\u00e1cticas actuales.</div>`;
     html += `</div>`;
 
     html += `<div class="resumen-ejecutivo" style="font-size:9.5px;color:#94a3b8;margin-top:10px;">Este an\u00e1lisis fue generado autom\u00e1ticamente a partir de los registros del sistema (umbrales de asistencia, soluci\u00f3n de incidencias y frecuencia de uso). Se recomienda validar los hallazgos con el equipo directivo antes de su difusi\u00f3n oficial.</div>`;
