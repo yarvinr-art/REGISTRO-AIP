@@ -511,6 +511,9 @@
                     
                     <!-- RESÚMENES DEL MES -->
                     <div class="stats-grid" id="aip-stats-mes"></div>
+
+                    <!-- CUADRO APARTE: USO DE KHAN ACADEMY -->
+                    <div id="aip-khan-card" style="margin-bottom:24px;"></div>
                     
                     <!-- ANÁLISIS POR DÍA EXACTO DEL MES -->
                     <div class="stats-dias-semana" style="margin-bottom:24px;">
@@ -541,6 +544,7 @@
                         <div class="grafico-card" style="border-left:4px solid #f59e0b;"><div class="grafico-card-title" style="color:#b45309">🚫 FRECUENCIA DE NO INGRESO POR DOCENTE</div><div class="chart-container"><canvas id="aip-grafico-no-ingreso"></canvas></div></div>
                         <div class="grafico-card" style="border-left:4px solid #2348c0;"><div class="grafico-card-title" style="color:#1a3080">📊 % GRADOS QUE INGRESARON AL AIP</div><div class="chart-container"><canvas id="aip-grafico-grados"></canvas></div></div>
                         <div class="grafico-card" style="border-left:4px solid #2348c0;"><div class="grafico-card-title" style="color:#1a3080">🏫 % SECCIONES QUE INGRESARON AL AIP</div><div class="chart-container"><canvas id="aip-grafico-secciones"></canvas></div></div>
+                        <div class="grafico-card" style="border-left:4px solid #10b981;"><div class="grafico-card-title" style="color:#047857">🎓 SESIONES CON KHAN ACADEMY</div><div class="chart-container"><canvas id="aip-grafico-khan"></canvas></div></div>
                         <div class="grafico-card" style="border-left:4px solid #f4a020;"><div class="grafico-card-title" style="color:#b45309">👩‍🏫 % DOCENTES QUE INGRESARON AL AIP (sobre 33)</div><div class="chart-container"><canvas id="aip-grafico-docentes-pct"></canvas></div></div>
                     </div>
 
@@ -722,7 +726,7 @@ db.ref('.info/connected').once('value').catch(() => {
 });
 
 let adminAutenticado = false;
-let chartAIPDias, chartAIPSesion, chartAIPTop, chartAIPNoIngreso, chartAIPGrados, chartAIPSecciones, chartAIPDocentesPct;
+let chartAIPDias, chartAIPSesion, chartAIPTop, chartAIPNoIngreso, chartAIPGrados, chartAIPSecciones, chartAIPDocentesPct, chartAIPKhan;
 let chartCRTTipo, chartCRTActividad, chartCRTGrados, chartCRTSecciones, chartCRTDocentesPct;
 let chartATP, chartATPArea, chartATPTiempo, chartAITTipo, chartAITSolucion;
 const TOTAL_DOCENTES = 33;
@@ -951,6 +955,25 @@ function generarReporteAIP() {
         const pctAsist=total?((asistencias/total)*100).toFixed(1):0; const pctNoIng=total?((noIngresos/total)*100).toFixed(1):0;
         document.getElementById('aip-stats-mes').innerHTML=`<div class="stat-card aip"><div class="stat-num stat-accent-aip">${total}</div><div class="stat-label">Total Registros</div></div><div class="stat-card aip"><div class="stat-num" style="color:#22c55e">${asistencias}</div><div class="stat-label">✅ Ingresaron (${pctAsist}%)</div></div><div class="stat-card aip"><div class="stat-num" style="color:#f59e0b">${noIngresos}</div><div class="stat-label">🚫 No Ingresaron (${pctNoIng}%)</div></div><div class="stat-card aip"><div class="stat-num">${new Set(registros.map(r=>r.docente)).size}</div><div class="stat-label">Docentes</div></div>`;
 
+        /* ── CUADRO APARTE: USO DE KHAN ACADEMY (detectado en tema/recursos) ── */
+        const khanRegex=/khan/i;
+        const khanRegs=registros.filter(r=>khanRegex.test((r.tema||'')+' '+(r.recursos||'')));
+        const khanCount=khanRegs.length;
+        const pctKhan=total?((khanCount/total)*100).toFixed(1):0;
+        const khanPersonas={}; khanRegs.forEach(r=>{ const lbl=r.nombre||r.docente||'Sin nombre'; khanPersonas[lbl]=(khanPersonas[lbl]||0)+1; });
+        const khanTopList=Object.entries(khanPersonas).sort((a,b)=>b[1]-a[1]).slice(0,5);
+        document.getElementById('aip-khan-card').innerHTML=`
+            <div style="background:linear-gradient(135deg,#ecfdf5,#d1fae5);border:1.5px solid #6ee7b7;border-radius:12px;padding:16px 20px;">
+                <div style="font-family:'Space Mono',monospace;font-size:10px;font-weight:800;color:#047857;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:10px;">🎓 USO DE KHAN ACADEMY EN EL AIP</div>
+                <div style="display:flex;gap:24px;flex-wrap:wrap;align-items:center;">
+                    <div><div style="font-size:30px;font-weight:800;color:#047857;">${khanCount}</div><div style="font-size:10px;color:#065f46;font-weight:700;">Sesiones con Khan Academy</div></div>
+                    <div><div style="font-size:30px;font-weight:800;color:#047857;">${pctKhan}%</div><div style="font-size:10px;color:#065f46;font-weight:700;">del total de registros AIP</div></div>
+                    <div><div style="font-size:30px;font-weight:800;color:#047857;">${Object.keys(khanPersonas).length}</div><div style="font-size:10px;color:#065f46;font-weight:700;">Docentes que la trabajaron</div></div>
+                </div>
+                ${khanTopList.length ? `<div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;">${khanTopList.map(([n,c])=>`<span style="background:white;color:#047857;padding:4px 12px;border-radius:20px;font-weight:700;font-size:11px;border:1px solid #6ee7b7;">${n}: ${c}</span>`).join('')}</div>` : `<div style="margin-top:10px;font-size:11px;color:#065f46;">Ningún docente registró "Khan Academy" como tema o recurso trabajado este mes.</div>`}
+                <div style="margin-top:8px;font-size:9px;color:#059669;">* Detectado automáticamente cuando el campo "Tema trabajado" o "Recursos usados" menciona "Khan Academy" en el registro AIP.</div>
+            </div>`;
+
         /* ── ANÁLISIS POR DÍA EXACTO DEL MES ── */
         const diasDelMesObj={};
         registros.forEach(r=>{
@@ -1007,6 +1030,10 @@ function generarReporteAIP() {
         /* ── GRÁFICO TOP DOCENTES ── */
         const topPersonas=Object.entries(porPersona).sort((a,b)=>b[1]-a[1]).slice(0,6);
         const ctx3=document.getElementById('aip-grafico-top').getContext('2d'); if(chartAIPTop)chartAIPTop.destroy(); chartAIPTop=new Chart(ctx3,{type:'bar',data:{labels:topPersonas.map(p=>p[0].substring(0,20)),datasets:[{label:'Asistencias',data:topPersonas.map(p=>p[1]),backgroundColor:'#1a3080',borderRadius:8}]},options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false}}}});
+
+        /* ── GRÁFICO USO DE KHAN ACADEMY ── */
+        const ctxKhan=document.getElementById('aip-grafico-khan').getContext('2d'); if(chartAIPKhan)chartAIPKhan.destroy();
+        chartAIPKhan=new Chart(ctxKhan,{type:'doughnut',data:{labels:[`🎓 Con Khan Academy (${khanCount})`,`Sin Khan Academy (${total-khanCount})`],datasets:[{data:[khanCount,total-khanCount],backgroundColor:['#10b981','#e2e8f0'],borderWidth:3,borderColor:'#fff'}]},options:{responsive:true,maintainAspectRatio:false,cutout:'60%',plugins:{legend:{position:'bottom',labels:{font:{size:10}}},tooltip:{callbacks:{label:c=>`${c.label}: ${total?((c.parsed/total)*100).toFixed(1):0}%`}}}}});
 
         /* ── GRÁFICO DOCENTES QUE NO INGRESARON ── */
         const noIngRegs=registros.filter(r=>r.estado==='NO_INGRESO');
@@ -1670,6 +1697,10 @@ async function descargarPDF(modulo) {
             html += _buildTablaHTML(['DOCENTE / ÁREA', 'N° AUSENCIAS', 'FECHAS', 'HORA PROGRAMADA'], filas);
             html += `</div>`;
         }
+        const khanCard = document.getElementById('aip-khan-card');
+        if (khanCard && khanCard.innerHTML.trim()) {
+            html += `<div class="modulo-break"></div>${khanCard.innerHTML}`;
+        }
     }
 
     // Análisis por día del mes
@@ -1758,15 +1789,20 @@ async function descargarPDFGeneral() {
     const modulos = {
         aip: {
             etiqueta: 'AIP \u2014 Aula de Innovaci\u00f3n Pedag\u00f3gica', color: '#2348c0', regs: aipR,
-            stats: () => [[aipR.length,`Total Registros (${pctAIP}% del total)`],[aipAsist,`\u2705 Ingresaron (${pctAipAsist}%)`],[aipR.length-aipAsist,`\ud83d\udeab No Ingresaron`],[new Set(aipR.map(r=>r.docente)).size,'Docentes \u00fanicos']],
+            stats: () => {
+                const khanCount = aipR.filter(r => /khan/i.test((r.tema||'')+' '+(r.recursos||''))).length;
+                return [[aipR.length,`Total Registros (${pctAIP}% del total)`],[aipAsist,`\u2705 Ingresaron (${pctAipAsist}%)`],[new Set(aipR.map(r=>r.docente)).size,'Docentes \u00fanicos'],[khanCount,`\ud83c\udf93 Sesiones Khan Academy (${aipR.length?((khanCount/aipR.length)*100).toFixed(1):0}%)`]];
+            },
             headers: ['FECHA','HORA','DOCENTE','NOMBRE','GRADO/SECC','HORAS','ESTADO','TEMA'],
             fila: r => [r.fecha, r.hora, r.docente, r.nombre||'\u2014', `${r.grado||''} ${r.seccion||''}`.trim()||'\u2014', r.horas||'\u2014', r.estado==='NO_INGRESO'?'\ud83d\udeab NO INGRES\u00d3':'\u2705 ASISTI\u00d3', r.tema||'\u2014'],
             graficos: () => {
                 const porPersona = {}; aipR.forEach(r => { const lbl = r.docente||'\u2014'; porPersona[lbl] = (porPersona[lbl]||0)+1; });
                 const top = Object.entries(porPersona).sort((a,b)=>b[1]-a[1]).slice(0,6);
+                const khanCount = aipR.filter(r => /khan/i.test((r.tema||'')+' '+(r.recursos||''))).length;
                 return [
                     { titulo: '\u2705 Ingresaron vs \ud83d\udeab No Ingresaron', config: { type:'doughnut', data:{ labels:['\u2705 Ingresaron','\ud83d\udeab No Ingresaron'], datasets:[{ data:[aipAsist, aipR.length-aipAsist], backgroundColor:['#22c55e','#f59e0b'] }] }, options:{ cutout:'58%', plugins:{ legend:{ position:'bottom' } } } } },
-                    { titulo: '\ud83c\udfc6 Top Docentes por Asistencia', config: { type:'bar', data:{ labels:top.map(p=>p[0].substring(0,18)), datasets:[{ data:top.map(p=>p[1]), backgroundColor:'#2348c0', borderRadius:6 }] }, options:{ indexAxis:'y', plugins:{ legend:{ display:false } } } } }
+                    { titulo: '\ud83c\udfc6 Top Docentes por Asistencia', config: { type:'bar', data:{ labels:top.map(p=>p[0].substring(0,18)), datasets:[{ data:top.map(p=>p[1]), backgroundColor:'#2348c0', borderRadius:6 }] }, options:{ indexAxis:'y', plugins:{ legend:{ display:false } } } } },
+                    { titulo: '\ud83c\udf93 Sesiones con Khan Academy', config: { type:'doughnut', data:{ labels:['Con Khan Academy','Sin Khan Academy'], datasets:[{ data:[khanCount, aipR.length-khanCount], backgroundColor:['#10b981','#e2e8f0'] }] }, options:{ cutout:'60%', plugins:{ legend:{ position:'bottom' } } } } }
                 ];
             }
         },
@@ -1944,6 +1980,12 @@ async function descargarInformeGestion() {
     const modulosActivos = usoModulos.filter(m=>m[1]>0);
     const moduloMenor = usoModulos.reduce((min,m)=> m[1]<min[1] ? m : min, usoModulos[0]);
 
+    // Uso de Khan Academy en el AIP (detectado en tema/recursos trabajados)
+    const khanRegsGestion = aipR.filter(r => /khan/i.test((r.tema||'')+' '+(r.recursos||'')));
+    const khanCountGestion = khanRegsGestion.length;
+    const pctKhanGestion = aipR.length ? ((khanCountGestion/aipR.length)*100).toFixed(1) : 0;
+    const khanDocentesGestion = new Set(khanRegsGestion.map(r=>r.nombre||r.docente)).size;
+
     const hallazgos = [];
 
     // AIP \u2014 asistencia general
@@ -1963,6 +2005,17 @@ async function descargarInformeGestion() {
         hallazgos.push({ tipo:'dificultad', texto:`${recurrentes.length} docente(s) no ingresaron al AIP en 3 o m\u00e1s oportunidades durante el mes \u2014 ${nombres}. La reiteraci\u00f3n de estas inasistencias sugiere un patr\u00f3n sostenido que amerita atenci\u00f3n individualizada antes de que se consolide como una pr\u00e1ctica habitual.${moderados.length ? ` Adicionalmente, ${moderados.length} docente(s) registraron 2 inasistencias, un nivel a monitorear para evitar que escale.` : ''}`, accion:['Coordinar una reuni\u00f3n individual con cada docente de inasistencia reiterada para identificar las causas espec\u00edficas (carga horaria, desconocimiento del horario, falta de inter\u00e9s, dificultades log\u00edsticas).','Establecer compromisos de mejora por escrito con fecha de seguimiento en el pr\u00f3ximo informe mensual.','Informar a la subdirecci\u00f3n o coordinaci\u00f3n acad\u00e9mica sobre los casos reiterados para su conocimiento y respaldo institucional.'] });
     } else if (aipR.length > 0) {
         hallazgos.push({ tipo:'logro', texto:'Ning\u00fan docente registr\u00f3 3 o m\u00e1s inasistencias al AIP durante el mes, lo que indica un uso regular y sostenido del aula por parte de toda la plana docente y refleja un buen nivel de compromiso institucional con el uso de las TIC.' });
+    }
+
+    // AIP \u2014 uso de Khan Academy
+    if (aipR.length > 0) {
+        if (+pctKhanGestion >= 40) {
+            hallazgos.push({ tipo:'logro', texto:`El ${pctKhanGestion}% de las sesiones del AIP (${khanCountGestion} de ${aipR.length}) incluyeron el desarrollo de Khan Academy, con participaci\u00f3n de ${khanDocentesGestion} docente(s). Esto evidencia un uso consolidado de esta plataforma como recurso para el fortalecimiento de las competencias matem\u00e1ticas y de otras \u00e1reas curriculares.` });
+        } else if (khanCountGestion > 0) {
+            hallazgos.push({ tipo:'dificultad', texto:`Khan Academy se trabaj\u00f3 solo en ${khanCountGestion} de ${aipR.length} sesiones del AIP (${pctKhanGestion}%), con la participaci\u00f3n de ${khanDocentesGestion} docente(s). El uso de esta plataforma a\u00fan es limitado respecto al potencial de aprovechamiento del aula de innovaci\u00f3n.`, accion:['Promover entre m\u00e1s docentes el uso de Khan Academy como recurso complementario en las sesiones del AIP, mediante una breve capacitaci\u00f3n o gu\u00eda de uso.','Reconocer y difundir las experiencias de los docentes que ya la utilizan como ejemplo para el resto de la plana docente.'] });
+        } else {
+            hallazgos.push({ tipo:'dificultad', texto:'No se registr\u00f3 ninguna sesi\u00f3n del AIP con Khan Academy como tema o recurso trabajado durante el mes, a pesar de contar con esta opci\u00f3n disponible para el desarrollo de clases.', accion:['Capacitar a los docentes en el uso de Khan Academy y sus beneficios pedag\u00f3gicos, e incorporarlo como opci\u00f3n sugerida en la planificaci\u00f3n de sesiones del AIP.','Verificar que la plataforma est\u00e9 correctamente habilitada y accesible desde los equipos del aula de innovaci\u00f3n.'] });
+        }
     }
     if (topGradoNoIng && topGradoNoIng[0] !== 'Sin especificar' && topGradoNoIng[1] >= 3) {
         hallazgos.push({ tipo:'dificultad', texto:`La secci\u00f3n "${topGradoNoIng[0]}" concentra el mayor n\u00famero de inasistencias al AIP registradas en el mes (${topGradoNoIng[1]} en total), lo que podr\u00eda indicar dificultades espec\u00edficas de horario o disponibilidad de ese grado/secci\u00f3n para acceder al aula.`, accion:['Revisar el horario asignado al AIP para la secci\u00f3n con mayor incidencia de inasistencias y evaluar si existe cruce con otras actividades curriculares.','Coordinar directamente con el/los docente(s) responsable(s) de esa secci\u00f3n para identificar y resolver la causa puntual.'] });
