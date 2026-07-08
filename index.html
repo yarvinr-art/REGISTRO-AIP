@@ -957,7 +957,7 @@ function generarReporteAIP() {
 
         /* ── CUADRO APARTE: USO DE KHAN ACADEMY (detectado en tema/recursos) ── */
         const khanRegex=/khan/i;
-        const khanRegs=registros.filter(r=>khanRegex.test((r.tema||'')+' '+(r.recursos||'')));
+        const khanRegs=registros.filter(r=>khanRegex.test((r.tema||'')+' '+(r.observaciones||'')));
         const khanCount=khanRegs.length;
         const pctKhan=total?((khanCount/total)*100).toFixed(1):0;
         const khanPersonas={}; khanRegs.forEach(r=>{ const lbl=r.nombre||r.docente||'Sin nombre'; khanPersonas[lbl]=(khanPersonas[lbl]||0)+1; });
@@ -1790,7 +1790,7 @@ async function descargarPDFGeneral() {
         aip: {
             etiqueta: 'AIP \u2014 Aula de Innovaci\u00f3n Pedag\u00f3gica', color: '#2348c0', regs: aipR,
             stats: () => {
-                const khanCount = aipR.filter(r => /khan/i.test((r.tema||'')+' '+(r.recursos||''))).length;
+                const khanCount = aipR.filter(r => /khan/i.test((r.tema||'')+' '+(r.observaciones||''))).length;
                 return [[aipR.length,`Total Registros (${pctAIP}% del total)`],[aipAsist,`\u2705 Ingresaron (${pctAipAsist}%)`],[new Set(aipR.map(r=>r.docente)).size,'Docentes \u00fanicos'],[khanCount,`\ud83c\udf93 Sesiones Khan Academy (${aipR.length?((khanCount/aipR.length)*100).toFixed(1):0}%)`]];
             },
             headers: ['FECHA','HORA','DOCENTE','NOMBRE','GRADO/SECC','HORAS','ESTADO','TEMA'],
@@ -1798,7 +1798,7 @@ async function descargarPDFGeneral() {
             graficos: () => {
                 const porPersona = {}; aipR.forEach(r => { const lbl = r.docente||'\u2014'; porPersona[lbl] = (porPersona[lbl]||0)+1; });
                 const top = Object.entries(porPersona).sort((a,b)=>b[1]-a[1]).slice(0,6);
-                const khanCount = aipR.filter(r => /khan/i.test((r.tema||'')+' '+(r.recursos||''))).length;
+                const khanCount = aipR.filter(r => /khan/i.test((r.tema||'')+' '+(r.observaciones||''))).length;
                 return [
                     { titulo: '\u2705 Ingresaron vs \ud83d\udeab No Ingresaron', config: { type:'doughnut', data:{ labels:['\u2705 Ingresaron','\ud83d\udeab No Ingresaron'], datasets:[{ data:[aipAsist, aipR.length-aipAsist], backgroundColor:['#22c55e','#f59e0b'] }] }, options:{ cutout:'58%', plugins:{ legend:{ position:'bottom' } } } } },
                     { titulo: '\ud83c\udfc6 Top Docentes por Asistencia', config: { type:'bar', data:{ labels:top.map(p=>p[0].substring(0,18)), datasets:[{ data:top.map(p=>p[1]), backgroundColor:'#2348c0', borderRadius:6 }] }, options:{ indexAxis:'y', plugins:{ legend:{ display:false } } } } },
@@ -1981,7 +1981,7 @@ async function descargarInformeGestion() {
     const moduloMenor = usoModulos.reduce((min,m)=> m[1]<min[1] ? m : min, usoModulos[0]);
 
     // Uso de Khan Academy en el AIP (detectado en tema/recursos trabajados)
-    const khanRegsGestion = aipR.filter(r => /khan/i.test((r.tema||'')+' '+(r.recursos||'')));
+    const khanRegsGestion = aipR.filter(r => /khan/i.test((r.tema||'')+' '+(r.observaciones||'')));
     const khanCountGestion = khanRegsGestion.length;
     const pctKhanGestion = aipR.length ? ((khanCountGestion/aipR.length)*100).toFixed(1) : 0;
     const khanDocentesGestion = new Set(khanRegsGestion.map(r=>r.nombre||r.docente)).size;
