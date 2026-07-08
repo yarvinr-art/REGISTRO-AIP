@@ -8,6 +8,7 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
@@ -25,6 +26,8 @@
             --atp-glow:rgba(147,51,234,0.4); --atp-bg:#faf5ff; --atp-border:#d8b4fe;
             --ait-dark:#831843; --ait-mid:#be185d; --ait-light:#db2777; --ait-accent:#fda4af;
             --ait-glow:rgba(219,39,119,0.35); --ait-bg:#fff5f6; --ait-border:#fecdd3;
+            --ae-dark:#042f2e; --ae-mid:#0f766e; --ae-light:#0d9488; --ae-accent:#5eead4;
+            --ae-glow:rgba(20,184,166,0.35); --ae-bg:#f0fdfa; --ae-border:#99f6e4;
             --gen-dark:#1c1917; --gen-mid:#44403c; --gen-light:#78716c; --gen-accent:#fbbf24;
             --gen-glow:rgba(251,191,36,0.35); --gen-bg:#fffbeb; --gen-border:#fde68a;
             --surface:#ffffff; --surface-2:#f7f8fc;
@@ -57,6 +60,7 @@
         body.crt-mode::before { background: radial-gradient(ellipse 80% 60% at 20% 10%,rgba(30,122,58,0.5) 0%,transparent 60%),radial-gradient(ellipse 60% 50% at 85% 80%,rgba(10,46,24,0.7) 0%,transparent 55%); }
         body.atp-mode::before { background: radial-gradient(ellipse 80% 60% at 20% 10%,rgba(107,33,168,0.6) 0%,transparent 60%),radial-gradient(ellipse 60% 50% at 85% 80%,rgba(59,7,100,0.8) 0%,transparent 55%); }
         body.ait-mode::before { background: radial-gradient(ellipse 80% 60% at 20% 10%,rgba(190,24,93,0.5) 0%,transparent 60%),radial-gradient(ellipse 60% 50% at 85% 80%,rgba(131,24,67,0.7) 0%,transparent 55%); }
+        body.ae-mode::before { background: radial-gradient(ellipse 80% 60% at 20% 10%,rgba(13,148,136,0.5) 0%,transparent 60%),radial-gradient(ellipse 60% 50% at 85% 80%,rgba(4,47,46,0.7) 0%,transparent 55%); }
         body.gen-mode::before { background: radial-gradient(ellipse 80% 60% at 20% 10%,rgba(68,64,60,0.6) 0%,transparent 60%),radial-gradient(ellipse 60% 50% at 85% 80%,rgba(28,25,23,0.8) 0%,transparent 55%); }
         @keyframes bgPulse { 0%{opacity:1} 100%{opacity:0.8} }
 
@@ -92,6 +96,7 @@
         .modulo-btn.crt.activo  { background:linear-gradient(135deg,var(--crt-mid),var(--crt-light)); border-color:var(--crt-accent); color:white; box-shadow:0 6px 28px rgba(30,122,58,0.5),0 0 0 1px var(--crt-accent); }
         .modulo-btn.atp.activo  { background:linear-gradient(135deg,var(--atp-mid),var(--atp-light)); border-color:var(--atp-accent); color:white; box-shadow:0 6px 28px rgba(147,51,234,0.5),0 0 0 1px var(--atp-accent); }
         .modulo-btn.ait.activo  { background:linear-gradient(135deg,var(--ait-mid),var(--ait-light)); border-color:var(--ait-accent); color:white; box-shadow:0 6px 28px rgba(219,39,119,0.5),0 0 0 1px var(--ait-accent); }
+        .modulo-btn.ae.activo  { background:linear-gradient(135deg,var(--ae-mid),var(--ae-light)); border-color:var(--ae-accent); color:white; box-shadow:0 6px 28px rgba(13,148,136,0.5),0 0 0 1px var(--ae-accent); }
         .modulo-btn.gen.activo  { background:linear-gradient(135deg,var(--gen-mid),var(--gen-light)); border-color:var(--gen-accent); color:white; box-shadow:0 6px 28px rgba(120,113,108,0.5),0 0 0 1px var(--gen-accent); }
 
         .modulo-btn .mod-icon { font-size:26px; display:block; margin-bottom:4px; filter:drop-shadow(0 2px 4px rgba(0,0,0,0.3)); }
@@ -106,6 +111,7 @@
         .top-bar.crt { background:linear-gradient(90deg,var(--crt-dark),var(--crt-light) 40%,var(--crt-accent) 100%); }
         .top-bar.atp { background:linear-gradient(90deg,var(--atp-dark),var(--atp-light) 40%,var(--atp-accent) 100%); }
         .top-bar.ait { background:linear-gradient(90deg,var(--ait-dark),var(--ait-light) 40%,var(--ait-accent) 100%); }
+        .top-bar.ae { background:linear-gradient(90deg,var(--ae-dark),var(--ae-light) 40%,var(--ae-accent) 100%); }
         .top-bar.gen { background:linear-gradient(90deg,var(--gen-dark),var(--gen-light) 40%,var(--gen-accent) 100%); }
 
         .header-institucional {
@@ -118,6 +124,7 @@
         .header-institucional.crt-header { background:linear-gradient(135deg,var(--crt-dark) 0%,var(--crt-mid) 50%,var(--crt-light) 100%); }
         .header-institucional.atp-header { background:linear-gradient(135deg,var(--atp-dark) 0%,var(--atp-mid) 50%,var(--atp-light) 100%); }
         .header-institucional.ait-header { background:linear-gradient(135deg,var(--ait-dark) 0%,var(--ait-mid) 50%,var(--ait-light) 100%); }
+        .header-institucional.ae-header { background:linear-gradient(135deg,var(--ae-dark) 0%,var(--ae-mid) 50%,var(--ae-light) 100%); }
         .header-institucional.gen-header { background:linear-gradient(135deg,var(--gen-dark) 0%,var(--gen-mid) 50%,var(--gen-light) 100%); }
         .header-institucional::after { content:''; position:absolute; right:-60px; top:-60px; width:220px; height:220px; border-radius:50%; background:radial-gradient(circle,rgba(255,255,255,0.06) 0%,transparent 70%); pointer-events:none; }
         .header-institucional::before { content:''; position:absolute; inset:0; background:url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.03' fill-rule='evenodd'%3E%3Cpath d='M0 40L40 0H20L0 20M40 40V20L20 40'/%3E%3C/g%3E%3C/svg%3E"); pointer-events:none; }
@@ -131,6 +138,7 @@
         .subtitulo .tag-crt { color:var(--crt-accent); font-weight:800; }
         .subtitulo .tag-atp { color:var(--atp-accent); font-weight:800; }
         .subtitulo .tag-ait { color:var(--ait-accent); font-weight:800; }
+        .subtitulo .tag-ae { color:var(--ae-mid); font-weight:800; }
         .subtitulo .tag-gen { color:var(--gen-accent); font-weight:800; }
         .modulo-tag { display:inline-block; margin-top:8px; background:rgba(255,255,255,0.15); color:rgba(255,255,255,0.9); font-size:10px; font-weight:700; padding:4px 12px; border-radius:20px; letter-spacing:1.5px; text-transform:uppercase; border:1px solid rgba(255,255,255,0.2); backdrop-filter:blur(4px); }
 
@@ -239,6 +247,7 @@
         .semana-info.crt { background:var(--crt-bg); color:var(--crt-mid); border:1px solid var(--crt-border); }
         .semana-info.atp { background:var(--atp-bg); color:var(--atp-mid); border:1px solid var(--atp-border); }
         .semana-info.ait { background:var(--ait-bg); color:var(--ait-mid); border:1px solid var(--ait-border); }
+        .semana-info.ae { background:var(--ae-bg); color:var(--ae-mid); border:1px solid var(--ae-border); }
         .semana-info.gen { background:var(--gen-bg); color:var(--gen-mid); border:1px solid var(--gen-border); }
 
         .panel-asistencia { border-radius:var(--radius-md); padding:28px; margin-bottom:20px; border:1.5px solid; position:relative; }
@@ -246,6 +255,7 @@
         .panel-crt { background:linear-gradient(145deg,#f5fbf7,#edfbf2); border-color:var(--crt-border); border-left:4px solid var(--crt-accent); }
         .panel-atp { background:linear-gradient(145deg,#fdf8ff,#faf5ff); border-color:var(--atp-border); border-left:4px solid var(--atp-light); }
         .panel-ait { background:linear-gradient(145deg,#fff5f6,#fff0f2); border-color:var(--ait-border); border-left:4px solid var(--ait-accent); }
+        .panel-ae { background:linear-gradient(145deg,#f0fdfa,#e6fffb); border-color:var(--ae-border); border-left:4px solid var(--ae-accent); }
 
         .form-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:14px; margin-bottom:14px; }
         select, input[type="text"], input[type="number"], textarea {
@@ -262,6 +272,8 @@
         .atp-input:focus { border-color:var(--atp-light); box-shadow:0 0 0 4px rgba(147,51,234,0.12); transform:translateY(-1px); }
         .ait-input { border:2px solid var(--ait-border); }
         .ait-input:focus { border-color:var(--ait-light); box-shadow:0 0 0 4px rgba(219,39,119,0.12); transform:translateY(-1px); }
+        .ae-input { border:2px solid var(--ae-border); }
+        .ae-input:focus { border-color:var(--ae-light); box-shadow:0 0 0 4px rgba(13,148,136,0.12); transform:translateY(-1px); }
 
         button { font-family:'DM Sans',sans-serif; cursor:pointer; transition:all 0.28s cubic-bezier(0.22,1,0.36,1); border:none; }
         .btn-main { color:white; padding:16px 36px; border-radius:var(--radius-sm); width:100%; max-width:460px; font-size:15px; font-weight:800; margin-top:12px; letter-spacing:1.5px; text-transform:uppercase; position:relative; overflow:hidden; }
@@ -278,12 +290,15 @@
         .btn-atp:hover { transform:translateY(-3px); box-shadow:0 12px 32px var(--atp-glow),0 4px 12px rgba(0,0,0,0.2); }
         .btn-ait { background:linear-gradient(135deg,var(--ait-mid),var(--ait-dark)); box-shadow:0 6px 24px var(--ait-glow),0 2px 6px rgba(0,0,0,0.15); }
         .btn-ait:hover { transform:translateY(-3px); box-shadow:0 12px 32px var(--ait-glow),0 4px 12px rgba(0,0,0,0.2); }
+        .btn-ae { background:linear-gradient(135deg,var(--ae-mid),var(--ae-dark)); box-shadow:0 6px 24px var(--ae-glow),0 2px 6px rgba(0,0,0,0.15); }
+        .btn-ae:hover { transform:translateY(-3px); box-shadow:0 12px 32px var(--ae-glow),0 4px 12px rgba(0,0,0,0.2); }
 
         .btn-admin { background:none; border:none; color:#9aa0b8; font-size:12px; font-weight:700; margin-top:40px; padding:10px 20px; border-radius:50px; letter-spacing:1px; text-transform:uppercase; border:1.5px dashed #d4d8e8; transition:all 0.3s ease; }
         .btn-admin.aip-admin:hover { color:var(--aip-light); border-color:var(--aip-light); background:var(--aip-bg); }
         .btn-admin.crt-admin:hover { color:var(--crt-light); border-color:var(--crt-light); background:var(--crt-bg); }
         .btn-admin.atp-admin:hover { color:var(--atp-light); border-color:var(--atp-light); background:var(--atp-bg); }
         .btn-admin.ait-admin:hover { color:var(--ait-light); border-color:var(--ait-light); background:var(--ait-bg); }
+        .btn-admin.ae-admin:hover { color:var(--ae-light); border-color:var(--ae-light); background:var(--ae-bg); }
         .btn-admin.gen-admin:hover { color:var(--gen-mid); border-color:var(--gen-accent); background:var(--gen-bg); }
 
         .panel-admin { margin-top:32px; background:var(--surface); border-radius:var(--radius-lg); display:none; text-align:left; overflow:hidden; box-shadow:0 8px 40px rgba(13,27,75,0.12),0 2px 8px rgba(13,27,75,0.06); border:1.5px solid; }
@@ -293,6 +308,7 @@
         .panel-admin-header.crt { background:linear-gradient(135deg,var(--crt-dark),var(--crt-light)); }
         .panel-admin-header.atp { background:linear-gradient(135deg,var(--atp-dark),var(--atp-light)); }
         .panel-admin-header.ait { background:linear-gradient(135deg,var(--ait-dark),var(--ait-light)); }
+        .panel-admin-header.ae { background:linear-gradient(135deg,var(--ae-dark),var(--ae-light)); }
 
         /* NUEVOS ESTILOS PARA INFORMES PROFESIONALES */
         .stats-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:14px; margin-bottom:24px; }
@@ -303,12 +319,14 @@
         .stat-card.crt { background:linear-gradient(135deg,var(--crt-dark),var(--crt-light)); }
         .stat-card.atp { background:linear-gradient(135deg,var(--atp-dark),var(--atp-light)); }
         .stat-card.ait { background:linear-gradient(135deg,var(--ait-dark),var(--ait-light)); }
+        .stat-card.ae { background:linear-gradient(135deg,var(--ae-dark),var(--ae-light)); }
         .stat-card .stat-num { font-size:34px; font-weight:800; font-family:'Space Mono',monospace; }
         .stat-card .stat-label { font-size:10px; color:rgba(255,255,255,0.75); font-weight:600; margin-top:4px; text-transform:uppercase; letter-spacing:0.8px; }
         .stat-accent-aip { color:var(--aip-accent); }
         .stat-accent-crt { color:var(--crt-accent); }
         .stat-accent-atp { color:var(--atp-accent); }
         .stat-accent-ait { color:var(--ait-accent); }
+        .stat-accent-ae { color:var(--ae-accent); }
 
         .stats-dias-semana, .stats-semanas-mes { background:white; border-radius:var(--radius-md); padding:18px; margin-bottom:24px; border:1px solid #e2e8f0; box-shadow:0 1px 3px rgba(0,0,0,0.05); }
         .stats-dias-semana h4, .stats-semanas-mes h4 { font-size:13px; font-weight:800; text-transform:uppercase; letter-spacing:1.5px; margin-bottom:16px; color:#1e293b; display:flex; align-items:center; gap:8px; border-left:4px solid var(--aip-accent); padding-left:12px; }
@@ -339,6 +357,7 @@
         .btn-imprimir.crt { background:linear-gradient(135deg,var(--crt-light),var(--crt-dark)); }
         .btn-imprimir.atp { background:linear-gradient(135deg,var(--atp-mid),var(--atp-dark)); }
         .btn-imprimir.ait { background:linear-gradient(135deg,var(--ait-mid),var(--ait-dark)); }
+        .btn-imprimir.ae { background:linear-gradient(135deg,var(--ae-mid),var(--ae-dark)); }
         .btn-imprimir.gen { background:linear-gradient(135deg,var(--gen-mid),var(--gen-dark)); }
         .btn-imprimir:hover { transform:translateY(-2px); filter:brightness(1.05); }
 
@@ -366,6 +385,7 @@
         .btn-cerrar.crt { background:linear-gradient(135deg,var(--crt-dark),var(--crt-mid)); }
         .btn-cerrar.atp { background:linear-gradient(135deg,var(--atp-dark),var(--atp-mid)); }
         .btn-cerrar.ait { background:linear-gradient(135deg,var(--ait-dark),var(--ait-mid)); }
+        .btn-cerrar.ae { background:linear-gradient(135deg,var(--ae-dark),var(--ae-mid)); }
         .btn-cerrar.gen { background:linear-gradient(135deg,var(--gen-dark),var(--gen-mid)); }
 
         .empty-state { text-align:center; padding:48px; color:#94a3b8; font-size:14px; }
@@ -417,6 +437,7 @@
     <button class="modulo-btn crt" onclick="cambiarModulo('crt')"><span class="mod-icon">🖥️</span><span class="mod-name">CRT</span><span class="mod-sub">Centro de Recursos</span></button>
     <button class="modulo-btn atp" onclick="cambiarModulo('atp')"><span class="mod-icon">🧑‍🏫</span><span class="mod-name">ATP</span><span class="mod-sub">Atención Personalizada</span></button>
     <button class="modulo-btn ait" onclick="cambiarModulo('ait')"><span class="mod-icon">🔧</span><span class="mod-name">AIT</span><span class="mod-sub">Incidencias Tecnológicas</span></button>
+    <button class="modulo-btn ae" onclick="cambiarModulo('ae')"><span class="mod-icon">🎒</span><span class="mod-name">AE</span><span class="mod-sub">Atención a Estudiantes</span></button>
     <button class="modulo-btn gen" onclick="cambiarModulo('gen')"><span class="mod-icon">📊</span><span class="mod-name">GENERAL</span><span class="mod-sub">Informe consolidado</span></button>
 </div>
 
@@ -672,12 +693,43 @@
             </div>
         </div>
 
+        <!-- ======== SECCIÓN AE — ATENCIÓN A ESTUDIANTES ======== -->
+        <div id="seccionAE" style="display:none;">
+            <div class="panel-asistencia panel-ae">
+                <div class="form-grid"><select id="ae-area" class="ae-input"><option value="">Área *</option><option>COMUNICACIÓN</option><option>MATEMÁTICA</option><option>CIENCIA Y TECNOLOGÍA</option><option>CIENCIAS SOCIALES</option><option>INGLÉS</option><option>EDUCACIÓN FÍSICA</option><option>ARTE Y CULTURA</option><option>EDUCACIÓN RELIGIOSA</option><option>DESARROLLO PERSONAL, CIUDADANÍA Y CÍVICA</option><option>EDUCACIÓN PARA EL TRABAJO</option><option>TUTORÍA</option><option>OTRO</option></select></div>
+                <div class="form-grid" style="grid-template-columns:1fr 1fr;">
+                    <select id="ae-grado" class="ae-input"><option value="">Grado *</option><option>1°</option><option>2°</option><option>3°</option><option>4°</option><option>5°</option></select>
+                    <select id="ae-seccion" class="ae-input"><option value="">Sección *</option><option>A</option><option>B</option><option>C</option><option>D</option><option>E</option></select>
+                </div>
+                <div class="form-grid" style="grid-template-columns:1fr 1fr;"><input type="text" id="ae-tema" class="ae-input" placeholder="Tema trabajado *" maxlength="200"><input type="text" id="ae-recursos" class="ae-input" placeholder="Recursos usados" maxlength="200"></div>
+                <button class="btn-main btn-ae" id="btnAE" onclick="registrarAE()">✔ Registrar Atención a Estudiantes</button>
+            </div>
+            <div id="acceso-informe-ae" style="display:none;margin-top:40px;text-align:center;"><button class="btn-admin ae-admin" onclick="abrirInforme('ae')">📊 Ver Informe AE</button></div>
+            <div id="panelAdminAE" class="panel-admin ae">
+                <div class="panel-admin-header ae">🎒 INFORME PROFESIONAL — Atención a Estudiantes</div>
+                <div class="panel-admin-body">
+                    <div class="filtro-mensual"><label>📅 SELECCIONAR MES:</label><input type="month" id="mesFiltroAE" min="2026-01" max="2026-12" onchange="generarReporteAE()"><button class="btn-imprimir ae" onclick="descargarPDF('ae')">⬇ DESCARGAR PDF</button></div>
+                    <div class="stats-grid" id="ae-stats-mes"></div>
+                    <div class="stats-dias-semana" style="margin-bottom:24px;"><h4 style="border-left-color:var(--ae-accent)">📆 REGISTROS POR DÍA DEL MES (FECHA EXACTA)</h4><div id="ae-dias-exactos-grid"></div></div>
+                    <div class="stats-dias-semana"><h4>📅 ANÁLISIS POR DÍA DE LA SEMANA</h4><div class="dias-grid" id="ae-dias-grid"></div></div>
+                    <div class="stats-semanas-mes"><h4>📊 ANÁLISIS POR SEMANA DEL MES</h4><div class="semanas-grid" id="ae-semanas-grid"></div></div>
+                    <div class="graficos-grid">
+                        <div class="grafico-card"><div class="grafico-card-title ae">📚 DISTRIBUCIÓN POR ÁREA</div><div class="chart-container"><canvas id="ae-grafico-area"></canvas></div></div>
+                        <div class="grafico-card"><div class="grafico-card-title ae">🏫 DISTRIBUCIÓN POR GRADO</div><div class="chart-container"><canvas id="ae-grafico-grado"></canvas></div></div>
+                        <div class="grafico-card" style="border-left:4px solid #0d9488;"><div class="grafico-card-title" style="color:#0f766e">🏆 SECCIONES MÁS ATENDIDAS</div><div class="chart-container"><canvas id="ae-grafico-seccion"></canvas></div></div>
+                    </div>
+                    <div class="tabla-container"><table><thead class="ae"><tr><th>FECHA</th><th>HORA</th><th>ÁREA</th><th>GRADO/SECC.</th><th>TEMA</th><th>RECURSOS USADOS</th><th>ACCIÓN</th></tr></thead><tbody id="ae-tablaCuerpo"></tbody></table></div>
+                    <button class="btn-cerrar ae" onclick="cerrarAdmin('ae')">✕ CERRAR INFORME</button>
+                </div>
+            </div>
+        </div>
+
         <!-- ======== SECCIÓN GENERAL ======== -->
         <div id="seccionGEN" style="display:none;">
             <div style="text-align:center;padding:20px 0;"><p style="color:var(--text-muted);">INFORME EJECUTIVO CONSOLIDADO 2026</p></div>
             <div style="margin-top:20px;border-top:1px solid #e2e8f0;padding-top:20px;text-align:center;">
                 <div id="div-btn-admin-unico" style="display:inline-block;"><button class="btn-admin" onclick="checkAdmin()">🔐 ACCESO ADMINISTRADOR</button><div style="font-size:11px;color:#94a3b8;margin-top:8px;">Ingrese clave: YARVIN2026</div></div>
-                <div id="div-admin-activo" style="display:none;"><div style="display:inline-flex;align-items:center;gap:12px;background:#f0fdf4;border:1.5px solid #86efac;border-radius:12px;padding:12px 22px;"><span>✅</span><div><div style="font-size:13px;font-weight:800;color:#15803d;">ADMIN ACTIVO</div></div><button onclick="cerrarSesionAdmin()" style="background:#fee2e2;border:1px solid #fca5a5;border-radius:8px;padding:6px 14px;">✕ CERRAR SESIÓN</button></div><div style="margin-top:14px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap;"><button class="btn-admin aip-admin" onclick="abrirInforme('aip')">📊 AIP</button><button class="btn-admin crt-admin" onclick="abrirInforme('crt')">📊 CRT</button><button class="btn-admin atp-admin" onclick="abrirInforme('atp')">📊 ATP</button><button class="btn-admin ait-admin" onclick="abrirInforme('ait')">🔧 AIT</button><button class="btn-admin gen-admin" onclick="abrirInformeGeneral()">📋 INFORME GENERAL</button></div></div>
+                <div id="div-admin-activo" style="display:none;"><div style="display:inline-flex;align-items:center;gap:12px;background:#f0fdf4;border:1.5px solid #86efac;border-radius:12px;padding:12px 22px;"><span>✅</span><div><div style="font-size:13px;font-weight:800;color:#15803d;">ADMIN ACTIVO</div></div><button onclick="cerrarSesionAdmin()" style="background:#fee2e2;border:1px solid #fca5a5;border-radius:8px;padding:6px 14px;">✕ CERRAR SESIÓN</button></div><div style="margin-top:14px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap;"><button class="btn-admin aip-admin" onclick="abrirInforme('aip')">📊 AIP</button><button class="btn-admin crt-admin" onclick="abrirInforme('crt')">📊 CRT</button><button class="btn-admin atp-admin" onclick="abrirInforme('atp')">📊 ATP</button><button class="btn-admin ait-admin" onclick="abrirInforme('ait')">🔧 AIT</button><button class="btn-admin ae-admin" onclick="abrirInforme('ae')">🎒 AE</button><button class="btn-admin gen-admin" onclick="abrirInformeGeneral()">📋 INFORME GENERAL</button></div></div>
             </div>
             <div id="panelAdminGEN" class="panel-admin" style="border-color:var(--gen-border);margin-top:20px;">
                 <div class="panel-admin-header gen">📋 INFORME EJECUTIVO GENERAL CONSOLIDADO 2026</div>
@@ -726,7 +778,22 @@ db.ref('.info/connected').once('value').catch(() => {
 });
 
 let adminAutenticado = false;
+// ===== ETIQUETAS DE DATOS EN GRÁFICOS (cantidad + %) =====
+if (typeof ChartDataLabels !== 'undefined') { Chart.register(ChartDataLabels); }
+Chart.defaults.set('plugins.datalabels', { display: false });
+function dlPct(color) {
+    // Para doughnut/pie: muestra "cantidad (porcentaje%)" sobre cada segmento, oculta si es 0
+    return { display: (ctx) => ctx.dataset.data[ctx.dataIndex] > 0, color: color || '#fff', font: { weight: 800, size: 11 }, textStrokeColor: 'rgba(0,0,0,0.35)', textStrokeWidth: 2,
+        formatter: (value, ctx) => { const arr = ctx.chart.data.datasets[ctx.datasetIndex].data; const total = arr.reduce((a,b) => a+(b||0), 0); const pct = total ? ((value/total)*100).toFixed(1) : 0; return `${value}\n(${pct}%)`; } };
+}
+function dlVal(color, anchor) {
+    // Para barras: muestra el valor exacto al final de cada barra, oculta si es 0
+    return { display: (ctx) => ctx.dataset.data[ctx.dataIndex] > 0, color: color || '#1e293b', font: { weight: 800, size: 10 }, anchor: anchor || 'end', align: anchor === 'start' ? 'start' : 'end', offset: 2,
+        formatter: (value) => value || '' };
+}
+
 let chartAIPDias, chartAIPSesion, chartAIPTop, chartAIPNoIngreso, chartAIPGrados, chartAIPSecciones, chartAIPDocentesPct, chartAIPKhan;
+let chartAEArea, chartAEGrado, chartAESeccion;
 let chartCRTTipo, chartCRTActividad, chartCRTGrados, chartCRTSecciones, chartCRTDocentesPct;
 let chartATP, chartATPArea, chartATPTiempo, chartAITTipo, chartAITSolucion;
 const TOTAL_DOCENTES = 33;
@@ -857,6 +924,15 @@ function registrarATP() {
     .then(()=>{ toast("✓ Atención registrada"); document.getElementById("atp-nombre").value=""; document.getElementById("atp-tema").value=""; document.getElementById("atp-tiempo").value=""; document.getElementById("atp-recursos").value=""; document.getElementById("atp-tipo").value=""; document.getElementById("atp-area").value=""; })
     .finally(()=>{ btn.disabled=false; btn.innerHTML="✔ Registrar Atención Personalizada"; });
 }
+function registrarAE() {
+    const area=document.getElementById("ae-area").value.trim(); const grado=document.getElementById("ae-grado").value.trim(); const seccion=document.getElementById("ae-seccion").value.trim(); const tema=document.getElementById("ae-tema").value.trim();
+    if(!area||!grado||!seccion||!tema){ toast("Complete los campos obligatorios (Área, Grado, Sección y Tema)"); return; }
+    const btn=document.getElementById("btnAE"); btn.disabled=true; btn.innerHTML='<span class="spinner"></span> Guardando...';
+    const {mes,fecha,hora,timestamp,diaSemana,fechaNumero,semanaMes}=getFechaHoy();
+    db.ref('atenciones_ae').push({ area, grado, seccion, tema, observaciones:document.getElementById("ae-recursos").value.trim()||"—", fecha, hora, mes, timestamp, diaSemana, fechaNumero, semanaMes })
+    .then(()=>{ toast("✓ Atención a estudiantes registrada"); document.getElementById("ae-area").value=""; document.getElementById("ae-grado").value=""; document.getElementById("ae-seccion").value=""; document.getElementById("ae-tema").value=""; document.getElementById("ae-recursos").value=""; })
+    .finally(()=>{ btn.disabled=false; btn.innerHTML="✔ Registrar Atención a Estudiantes"; });
+}
 function registrarAIT() {
     const aula=document.getElementById("ait-aula").value.trim(); const docente=document.getElementById("ait-docente").value.trim(); const tipoAtencion=document.getElementById("ait-tipo-atencion").value.trim(); const solucion=document.getElementById("ait-solucion").value.trim(); const recomendacion=document.getElementById("ait-recomendacion").value.trim();
     const horasAIT=[...document.querySelectorAll('#ait-horas-grid input:checked')].map(c=>c.value);
@@ -869,7 +945,7 @@ function registrarAIT() {
     .then(()=>{ toast("✓ Incidencia registrada"); document.getElementById("ait-aula").value=""; document.getElementById("ait-docente").value=""; document.getElementById("ait-tipo-atencion").value=""; document.getElementById("ait-solucion").value=""; document.getElementById("ait-recomendacion").value=""; document.querySelectorAll('#ait-horas-grid .hora-chip').forEach(c=>{c.classList.remove('selected');c.querySelector('input').checked=false;}); const downloadDiv=document.getElementById('ait-download-area'); downloadDiv.innerHTML=`<button class="btn-download-ait" style="background:#be185d;color:white;padding:10px;border-radius:8px;width:100%;font-weight:700;" onclick="descargarComprobanteAIT('${newRef.key}', ${JSON.stringify({aula,docente,tipoAtencion,solucion:solucionTexto,recomendacion,fecha,hora}).replace(/"/g, '&quot;')})">📄 DESCARGAR COMPROBANTE PARA FIRMA DEL DOCENTE</button>`; setTimeout(()=>{downloadDiv.innerHTML='';},10000); })
     .finally(()=>{ btn.disabled=false; btn.innerHTML="🔧 Registrar Incidencia Tecnológica"; });
 }
-function eliminarRegistro(modulo,key,desc) { if(!confirm(`¿Eliminar este registro?\n\n${desc||''}`)) return; db.ref(`${modulo==='aip'?'atenciones_aip':modulo==='crt'?'atenciones_crt':modulo==='atp'?'atenciones_atp':'atenciones_ait'}/${key}`).remove().then(()=>{ toast("Eliminado"); if(modulo==='aip') generarReporteAIP(); else if(modulo==='crt') generarReporteCRT(); else if(modulo==='atp') generarReporteATP(); else if(modulo==='ait') generarReporteAIT(); }); }
+function eliminarRegistro(modulo,key,desc) { if(!confirm(`¿Eliminar este registro?\n\n${desc||''}`)) return; const refs={aip:'atenciones_aip',crt:'atenciones_crt',atp:'atenciones_atp',ait:'atenciones_ait',ae:'atenciones_ae'}; db.ref(`${refs[modulo]}/${key}`).remove().then(()=>{ toast("Eliminado"); if(modulo==='aip') generarReporteAIP(); else if(modulo==='crt') generarReporteCRT(); else if(modulo==='atp') generarReporteATP(); else if(modulo==='ait') generarReporteAIT(); else if(modulo==='ae') generarReporteAE(); }); }
 function descargarComprobanteAIT(key, reg) { const {jsPDF}=window.jspdf; const pdf=new jsPDF(); pdf.setFontSize(16); pdf.text("INSTITUCIÓN EDUCATIVA N° 0148",20,20); pdf.setFontSize(12); pdf.text("AIT - Atención de Incidencia Tecnológica",20,35); pdf.text(`Fecha: ${reg.fecha} ${reg.hora}`,20,50); pdf.text(`Docente: ${reg.docente}`,20,60); pdf.text(`Aula: ${reg.aula}`,20,70); pdf.text(`Tipo: ${reg.tipoAtencion}`,20,80); pdf.text(`Hora de atención: ${reg.horaAtencion||'—'}`,20,90); pdf.text(`Solución: ${reg.solucion}`,20,100); pdf.text("Recomendación:",20,115); const lines=pdf.splitTextToSize(reg.recomendacion,170); pdf.text(lines,20,125); pdf.line(20,165,120,165); pdf.text("Firma del Docente",20,175); pdf.line(140,165,190,165); pdf.text("Fecha",150,175); pdf.save(`Comprobante_AIT_${reg.docente.replace(/\s/g,'_')}.pdf`); toast("Comprobante generado"); }
 
 // ===== ADMIN =====
@@ -888,11 +964,11 @@ function checkAdmin() {
         return false;
     }
 }
-function cerrarSesionAdmin() { adminAutenticado=false; ['panelAdminAIP','panelAdminCRT','panelAdminATP','panelAdminAIT','panelAdminGEN'].forEach(id=>document.getElementById(id).style.display='none'); ['aip','crt','atp','ait'].forEach(m=>{const el=document.getElementById('acceso-informe-'+m);if(el)el.style.display='none';}); document.getElementById('div-btn-admin-unico').style.display='inline-block'; document.getElementById('div-admin-activo').style.display='none'; toast("Admin cerrado"); }
+function cerrarSesionAdmin() { adminAutenticado=false; ['panelAdminAIP','panelAdminCRT','panelAdminATP','panelAdminAIT','panelAdminAE','panelAdminGEN'].forEach(id=>document.getElementById(id).style.display='none'); ['aip','crt','atp','ait','ae'].forEach(m=>{const el=document.getElementById('acceso-informe-'+m);if(el)el.style.display='none';}); document.getElementById('div-btn-admin-unico').style.display='inline-block'; document.getElementById('div-admin-activo').style.display='none'; toast("Admin cerrado"); }
 function abrirInforme(modulo) {
     if(!adminAutenticado){ checkAdmin(); if(!adminAutenticado) return; }
     cambiarModulo(modulo);
-    const panels={aip:'panelAdminAIP',crt:'panelAdminCRT',atp:'panelAdminATP',ait:'panelAdminAIT'};
+    const panels={aip:'panelAdminAIP',crt:'panelAdminCRT',atp:'panelAdminATP',ait:'panelAdminAIT',ae:'panelAdminAE'};
     const panelId=panels[modulo];
     if(panelId){
         const panel=document.getElementById(panelId);
@@ -904,6 +980,7 @@ function abrirInforme(modulo) {
     else if(modulo==='crt'){ document.getElementById('mesFiltroCRT').value=mesValido; generarReporteCRT(); }
     else if(modulo==='atp'){ document.getElementById('mesFiltroATP').value=mesValido; generarReporteATP(); }
     else if(modulo==='ait'){ document.getElementById('mesFiltroAIT').value=mesValido; generarReporteAIT(); }
+    else if(modulo==='ae'){ document.getElementById('mesFiltroAE').value=mesValido; generarReporteAE(); }
     setTimeout(()=>window.scrollTo({top:document.body.scrollHeight,behavior:'smooth'}),200);
 }
 function abrirInformeGeneral() {
@@ -916,7 +993,7 @@ function abrirInformeGeneral() {
     generarReporteGeneral();
     setTimeout(()=>window.scrollTo({top:document.body.scrollHeight,behavior:'smooth'}),200);
 }
-function cerrarAdmin(modulo) { const ids={aip:'panelAdminAIP',crt:'panelAdminCRT',atp:'panelAdminATP',ait:'panelAdminAIT',gen:'panelAdminGEN'}; document.getElementById(ids[modulo]).style.display="none"; }
+function cerrarAdmin(modulo) { const ids={aip:'panelAdminAIP',crt:'panelAdminCRT',atp:'panelAdminATP',ait:'panelAdminAIT',ae:'panelAdminAE',gen:'panelAdminGEN'}; document.getElementById(ids[modulo]).style.display="none"; }
 
 // ===== REPORTES PROFESIONALES =====
 function parseFechaReg(r){
@@ -1025,15 +1102,15 @@ function generarReporteAIP() {
 
         /* ── GRÁFICO SESIÓN ── */
         const sesionCount={SI:0,NO:0,'—':0}; registros.forEach(r=>{const s=r.sesionPresentada||'—'; sesionCount[s]++;});
-        const ctx2=document.getElementById('aip-grafico-sesion').getContext('2d'); if(chartAIPSesion)chartAIPSesion.destroy(); chartAIPSesion=new Chart(ctx2,{type:'doughnut',data:{labels:['✅ Sí presentó','❌ No presentó','📋 Sin dato'],datasets:[{data:[sesionCount.SI,sesionCount.NO,sesionCount['—']],backgroundColor:['#22c55e','#ef4444','#94a3b8']}]},options:{responsive:true,maintainAspectRatio:false,cutout:'60%',plugins:{legend:{position:'bottom'}}}});
+        const ctx2=document.getElementById('aip-grafico-sesion').getContext('2d'); if(chartAIPSesion)chartAIPSesion.destroy(); chartAIPSesion=new Chart(ctx2,{type:'doughnut',data:{labels:['✅ Sí presentó','❌ No presentó','📋 Sin dato'],datasets:[{data:[sesionCount.SI,sesionCount.NO,sesionCount['—']],backgroundColor:['#22c55e','#ef4444','#94a3b8']}]},options:{responsive:true,maintainAspectRatio:false,cutout:'60%',plugins:{legend:{position:'bottom'},datalabels:dlPct()}}});
 
         /* ── GRÁFICO TOP DOCENTES ── */
         const topPersonas=Object.entries(porPersona).sort((a,b)=>b[1]-a[1]).slice(0,6);
-        const ctx3=document.getElementById('aip-grafico-top').getContext('2d'); if(chartAIPTop)chartAIPTop.destroy(); chartAIPTop=new Chart(ctx3,{type:'bar',data:{labels:topPersonas.map(p=>p[0].substring(0,20)),datasets:[{label:'Asistencias',data:topPersonas.map(p=>p[1]),backgroundColor:'#1a3080',borderRadius:8}]},options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false}}}});
+        const ctx3=document.getElementById('aip-grafico-top').getContext('2d'); if(chartAIPTop)chartAIPTop.destroy(); chartAIPTop=new Chart(ctx3,{type:'bar',data:{labels:topPersonas.map(p=>p[0].substring(0,20)),datasets:[{label:'Asistencias',data:topPersonas.map(p=>p[1]),backgroundColor:'#1a3080',borderRadius:8}]},options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false},datalabels:dlVal()}}});
 
         /* ── GRÁFICO USO DE KHAN ACADEMY ── */
         const ctxKhan=document.getElementById('aip-grafico-khan').getContext('2d'); if(chartAIPKhan)chartAIPKhan.destroy();
-        chartAIPKhan=new Chart(ctxKhan,{type:'doughnut',data:{labels:[`🎓 Con Khan Academy (${khanCount})`,`Sin Khan Academy (${total-khanCount})`],datasets:[{data:[khanCount,total-khanCount],backgroundColor:['#10b981','#e2e8f0'],borderWidth:3,borderColor:'#fff'}]},options:{responsive:true,maintainAspectRatio:false,cutout:'60%',plugins:{legend:{position:'bottom',labels:{font:{size:10}}},tooltip:{callbacks:{label:c=>`${c.label}: ${total?((c.parsed/total)*100).toFixed(1):0}%`}}}}});
+        chartAIPKhan=new Chart(ctxKhan,{type:'doughnut',data:{labels:[`🎓 Con Khan Academy (${khanCount})`,`Sin Khan Academy (${total-khanCount})`],datasets:[{data:[khanCount,total-khanCount],backgroundColor:['#10b981','#e2e8f0'],borderWidth:3,borderColor:'#fff'}]},options:{responsive:true,maintainAspectRatio:false,cutout:'60%',plugins:{legend:{position:'bottom',labels:{font:{size:10}}},tooltip:{callbacks:{label:c=>`${c.label}: ${total?((c.parsed/total)*100).toFixed(1):0}%`}},datalabels:dlPct()}}});
 
         /* ── GRÁFICO DOCENTES QUE NO INGRESARON ── */
         const noIngRegs=registros.filter(r=>r.estado==='NO_INGRESO');
@@ -1097,7 +1174,7 @@ function generarReporteAIP() {
         const docentesNoAIP=Math.max(0,TOTAL_DOCENTES-docentesUnicosAIP);
         const ctx7=document.getElementById('aip-grafico-docentes-pct').getContext('2d');
         if(chartAIPDocentesPct) chartAIPDocentesPct.destroy();
-        chartAIPDocentesPct=new Chart(ctx7,{type:'doughnut',data:{labels:[`✅ Ingresaron (${docentesUnicosAIP})`,`🚫 No ingresaron (${docentesNoAIP})`],datasets:[{data:[docentesUnicosAIP,docentesNoAIP],backgroundColor:['#22c55e','#ef4444'],borderWidth:3,borderColor:'#fff'}]},options:{responsive:true,maintainAspectRatio:false,cutout:'58%',plugins:{legend:{position:'bottom',labels:{font:{size:11},padding:12}},tooltip:{callbacks:{label:c=>`${c.label}: ${c.parsed} de ${TOTAL_DOCENTES} docentes (${((c.parsed/TOTAL_DOCENTES)*100).toFixed(1)}%)`}}}}});
+        chartAIPDocentesPct=new Chart(ctx7,{type:'doughnut',data:{labels:[`✅ Ingresaron (${docentesUnicosAIP})`,`🚫 No ingresaron (${docentesNoAIP})`],datasets:[{data:[docentesUnicosAIP,docentesNoAIP],backgroundColor:['#22c55e','#ef4444'],borderWidth:3,borderColor:'#fff'}]},options:{responsive:true,maintainAspectRatio:false,cutout:'58%',plugins:{legend:{position:'bottom',labels:{font:{size:11},padding:12}},tooltip:{callbacks:{label:c=>`${c.label}: ${c.parsed} de ${TOTAL_DOCENTES} docentes (${((c.parsed/TOTAL_DOCENTES)*100).toFixed(1)}%)`}},datalabels:dlPct()}}});
     });
 }
 function generarReporteCRT() {
@@ -1140,9 +1217,9 @@ function generarReporteCRT() {
         document.getElementById('crt-statsPersonal').innerHTML=Object.entries(porPersona).sort((a,b)=>b[1]-a[1]).slice(0,10).map(([lbl,cnt])=>`<div class="stat-persona-badge">${lbl}<span class="cnt crt">${cnt}</span></div>`).join('');
         document.getElementById('crt-tablaCuerpo').innerHTML=registros.sort((a,b)=>b.timestamp-a.timestamp).map(r=>`<tr><td><b>${r.fecha}</b><br><small>${r.hora}</small></td><td>${r.tipo||'—'}</td><td>${r.docente}</td><td>${r.area||'—'}</td><td>${r.tipo==='DOCENTE'&&r.grado&&r.grado!=='—'?`${r.grado} ${r.seccion}`:'—'}</td><td>${r.actividad||'—'}</td><td>${r.horas||'—'}</td><td>${r.tema}</td><td><button class="btn-eliminar" onclick="eliminarRegistro('crt','${r._key}','${r.docente.replace(/'/g,"\\'")}')">Eliminar</button></td></tr>`).join('');
         const tipoCount={}; registros.forEach(r=>{ tipoCount[r.tipo||'OTRO']=(tipoCount[r.tipo||'OTRO']||0)+1; });
-        const ctx=document.getElementById('crt-grafico-tipo').getContext('2d'); if(chartCRTTipo)chartCRTTipo.destroy(); chartCRTTipo=new Chart(ctx,{type:'doughnut',data:{labels:Object.keys(tipoCount),datasets:[{data:Object.values(tipoCount),backgroundColor:['#22c55e','#fbbf24','#3b82f6','#a855f7','#ef4444','#ec4899']}]},options:{responsive:true,maintainAspectRatio:false,cutout:'55%',plugins:{legend:{position:'bottom'}}}});
+        const ctx=document.getElementById('crt-grafico-tipo').getContext('2d'); if(chartCRTTipo)chartCRTTipo.destroy(); chartCRTTipo=new Chart(ctx,{type:'doughnut',data:{labels:Object.keys(tipoCount),datasets:[{data:Object.values(tipoCount),backgroundColor:['#22c55e','#fbbf24','#3b82f6','#a855f7','#ef4444','#ec4899']}]},options:{responsive:true,maintainAspectRatio:false,cutout:'55%',plugins:{legend:{position:'bottom'},datalabels:dlPct()}}});
         const actCount={}; registros.forEach(r=>{ actCount[r.actividad||'OTRO']=(actCount[r.actividad||'OTRO']||0)+1; });
-        const ctx2=document.getElementById('crt-grafico-actividad').getContext('2d'); if(chartCRTActividad)chartCRTActividad.destroy(); chartCRTActividad=new Chart(ctx2,{type:'bar',data:{labels:Object.keys(actCount).slice(0,6),datasets:[{data:Object.values(actCount).slice(0,6),backgroundColor:'#1e7a3a',borderRadius:8}]},options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false}}}});
+        const ctx2=document.getElementById('crt-grafico-actividad').getContext('2d'); if(chartCRTActividad)chartCRTActividad.destroy(); chartCRTActividad=new Chart(ctx2,{type:'bar',data:{labels:Object.keys(actCount).slice(0,6),datasets:[{data:Object.values(actCount).slice(0,6),backgroundColor:'#1e7a3a',borderRadius:8}]},options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false},datalabels:dlVal()}}});
 
         /* ── GRÁFICO GRADOS CRT ── */
         const crtSoloDoc=registros.filter(r=>r.tipo==='DOCENTE'&&r.grado&&r.grado!=='—');
@@ -1164,7 +1241,7 @@ function generarReporteCRT() {
         const docentesNoCRT=Math.max(0,TOTAL_DOCENTES-docentesUnicosCRT);
         const ctxCD=document.getElementById('crt-grafico-docentes-pct').getContext('2d');
         if(chartCRTDocentesPct) chartCRTDocentesPct.destroy();
-        chartCRTDocentesPct=new Chart(ctxCD,{type:'doughnut',data:{labels:[`✅ Ingresaron (${docentesUnicosCRT})`,`🚫 No ingresaron (${docentesNoCRT})`],datasets:[{data:[docentesUnicosCRT,docentesNoCRT],backgroundColor:['#22c55e','#ef4444'],borderWidth:3,borderColor:'#fff'}]},options:{responsive:true,maintainAspectRatio:false,cutout:'58%',plugins:{legend:{position:'bottom',labels:{font:{size:11},padding:12}},tooltip:{callbacks:{label:c=>`${c.label}: ${c.parsed} de ${TOTAL_DOCENTES} docentes (${((c.parsed/TOTAL_DOCENTES)*100).toFixed(1)}%)`}}}}});
+        chartCRTDocentesPct=new Chart(ctxCD,{type:'doughnut',data:{labels:[`✅ Ingresaron (${docentesUnicosCRT})`,`🚫 No ingresaron (${docentesNoCRT})`],datasets:[{data:[docentesUnicosCRT,docentesNoCRT],backgroundColor:['#22c55e','#ef4444'],borderWidth:3,borderColor:'#fff'}]},options:{responsive:true,maintainAspectRatio:false,cutout:'58%',plugins:{legend:{position:'bottom',labels:{font:{size:11},padding:12}},tooltip:{callbacks:{label:c=>`${c.label}: ${c.parsed} de ${TOTAL_DOCENTES} docentes (${((c.parsed/TOTAL_DOCENTES)*100).toFixed(1)}%)`}},datalabels:dlPct()}}});
     });
 }
 function generarReporteATP() {
@@ -1208,7 +1285,7 @@ function generarReporteATP() {
         document.getElementById('atp-statsPersonal').innerHTML=Object.entries(porPersona).sort((a,b)=>b[1]-a[1]).slice(0,10).map(([lbl,cnt])=>`<div class="stat-persona-badge">${lbl}<span class="cnt atp">${cnt}</span></div>`).join('');
         document.getElementById('atp-tablaCuerpo').innerHTML=registros.sort((a,b)=>b.timestamp-a.timestamp).map(r=>`<tr><td><b>${r.fecha}</b><br><small>${r.hora}</small></td><td>${r.tipo}</td><td>${r.nombre}</td><td>${r.tema}</td><td>${r.tiempo} min</td><td><button class="btn-eliminar" onclick="eliminarRegistro('atp','${r._key}','${r.nombre.replace(/'/g,"\\'")}')">Eliminar</button></td></tr>`).join('');
         const tipoCount={}; registros.forEach(r=>{ tipoCount[r.tipo]=(tipoCount[r.tipo]||0)+1; });
-        const ctx=document.getElementById('atp-grafico').getContext('2d'); if(chartATP)chartATP.destroy(); chartATP=new Chart(ctx,{type:'doughnut',data:{labels:Object.keys(tipoCount),datasets:[{data:Object.values(tipoCount),backgroundColor:['#6b21a8','#9333ea','#c084fc','#f0abfc']}]},options:{responsive:true,maintainAspectRatio:false,cutout:'55%'}});
+        const ctx=document.getElementById('atp-grafico').getContext('2d'); if(chartATP)chartATP.destroy(); chartATP=new Chart(ctx,{type:'doughnut',data:{labels:Object.keys(tipoCount),datasets:[{data:Object.values(tipoCount),backgroundColor:['#6b21a8','#9333ea','#c084fc','#f0abfc']}]},options:{responsive:true,maintainAspectRatio:false,cutout:'55%',plugins:{legend:{position:'bottom'},datalabels:dlPct()}}});
         const areaCount={}; registros.forEach(r=>{ areaCount[r.area||'SIN ÁREA']=(areaCount[r.area||'SIN ÁREA']||0)+1; });
         const ctx2=document.getElementById('atp-grafico-area').getContext('2d'); if(chartATPArea)chartATPArea.destroy(); chartATPArea=new Chart(ctx2,{type:'bar',data:{labels:Object.keys(areaCount).slice(0,6),datasets:[{data:Object.values(areaCount).slice(0,6),backgroundColor:'#9333ea',borderRadius:8}]},options:{responsive:true,maintainAspectRatio:false,indexAxis:'y'}});
         const rangos={'1-15 min':0,'16-30 min':0,'31-60 min':0,'61-120 min':0,'120+ min':0}; registros.forEach(r=>{ const m=r.tiempo||0; if(m<=15)rangos['1-15 min']++;else if(m<=30)rangos['16-30 min']++;else if(m<=60)rangos['31-60 min']++;else if(m<=120)rangos['61-120 min']++;else rangos['120+ min']++; });
@@ -1255,8 +1332,66 @@ function generarReporteAIT() {
 
         document.getElementById('ait-tablaCuerpo').innerHTML=registros.sort((a,b)=>b.timestamp-a.timestamp).map(r=>{let bc=r.solucionCodigo==='SI'?'solucionado':(r.solucionCodigo==='NO'?'pendiente':'dadobaja');return `<tr><td><b>${r.fecha}</b><br><small>${r.hora}</small></td><td>${r.aula}</td><td>${r.docente}</td><td>${r.tipoAtencion}</td><td><span style="background:var(--ait-bg);color:var(--ait-mid);padding:3px 10px;border-radius:20px;font-size:11px;font-weight:800;border:1px solid var(--ait-border);">${r.horaAtencion||'—'}</span></td><td><span class="badge-tipo ${bc}">${r.solucion}</span></td><td>${r.recomendacion.substring(0,50)}</td><td><button class="btn-eliminar" onclick="eliminarRegistro('ait','${r._key}','${r.docente.replace(/'/g,"\\'")}')">Eliminar</button></td><td><button class="btn-descargar" onclick="descargarComprobanteAIT('${r._key}',${JSON.stringify(r).replace(/"/g, '&quot;')})">📄 Firmar</button></td></tr>`;}).join('');
         const tipoCount={}; registros.forEach(r=>{ tipoCount[r.tipoAtencion]=(tipoCount[r.tipoAtencion]||0)+1; });
-        const ctx=document.getElementById('ait-grafico-tipo').getContext('2d'); if(chartAITTipo)chartAITTipo.destroy(); chartAITTipo=new Chart(ctx,{type:'pie',data:{labels:Object.keys(tipoCount),datasets:[{data:Object.values(tipoCount),backgroundColor:['#be185d','#db2777','#f43f5e','#fda4af','#831843']}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'}}}});
-        const ctx2=document.getElementById('ait-grafico-solucion').getContext('2d'); if(chartAITSolucion)chartAITSolucion.destroy(); chartAITSolucion=new Chart(ctx2,{type:'doughnut',data:{labels:['✅ Solucionados','⚠️ Pendientes','❌ Dados de Baja'],datasets:[{data:[solucionadas,pendientes,bajas],backgroundColor:['#22c55e','#ef4444','#f59e0b']}]},options:{responsive:true,maintainAspectRatio:false,cutout:'55%',plugins:{legend:{position:'bottom'}}}});
+        const ctx=document.getElementById('ait-grafico-tipo').getContext('2d'); if(chartAITTipo)chartAITTipo.destroy(); chartAITTipo=new Chart(ctx,{type:'pie',data:{labels:Object.keys(tipoCount),datasets:[{data:Object.values(tipoCount),backgroundColor:['#be185d','#db2777','#f43f5e','#fda4af','#831843']}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'},datalabels:dlPct()}}});
+        const ctx2=document.getElementById('ait-grafico-solucion').getContext('2d'); if(chartAITSolucion)chartAITSolucion.destroy(); chartAITSolucion=new Chart(ctx2,{type:'doughnut',data:{labels:['✅ Solucionados','⚠️ Pendientes','❌ Dados de Baja'],datasets:[{data:[solucionadas,pendientes,bajas],backgroundColor:['#22c55e','#ef4444','#f59e0b']}]},options:{responsive:true,maintainAspectRatio:false,cutout:'55%',plugins:{legend:{position:'bottom'},datalabels:dlPct()}}});
+    });
+}
+function generarReporteAE() {
+    const mes=document.getElementById('mesFiltroAE').value; if(!mes||!mes.startsWith("2026")){toast("Seleccione un mes de 2026");return;}
+    db.ref('atenciones_ae').once('value', snap=>{
+        const registros=filtrarPorMes(Object.entries(snap.val()||{}).map(([k,r])=>parseFechaReg({...r,_key:k})), mes);
+        const total=registros.length;
+        const seccionesAtendidas=new Set(registros.map(r=>`${r.grado} ${r.seccion}`)).size;
+        const temasDistintos=new Set(registros.map(r=>r.tema)).size;
+        const diasConActividad=new Set(registros.map(r=>r.fecha)).size;
+        document.getElementById('ae-stats-mes').innerHTML=`<div class="stat-card ae"><div class="stat-num stat-accent-ae">${total}</div><div class="stat-label">Total Registros</div></div><div class="stat-card ae"><div class="stat-num">${seccionesAtendidas}</div><div class="stat-label">Secciones Atendidas</div></div><div class="stat-card ae"><div class="stat-num">${temasDistintos}</div><div class="stat-label">Temas Distintos</div></div><div class="stat-card ae"><div class="stat-num">${diasConActividad}</div><div class="stat-label">Días con Actividad</div></div>`;
+
+        /* ── POR DÍA EXACTO ── */
+        const diasExactos={};
+        registros.forEach(r=>{ const dn=r.fechaNumero||(r.fecha?parseInt(r.fecha.split('-')[0]):null); const fe=r.fecha||''; if(!dn)return; if(!diasExactos[dn]) diasExactos[dn]={fecha:fe,total:0}; diasExactos[dn].total++; });
+        const diasOrd=Object.entries(diasExactos).sort((a,b)=>+a[0]-+b[0]);
+        const nomDia=['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+        let htmlDiasE='';
+        if(diasOrd.length===0){ htmlDiasE='<p style="color:#94a3b8;text-align:center;padding:10px">Sin registros este mes</p>'; }
+        else {
+            htmlDiasE='<div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;font-size:12px;"><thead><tr style="background:#f0fdfa"><th style="padding:8px;text-align:left;font-weight:800;color:#0f766e;font-size:10px;border-bottom:2px solid #99f6e4">DÍA / FECHA</th><th style="padding:8px;text-align:center;font-weight:800;color:#0f766e;font-size:10px;border-bottom:2px solid #99f6e4">REGISTROS</th><th style="padding:8px;text-align:center;font-weight:800;color:#0f766e;font-size:10px;border-bottom:2px solid #99f6e4">% DEL MES</th></tr></thead><tbody>';
+            diasOrd.forEach(([dn,d])=>{
+                const partes=d.fecha.split('-'); let diaLabel=d.fecha;
+                if(partes.length===3){ const dt=new Date(+partes[2],+partes[1]-1,+partes[0]); diaLabel=`${nomDia[dt.getDay()]} ${d.fecha}`; }
+                const pct=total?(d.total/total*100).toFixed(0):0;
+                htmlDiasE+=`<tr style="border-bottom:1px solid #f1f5f9"><td style="padding:8px;font-weight:700;color:#1e293b">${diaLabel}</td><td style="padding:8px;text-align:center;font-weight:800;color:#0f766e">${d.total}</td><td style="padding:8px;text-align:center"><span style="background:#ccfbf1;padding:3px 10px;border-radius:20px;font-weight:800;font-size:11px;color:#0f766e">${pct}%</span></td></tr>`;
+            });
+            htmlDiasE+='</tbody></table></div>';
+        }
+        document.getElementById('ae-dias-exactos-grid').innerHTML=htmlDiasE;
+
+        /* ── POR DÍA SEMANA ── */
+        const diasSemana=[{nombre:'LUN',num:1,cant:0},{nombre:'MAR',num:2,cant:0},{nombre:'MIE',num:3,cant:0},{nombre:'JUE',num:4,cant:0},{nombre:'VIE',num:5,cant:0}];
+        registros.forEach(r=>{ const dia=diasSemana.find(d=>d.num===r.diaSemana); if(dia) dia.cant++; });
+        document.getElementById('ae-dias-grid').innerHTML=diasSemana.map(d=>`<div class="dia-card"><div class="dia-nombre">${d.nombre}</div><div class="dia-cantidad">${d.cant}</div><div class="dia-porcentaje">${total?((d.cant/total)*100).toFixed(0):0}%</div></div>`).join('');
+
+        /* ── POR SEMANA DEL MES ── */
+        const semanas={1:0,2:0,3:0,4:0,5:0}; registros.forEach(r=>{ if(r.semanaMes && semanas[r.semanaMes]!==undefined) semanas[r.semanaMes]++; });
+        document.getElementById('ae-semanas-grid').innerHTML=Object.entries(semanas).filter(([_,v])=>v>0).map(([sem,v])=>`<div class="semana-card" style="min-width:130px"><div class="semana-nombre">Semana ${sem}</div><div class="semana-cantidad">${v}</div><div class="semana-porcentaje">${total?((v/total)*100).toFixed(0):0}% del mes</div></div>`).join('');
+
+        document.getElementById('ae-tablaCuerpo').innerHTML=registros.sort((a,b)=>b.timestamp-a.timestamp).map(r=>`<tr><td><b>${r.fecha}</b></td><td>${r.hora}</td><td>${r.area||'—'}</td><td>${r.grado} ${r.seccion}</td><td>${r.tema}</td><td>${r.observaciones||'—'}</td><td><button class="btn-eliminar" onclick="eliminarRegistro('ae','${r._key}','${(r.area||'registro').replace(/'/g,"\\'")}')">Eliminar</button></td></tr>`).join('');
+
+        /* ── GRÁFICO POR ÁREA ── */
+        const areaCount={}; registros.forEach(r=>{ areaCount[r.area||'—']=(areaCount[r.area||'—']||0)+1; });
+        const ctxA=document.getElementById('ae-grafico-area').getContext('2d'); if(chartAEArea)chartAEArea.destroy();
+        chartAEArea=new Chart(ctxA,{type:'doughnut',data:{labels:Object.keys(areaCount),datasets:[{data:Object.values(areaCount),backgroundColor:['#0d9488','#14b8a6','#2dd4bf','#5eead4','#99f6e4','#0f766e','#134e4a','#2dd4bf','#a7f3d0','#5eead4','#0e7490']}]},options:{responsive:true,maintainAspectRatio:false,cutout:'55%',plugins:{legend:{position:'bottom',labels:{font:{size:9}}},datalabels:dlPct()}}});
+
+        /* ── GRÁFICO POR GRADO ── */
+        const gradosLabAE=['1°','2°','3°','4°','5°'];
+        const gradoCountAE=gradosLabAE.map(g=>registros.filter(r=>r.grado===g).length);
+        const ctxG=document.getElementById('ae-grafico-grado').getContext('2d'); if(chartAEGrado)chartAEGrado.destroy();
+        chartAEGrado=new Chart(ctxG,{type:'bar',data:{labels:gradosLabAE,datasets:[{data:gradoCountAE,backgroundColor:'#0d9488',borderRadius:8}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},datalabels:dlVal()}}});
+
+        /* ── GRÁFICO SECCIONES MÁS ATENDIDAS ── */
+        const seccionCountAE={}; registros.forEach(r=>{ const k=`${r.grado} ${r.seccion}`; seccionCountAE[k]=(seccionCountAE[k]||0)+1; });
+        const topSecciones=Object.entries(seccionCountAE).sort((a,b)=>b[1]-a[1]).slice(0,8);
+        const ctxS=document.getElementById('ae-grafico-seccion').getContext('2d'); if(chartAESeccion)chartAESeccion.destroy();
+        chartAESeccion=new Chart(ctxS,{type:'bar',data:{labels:topSecciones.map(p=>p[0]),datasets:[{data:topSecciones.map(p=>p[1]),backgroundColor:'#0f766e',borderRadius:8}]},options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false},datalabels:dlVal()}}});
     });
 }
 function generarReporteGeneral() {
@@ -1393,7 +1528,7 @@ function generarReporteGeneral() {
         contenido.innerHTML=html;
 
         /* ── GRÁFICO: DISTRIBUCIÓN POR MÓDULO ── */
-        new Chart(document.getElementById('gen-modulos-chart').getContext('2d'),{type:'doughnut',data:{labels:['💻 AIP','🖥️ CRT','🧑‍🏫 ATP','🔧 AIT'],datasets:[{data:[aipR.length,crtR.length,atpR.length,aitR.length],backgroundColor:['#2348c0','#22c55e','#9333ea','#db2777'],borderWidth:3,borderColor:'#fff'}]},options:{responsive:true,maintainAspectRatio:false,cutout:'50%',plugins:{legend:{position:'bottom',labels:{font:{size:11},padding:12}},tooltip:{callbacks:{label:ctx=>`${ctx.label}: ${ctx.parsed} (${grandTotal?((ctx.parsed/grandTotal)*100).toFixed(1):0}%)`}}}}});
+        new Chart(document.getElementById('gen-modulos-chart').getContext('2d'),{type:'doughnut',data:{labels:['💻 AIP','🖥️ CRT','🧑‍🏫 ATP','🔧 AIT'],datasets:[{data:[aipR.length,crtR.length,atpR.length,aitR.length],backgroundColor:['#2348c0','#22c55e','#9333ea','#db2777'],borderWidth:3,borderColor:'#fff'}]},options:{responsive:true,maintainAspectRatio:false,cutout:'50%',plugins:{legend:{position:'bottom',labels:{font:{size:11},padding:12}},tooltip:{callbacks:{label:ctx=>`${ctx.label}: ${ctx.parsed} (${grandTotal?((ctx.parsed/grandTotal)*100).toFixed(1):0}%)`}},datalabels:dlPct('#fff')}}});
 
         /* ── GRÁFICO: DÍAS DE SEMANA CONSOLIDADO ── */
         const diasConsolidados=[0,0,0,0,0];
@@ -1423,15 +1558,15 @@ function generarReporteGeneral() {
 
         /* ── GRÁFICO CRT ── */
         const tipoCountCRT={}; crtR.forEach(r=>{tipoCountCRT[r.tipo||'OTRO']=(tipoCountCRT[r.tipo||'OTRO']||0)+1;});
-        new Chart(document.getElementById('gen-crt-chart').getContext('2d'),{type:'doughnut',data:{labels:Object.keys(tipoCountCRT),datasets:[{data:Object.values(tipoCountCRT),backgroundColor:['#22c55e','#fbbf24','#3b82f6','#a855f7','#ef4444']}]},options:{responsive:true,maintainAspectRatio:false,cutout:'50%',plugins:{legend:{position:'bottom',labels:{font:{size:9}}},tooltip:{callbacks:{label:ctx=>`${ctx.label}: ${ctx.parsed} (${crtR.length?((ctx.parsed/crtR.length)*100).toFixed(1):0}%)`}}}}});
+        new Chart(document.getElementById('gen-crt-chart').getContext('2d'),{type:'doughnut',data:{labels:Object.keys(tipoCountCRT),datasets:[{data:Object.values(tipoCountCRT),backgroundColor:['#22c55e','#fbbf24','#3b82f6','#a855f7','#ef4444']}]},options:{responsive:true,maintainAspectRatio:false,cutout:'50%',plugins:{legend:{position:'bottom',labels:{font:{size:9}}},tooltip:{callbacks:{label:ctx=>`${ctx.label}: ${ctx.parsed} (${crtR.length?((ctx.parsed/crtR.length)*100).toFixed(1):0}%)`}},datalabels:dlPct('#fff')}}});
 
         /* ── GRÁFICO ATP ── */
         const tipoCountATP={}; atpR.forEach(r=>{tipoCountATP[r.tipo]=(tipoCountATP[r.tipo]||0)+1;});
-        new Chart(document.getElementById('gen-atp-chart').getContext('2d'),{type:'doughnut',data:{labels:Object.keys(tipoCountATP),datasets:[{data:Object.values(tipoCountATP),backgroundColor:['#6b21a8','#9333ea','#c084fc','#f0abfc']}]},options:{responsive:true,maintainAspectRatio:false,cutout:'50%',plugins:{legend:{position:'bottom',labels:{font:{size:9}}},tooltip:{callbacks:{label:ctx=>`${ctx.label}: ${ctx.parsed} (${atpR.length?((ctx.parsed/atpR.length)*100).toFixed(1):0}%)`}}}}});
+        new Chart(document.getElementById('gen-atp-chart').getContext('2d'),{type:'doughnut',data:{labels:Object.keys(tipoCountATP),datasets:[{data:Object.values(tipoCountATP),backgroundColor:['#6b21a8','#9333ea','#c084fc','#f0abfc']}]},options:{responsive:true,maintainAspectRatio:false,cutout:'50%',plugins:{legend:{position:'bottom',labels:{font:{size:9}}},tooltip:{callbacks:{label:ctx=>`${ctx.label}: ${ctx.parsed} (${atpR.length?((ctx.parsed/atpR.length)*100).toFixed(1):0}%)`}},datalabels:dlPct('#fff')}}});
 
         /* ── GRÁFICO AIT ── */
         const aitPend=aitR.filter(r=>r.solucionCodigo==='NO').length; const aitBaja=aitR.filter(r=>r.solucionCodigo==='BAJA').length;
-        new Chart(document.getElementById('gen-ait-chart').getContext('2d'),{type:'doughnut',data:{labels:['✅ Solucionados','⚠️ Pendientes','❌ Dados de Baja'],datasets:[{data:[aitSol,aitPend,aitBaja],backgroundColor:['#22c55e','#ef4444','#f59e0b'],borderWidth:3,borderColor:'#fff'}]},options:{responsive:true,maintainAspectRatio:false,cutout:'50%',plugins:{legend:{position:'bottom',labels:{font:{size:9}}},tooltip:{callbacks:{label:ctx=>`${ctx.label}: ${ctx.parsed} (${aitR.length?((ctx.parsed/aitR.length)*100).toFixed(1):0}%)`}}}}});
+        new Chart(document.getElementById('gen-ait-chart').getContext('2d'),{type:'doughnut',data:{labels:['✅ Solucionados','⚠️ Pendientes','❌ Dados de Baja'],datasets:[{data:[aitSol,aitPend,aitBaja],backgroundColor:['#22c55e','#ef4444','#f59e0b'],borderWidth:3,borderColor:'#fff'}]},options:{responsive:true,maintainAspectRatio:false,cutout:'50%',plugins:{legend:{position:'bottom',labels:{font:{size:9}}},tooltip:{callbacks:{label:ctx=>`${ctx.label}: ${ctx.parsed} (${aitR.length?((ctx.parsed/aitR.length)*100).toFixed(1):0}%)`}},datalabels:dlPct('#fff')}}});
 
         /* ── GRÁFICO + TABLA: DOCENTES QUE NO INGRESARON AIP ── */
         const genNoIngRegs=aipR.filter(r=>r.estado==='NO_INGRESO');
@@ -1600,12 +1735,12 @@ function _renderChartImg(config, width, height) {
     width = width || 480; height = height || 260;
     const canvas = document.createElement('canvas');
     canvas.width = width; canvas.height = height;
-    const cfg = JSON.parse(JSON.stringify(config, (k, v) => typeof v === 'function' ? undefined : v));
-    cfg.options = cfg.options || {};
-    cfg.options.responsive = false;
-    cfg.options.animation = false;
-    cfg.options.maintainAspectRatio = false;
-    const chart = new Chart(canvas.getContext('2d'), cfg);
+    // No usamos JSON.stringify aquí porque eliminaría las funciones (ej. formatter de datalabels)
+    config.options = config.options || {};
+    config.options.responsive = false;
+    config.options.animation = false;
+    config.options.maintainAspectRatio = false;
+    const chart = new Chart(canvas.getContext('2d'), config);
     const dataUrl = chart.toBase64Image('image/png', 1);
     chart.destroy();
     return dataUrl;
@@ -1641,9 +1776,9 @@ function _tablaDesdeDom(tbodyId) {
 
 async function descargarPDF(modulo) {
     toast("📄 Preparando PDF...");
-    const nombres = { aip: 'Aula de Innovación Pedagógica', crt: 'Centro de Recursos Tecnológicos', atp: 'Atención Personalizada — ATP', ait: 'Atención de Incidencias Tecnológicas', gen: 'Informe General Consolidado' };
-    const etiquetas = { aip: 'Registro de Asistencia AIP 2026', crt: 'Registro CRT 2026', atp: 'Registro ATP 2026', ait: 'Registro AIT 2026', gen: 'Informe General 2026' };
-    const colores = { aip: '#2348c0', crt: '#1e7a3a', atp: '#9333ea', ait: '#db2777', gen: '#78716c' };
+    const nombres = { aip: 'Aula de Innovación Pedagógica', crt: 'Centro de Recursos Tecnológicos', atp: 'Atención Personalizada — ATP', ait: 'Atención de Incidencias Tecnológicas', ae: 'Atención a Estudiantes', gen: 'Informe General Consolidado' };
+    const etiquetas = { aip: 'Registro de Asistencia AIP 2026', crt: 'Registro CRT 2026', atp: 'Registro ATP 2026', ait: 'Registro AIT 2026', ae: 'Registro AE 2026', gen: 'Informe General 2026' };
+    const colores = { aip: '#2348c0', crt: '#1e7a3a', atp: '#9333ea', ait: '#db2777', ae: '#0d9488', gen: '#78716c' };
     const color = colores[modulo] || '#0d1b4b';
     const dot = `<span class="dot" style="background:${color}"></span>`;
 
@@ -1660,12 +1795,13 @@ async function descargarPDF(modulo) {
     }
 
     // Tabla principal de registros
-    const tbodyIds = { aip: 'aip-tablaCuerpo', crt: 'crt-tablaCuerpo', atp: 'atp-tablaCuerpo', ait: 'ait-tablaCuerpo' };
+    const tbodyIds = { aip: 'aip-tablaCuerpo', crt: 'crt-tablaCuerpo', atp: 'atp-tablaCuerpo', ait: 'ait-tablaCuerpo', ae: 'ae-tablaCuerpo' };
     const theaders = {
         aip: ['FECHA', 'ESTADO', 'ÁREA', 'DOCENTE', 'GRADO/SECC', 'HORA', 'TEMA / ACTIVIDAD'],
         crt: ['FECHA', 'DOCENTE', 'ÁREA', 'GRADO/SECC', 'HORA', 'MOTIVO'],
         atp: ['FECHA', 'TIPO', 'NOMBRE', 'TEMA', 'TIEMPO'],
-        ait: ['FECHA/HORA', 'AULA', 'DOCENTE', 'TIPO', 'HORA ATENCIÓN', 'SOLUCIÓN', 'RECOMENDACIÓN']
+        ait: ['FECHA/HORA', 'AULA', 'DOCENTE', 'TIPO', 'HORA ATENCIÓN', 'SOLUCIÓN', 'RECOMENDACIÓN'],
+        ae: ['FECHA', 'HORA', 'ÁREA', 'GRADO/SECC', 'TEMA', 'RECURSOS USADOS']
     };
 
     if (tbodyIds[modulo]) {
@@ -1704,7 +1840,7 @@ async function descargarPDF(modulo) {
     }
 
     // Análisis por día del mes
-    const diasIds = { aip: 'aip-dias-exactos-grid', crt: 'crt-dias-exactos-grid', atp: 'atp-dias-exactos-grid', ait: 'ait-dias-exactos-grid' };
+    const diasIds = { aip: 'aip-dias-exactos-grid', crt: 'crt-dias-exactos-grid', atp: 'atp-dias-exactos-grid', ait: 'ait-dias-exactos-grid', ae: 'ae-dias-exactos-grid' };
     if (diasIds[modulo]) {
         const diasEl = document.getElementById(diasIds[modulo]);
         if (diasEl && diasEl.querySelector('table')) {
@@ -1712,7 +1848,7 @@ async function descargarPDF(modulo) {
             const filas = [...diasEl.querySelectorAll('tbody tr')].map(tr =>
                 [...tr.querySelectorAll('td')].map(td => td.textContent.trim())
             ).filter(f => f.length > 0);
-            const hdrs = { aip: ['DÍA / FECHA', 'TOTAL', '✅ INGRESARON', '🚫 NO INGRESARON', '% ASISTENCIA'], crt: ['DÍA / FECHA', 'REGISTROS', '% DEL MES'], atp: ['DÍA / FECHA', 'REGISTROS', '% DEL MES'], ait: ['DÍA / FECHA', 'INCIDENCIAS', '% DEL MES'] };
+            const hdrs = { aip: ['DÍA / FECHA', 'TOTAL', '✅ INGRESARON', '🚫 NO INGRESARON', '% ASISTENCIA'], crt: ['DÍA / FECHA', 'REGISTROS', '% DEL MES'], atp: ['DÍA / FECHA', 'REGISTROS', '% DEL MES'], ait: ['DÍA / FECHA', 'INCIDENCIAS', '% DEL MES'], ae: ['DÍA / FECHA', 'REGISTROS', '% DEL MES'] };
             html += _buildTablaHTML(hdrs[modulo] || ['DÍA', 'TOTAL', '%'], filas);
             html += `</div>`;
         }
@@ -1769,8 +1905,8 @@ async function descargarPDFGeneral() {
     [...aipR,...crtR,...atpR,...aitR].forEach(r => { if (r.diaSemana) diasConsolidados[r.diaSemana-1]++; });
     toast("\ud83d\udcca Generando gr\u00e1ficos...");
     html += _buildGraficosHTML([
-        { titulo: '\ud83d\udcca Distribuci\u00f3n por M\u00f3dulo', config: { type:'doughnut', data:{ labels:['AIP','CRT','ATP','AIT'], datasets:[{ data:[aipR.length,crtR.length,atpR.length,aitR.length], backgroundColor:['#2348c0','#1e7a3a','#9333ea','#db2777'] }] }, options:{ cutout:'55%', plugins:{ legend:{ position:'bottom' } } } } },
-        { titulo: '\ud83d\udcc5 Registros por D\u00eda de Semana', config: { type:'bar', data:{ labels:diasSemNombres.slice(0,5), datasets:[{ data:diasConsolidados.slice(0,5), backgroundColor:'#1a3080', borderRadius:6 }] }, options:{ plugins:{ legend:{ display:false } } } } }
+        { titulo: '\ud83d\udcca Distribuci\u00f3n por M\u00f3dulo', config: { type:'doughnut', data:{ labels:['AIP','CRT','ATP','AIT'], datasets:[{ data:[aipR.length,crtR.length,atpR.length,aitR.length], backgroundColor:['#2348c0','#1e7a3a','#9333ea','#db2777'] }] }, options:{ cutout:'55%', plugins:{ legend:{ position:'bottom' }, datalabels:dlPct() } } } },
+        { titulo: '\ud83d\udcc5 Registros por D\u00eda de Semana', config: { type:'bar', data:{ labels:diasSemNombres.slice(0,5), datasets:[{ data:diasConsolidados.slice(0,5), backgroundColor:'#1a3080', borderRadius:6 }] }, options:{ plugins:{ legend:{ display:false }, datalabels:dlVal() } } } }
     ]);
 
     /* \u2500\u2500 CUADRO RESUMEN COMPARATIVO (igual que en pantalla) \u2500\u2500 */
@@ -1800,9 +1936,9 @@ async function descargarPDFGeneral() {
                 const top = Object.entries(porPersona).sort((a,b)=>b[1]-a[1]).slice(0,6);
                 const khanCount = aipR.filter(r => /khan/i.test((r.tema||'')+' '+(r.observaciones||''))).length;
                 return [
-                    { titulo: '\u2705 Ingresaron vs \ud83d\udeab No Ingresaron', config: { type:'doughnut', data:{ labels:['\u2705 Ingresaron','\ud83d\udeab No Ingresaron'], datasets:[{ data:[aipAsist, aipR.length-aipAsist], backgroundColor:['#22c55e','#f59e0b'] }] }, options:{ cutout:'58%', plugins:{ legend:{ position:'bottom' } } } } },
-                    { titulo: '\ud83c\udfc6 Top Docentes por Asistencia', config: { type:'bar', data:{ labels:top.map(p=>p[0].substring(0,18)), datasets:[{ data:top.map(p=>p[1]), backgroundColor:'#2348c0', borderRadius:6 }] }, options:{ indexAxis:'y', plugins:{ legend:{ display:false } } } } },
-                    { titulo: '\ud83c\udf93 Sesiones con Khan Academy', config: { type:'doughnut', data:{ labels:['Con Khan Academy','Sin Khan Academy'], datasets:[{ data:[khanCount, aipR.length-khanCount], backgroundColor:['#10b981','#e2e8f0'] }] }, options:{ cutout:'60%', plugins:{ legend:{ position:'bottom' } } } } }
+                    { titulo: '\u2705 Ingresaron vs \ud83d\udeab No Ingresaron', config: { type:'doughnut', data:{ labels:['\u2705 Ingresaron','\ud83d\udeab No Ingresaron'], datasets:[{ data:[aipAsist, aipR.length-aipAsist], backgroundColor:['#22c55e','#f59e0b'] }] }, options:{ cutout:'58%', plugins:{ legend:{ position:'bottom' }, datalabels:dlPct() } } } },
+                    { titulo: '\ud83c\udfc6 Top Docentes por Asistencia', config: { type:'bar', data:{ labels:top.map(p=>p[0].substring(0,18)), datasets:[{ data:top.map(p=>p[1]), backgroundColor:'#2348c0', borderRadius:6 }] }, options:{ indexAxis:'y', plugins:{ legend:{ display:false }, datalabels:dlVal() } } } },
+                    { titulo: '\ud83c\udf93 Sesiones con Khan Academy', config: { type:'doughnut', data:{ labels:['Con Khan Academy','Sin Khan Academy'], datasets:[{ data:[khanCount, aipR.length-khanCount], backgroundColor:['#10b981','#e2e8f0'] }] }, options:{ cutout:'60%', plugins:{ legend:{ position:'bottom' }, datalabels:dlPct() } } } }
                 ];
             }
         },
@@ -1816,8 +1952,8 @@ async function descargarPDFGeneral() {
                 const actCount = {}; crtR.forEach(r => { actCount[r.actividad||'\u2014'] = (actCount[r.actividad||'\u2014']||0)+1; });
                 const topAct = Object.entries(actCount).sort((a,b)=>b[1]-a[1]).slice(0,6);
                 return [
-                    { titulo: '\ud83d\udc64 Distribuci\u00f3n por Tipo de Persona', config: { type:'doughnut', data:{ labels:Object.keys(tipoCount), datasets:[{ data:Object.values(tipoCount), backgroundColor:['#22c55e','#fbbf24','#3b82f6','#a855f7','#ef4444','#ec4899'] }] }, options:{ cutout:'55%', plugins:{ legend:{ position:'bottom' } } } } },
-                    { titulo: '\ud83d\udda5\ufe0f Actividades M\u00e1s Realizadas', config: { type:'bar', data:{ labels:topAct.map(p=>p[0].substring(0,18)), datasets:[{ data:topAct.map(p=>p[1]), backgroundColor:'#1e7a3a', borderRadius:6 }] }, options:{ indexAxis:'y', plugins:{ legend:{ display:false } } } } }
+                    { titulo: '\ud83d\udc64 Distribuci\u00f3n por Tipo de Persona', config: { type:'doughnut', data:{ labels:Object.keys(tipoCount), datasets:[{ data:Object.values(tipoCount), backgroundColor:['#22c55e','#fbbf24','#3b82f6','#a855f7','#ef4444','#ec4899'] }] }, options:{ cutout:'55%', plugins:{ legend:{ position:'bottom' }, datalabels:dlPct() } } } },
+                    { titulo: '\ud83d\udda5\ufe0f Actividades M\u00e1s Realizadas', config: { type:'bar', data:{ labels:topAct.map(p=>p[0].substring(0,18)), datasets:[{ data:topAct.map(p=>p[1]), backgroundColor:'#1e7a3a', borderRadius:6 }] }, options:{ indexAxis:'y', plugins:{ legend:{ display:false }, datalabels:dlVal() } } } }
                 ];
             }
         },
@@ -1831,8 +1967,8 @@ async function descargarPDFGeneral() {
                 const rangos = { '0-15 min':0, '16-30 min':0, '31-60 min':0, '60+ min':0 };
                 atpR.forEach(r => { const t = r.tiempo||0; if (t<=15) rangos['0-15 min']++; else if (t<=30) rangos['16-30 min']++; else if (t<=60) rangos['31-60 min']++; else rangos['60+ min']++; });
                 return [
-                    { titulo: '\ud83d\udc64 Atenciones por Tipo', config: { type:'doughnut', data:{ labels:Object.keys(tipoCount), datasets:[{ data:Object.values(tipoCount), backgroundColor:['#6b21a8','#9333ea','#c084fc','#f0abfc'] }] }, options:{ cutout:'55%', plugins:{ legend:{ position:'bottom' } } } } },
-                    { titulo: '\u23f1\ufe0f Distribuci\u00f3n por Tiempo', config: { type:'bar', data:{ labels:Object.keys(rangos), datasets:[{ data:Object.values(rangos), backgroundColor:'#9333ea', borderRadius:6 }] }, options:{ plugins:{ legend:{ display:false } } } } }
+                    { titulo: '\ud83d\udc64 Atenciones por Tipo', config: { type:'doughnut', data:{ labels:Object.keys(tipoCount), datasets:[{ data:Object.values(tipoCount), backgroundColor:['#6b21a8','#9333ea','#c084fc','#f0abfc'] }] }, options:{ cutout:'55%', plugins:{ legend:{ position:'bottom' }, datalabels:dlPct() } } } },
+                    { titulo: '\u23f1\ufe0f Distribuci\u00f3n por Tiempo', config: { type:'bar', data:{ labels:Object.keys(rangos), datasets:[{ data:Object.values(rangos), backgroundColor:'#9333ea', borderRadius:6 }] }, options:{ plugins:{ legend:{ display:false }, datalabels:dlVal() } } } }
                 ];
             }
         },
@@ -1846,8 +1982,8 @@ async function descargarPDFGeneral() {
                 const pendientes = aitR.filter(r=>r.solucionCodigo==='NO').length;
                 const bajas = aitR.filter(r=>r.solucionCodigo==='BAJA').length;
                 return [
-                    { titulo: '\ud83d\udd27 Incidencias por Tipo', config: { type:'pie', data:{ labels:Object.keys(tipoCount), datasets:[{ data:Object.values(tipoCount), backgroundColor:['#be185d','#db2777','#f43f5e','#fda4af','#831843'] }] }, options:{ plugins:{ legend:{ position:'bottom' } } } } },
-                    { titulo: '\u2705 Estado de Soluci\u00f3n', config: { type:'doughnut', data:{ labels:['\u2705 Solucionadas','\u26a0\ufe0f Pendientes','\u274c Dadas de Baja'], datasets:[{ data:[aitSol, pendientes, bajas], backgroundColor:['#22c55e','#ef4444','#f59e0b'] }] }, options:{ cutout:'55%', plugins:{ legend:{ position:'bottom' } } } } }
+                    { titulo: '\ud83d\udd27 Incidencias por Tipo', config: { type:'pie', data:{ labels:Object.keys(tipoCount), datasets:[{ data:Object.values(tipoCount), backgroundColor:['#be185d','#db2777','#f43f5e','#fda4af','#831843'] }] }, options:{ plugins:{ legend:{ position:'bottom' }, datalabels:dlPct() } } } },
+                    { titulo: '\u2705 Estado de Soluci\u00f3n', config: { type:'doughnut', data:{ labels:['\u2705 Solucionadas','\u26a0\ufe0f Pendientes','\u274c Dadas de Baja'], datasets:[{ data:[aitSol, pendientes, bajas], backgroundColor:['#22c55e','#ef4444','#f59e0b'] }] }, options:{ cutout:'55%', plugins:{ legend:{ position:'bottom' }, datalabels:dlPct() } } } }
                 ];
             }
         }
@@ -2100,8 +2236,8 @@ async function descargarInformeGestion() {
     html += `<div class="stats-grid">${resumen.map(([n,l]) => `<div class="stat-card"><div class="stat-num">${n}</div><div class="stat-label">${l}</div></div>`).join('')}</div>`;
 
     html += _buildGraficosHTML([
-        { titulo: '\ud83d\udcca Distribuci\u00f3n por M\u00f3dulo', config: { type:'doughnut', data:{ labels:['AIP','CRT','ATP','AIT'], datasets:[{ data:[aipR.length,crtR.length,atpR.length,aitR.length], backgroundColor:['#2348c0','#1e7a3a','#9333ea','#db2777'] }] }, options:{ cutout:'55%', plugins:{ legend:{ position:'bottom' } } } } },
-        { titulo: '\ud83d\udcc5 Registros por D\u00eda de Semana', config: { type:'bar', data:{ labels:diasSemNombres, datasets:[{ data:diasConsolidados, backgroundColor:'#1a3080', borderRadius:6 }] }, options:{ plugins:{ legend:{ display:false } } } } }
+        { titulo: '\ud83d\udcca Distribuci\u00f3n por M\u00f3dulo', config: { type:'doughnut', data:{ labels:['AIP','CRT','ATP','AIT'], datasets:[{ data:[aipR.length,crtR.length,atpR.length,aitR.length], backgroundColor:['#2348c0','#1e7a3a','#9333ea','#db2777'] }] }, options:{ cutout:'55%', plugins:{ legend:{ position:'bottom' }, datalabels:dlPct() } } } },
+        { titulo: '\ud83d\udcc5 Registros por D\u00eda de Semana', config: { type:'bar', data:{ labels:diasSemNombres, datasets:[{ data:diasConsolidados, backgroundColor:'#1a3080', borderRadius:6 }] }, options:{ plugins:{ legend:{ display:false }, datalabels:dlVal() } } } }
     ]);
 
     html += `<div class="modulo-break"></div>`;
@@ -2127,13 +2263,13 @@ async function descargarInformeGestion() {
 function cambiarModulo(modulo) {
     document.querySelectorAll('.modulo-btn').forEach(b=>b.classList.remove('activo'));
     document.querySelector(`.modulo-btn.${modulo}`).classList.add('activo');
-    const secciones=['AIP','CRT','ATP','AIT','GEN']; secciones.forEach(s=>document.getElementById('seccion'+s).style.display=s.toLowerCase()===modulo?'block':'none');
+    const secciones=['AIP','CRT','ATP','AIT','AE','GEN']; secciones.forEach(s=>document.getElementById('seccion'+s).style.display=s.toLowerCase()===modulo?'block':'none');
     document.getElementById('topBar').className='top-bar'+(modulo!=='aip'?' '+modulo:'');
     document.getElementById('header').className='header-institucional'+(modulo!=='aip'?' '+modulo+'-header':'');
     document.body.className=modulo!=='aip'?modulo+'-mode':'';
     document.getElementById('fecha-actual').className=`semana-info ${modulo}`;
-    const titulos={aip:'Registro de <span class="tag-aip">Asistencia AIP</span> 2026',crt:'Registro <span class="tag-crt">Centro de Recursos</span> 2026',atp:'Registro <span class="tag-atp">Atención Personalizada</span> 2026',ait:'Registro <span class="tag-ait">AIT - Incidencias Tecnológicas</span> 2026',gen:'Informe <span class="tag-gen">General Consolidado</span> 2026'};
-    const etiquetas={aip:'Aula de Innovación Pedagógica',crt:'Centro de Recursos Tecnológicos',atp:'Atención Personalizada — ATP',ait:'Atención de Incidencias Tecnológicas en Aula',gen:'Todas las secciones'};
+    const titulos={aip:'Registro de <span class="tag-aip">Asistencia AIP</span> 2026',crt:'Registro <span class="tag-crt">Centro de Recursos</span> 2026',atp:'Registro <span class="tag-atp">Atención Personalizada</span> 2026',ait:'Registro <span class="tag-ait">AIT - Incidencias Tecnológicas</span> 2026',ae:'Registro <span class="tag-ae">Atención a Estudiantes</span> 2026',gen:'Informe <span class="tag-gen">General Consolidado</span> 2026'};
+    const etiquetas={aip:'Aula de Innovación Pedagógica',crt:'Centro de Recursos Tecnológicos',atp:'Atención Personalizada — ATP',ait:'Atención de Incidencias Tecnológicas en Aula',ae:'Atención a Estudiantes por Grado y Sección',gen:'Todas las secciones'};
     document.getElementById('tituloModulo').innerHTML=titulos[modulo]; document.getElementById('etiquetaModulo').textContent=etiquetas[modulo];
 }
 
