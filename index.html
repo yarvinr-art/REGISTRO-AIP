@@ -1397,13 +1397,14 @@ function generarReporteAE() {
 function generarReporteGeneral() {
     const mes=document.getElementById('mesFiltroGEN').value; if(!mes||!mes.startsWith("2026")){toast("Seleccione un mes de 2026");return;}
     const contenido=document.getElementById('genContenido'); contenido.innerHTML='<div class="empty-state">⏳ Cargando datos consolidados...</div>';
-    Promise.all([db.ref('atenciones_aip').once('value'), db.ref('atenciones_crt').once('value'), db.ref('atenciones_atp').once('value'), db.ref('atenciones_ait').once('value')]).then(([aip,crt,atp,ait])=>{
+    Promise.all([db.ref('atenciones_aip').once('value'), db.ref('atenciones_crt').once('value'), db.ref('atenciones_atp').once('value'), db.ref('atenciones_ait').once('value'), db.ref('atenciones_ae').once('value')]).then(([aip,crt,atp,ait,ae])=>{
         const aipR=filtrarPorMes(Object.values(aip.val()||{}).map(r=>parseFechaReg({...r})), mes);
         const crtR=filtrarPorMes(Object.values(crt.val()||{}).map(r=>parseFechaReg({...r})), mes);
         const atpR=filtrarPorMes(Object.values(atp.val()||{}).map(r=>parseFechaReg({...r})), mes);
         const aitR=filtrarPorMes(Object.values(ait.val()||{}).map(r=>parseFechaReg({...r})), mes);
+        const aeR=filtrarPorMes(Object.values(ae.val()||{}).map(r=>parseFechaReg({...r})), mes);
         const mesLabel=new Date(mes+'-01').toLocaleDateString('es-PE',{year:'numeric',month:'long'});
-        const grandTotal=aipR.length+crtR.length+atpR.length+aitR.length;
+        const grandTotal=aipR.length+crtR.length+atpR.length+aitR.length+aeR.length;
         const personasTotal=new Set([...aipR.map(r=>r.docente),...crtR.map(r=>r.docente),...atpR.map(r=>r.nombre),...aitR.map(r=>r.docente)]).size;
 
         /* ──── KPIs ──── */
@@ -1413,8 +1414,10 @@ function generarReporteGeneral() {
         const pctCRT=grandTotal?((crtR.length/grandTotal)*100).toFixed(1):0;
         const pctATP=grandTotal?((atpR.length/grandTotal)*100).toFixed(1):0;
         const pctAIT=grandTotal?((aitR.length/grandTotal)*100).toFixed(1):0;
+        const pctAE=grandTotal?((aeR.length/grandTotal)*100).toFixed(1):0;
         const pctAipAsist=aipR.length?((aipAsist/aipR.length)*100).toFixed(1):0;
         const pctAitSol=aitR.length?((aitSol/aitR.length)*100).toFixed(1):0;
+        const seccionesAtendidasAE=new Set(aeR.map(r=>`${r.grado} ${r.seccion}`)).size;
 
         let html=`
         <!-- CABECERA EJECUTIVA -->
@@ -1471,6 +1474,15 @@ function generarReporteGeneral() {
                 </div>
                 <div style="font-size:10px;color:#64748b;margin-top:8px">Efectividad: ${pctAitSol}%</div>
             </div>
+            <div style="background:linear-gradient(135deg,#f0fdfa,#ccfbf1);border-radius:14px;padding:20px;border-left:5px solid #0d9488;position:relative;">
+                <div style="font-family:'Space Mono',monospace;font-size:9px;font-weight:700;color:#0f766e;letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;">🎒 AE — Atención a Estudiantes</div>
+                <div style="font-size:32px;font-weight:800;color:#0f766e;font-family:'Space Mono',monospace">${aeR.length}</div>
+                <div style="font-size:11px;color:#0d9488;margin-top:6px;font-weight:600">${pctAE}% del total</div>
+                <div style="margin-top:10px;font-size:11px;font-weight:700">
+                    <span style="background:#ccfbf1;color:#0f766e;padding:3px 10px;border-radius:20px">🏫 ${seccionesAtendidasAE} secciones atendidas</span>
+                </div>
+                <div style="font-size:10px;color:#64748b;margin-top:8px">Temas distintos: ${new Set(aeR.map(r=>r.tema)).size} · Días: ${new Set(aeR.map(r=>r.fecha)).size}</div>
+            </div>
         </div>
 
         <!-- GRÁFICOS PRINCIPALES -->
@@ -1481,6 +1493,7 @@ function generarReporteGeneral() {
             <div class="grafico-card"><div class="grafico-card-title" style="color:#155724">🖥️ CRT — REGISTROS POR DÍA</div><div class="chart-container"><canvas id="gen-crt-chart"></canvas></div></div>
             <div class="grafico-card"><div class="grafico-card-title" style="color:#6b21a8">🧑‍🏫 ATP — ATENCIONES POR TIPO</div><div class="chart-container"><canvas id="gen-atp-chart"></canvas></div></div>
             <div class="grafico-card"><div class="grafico-card-title" style="color:#831843">🔧 AIT — ESTADO DE INCIDENCIAS</div><div class="chart-container"><canvas id="gen-ait-chart"></canvas></div></div>
+            <div class="grafico-card"><div class="grafico-card-title" style="color:#0f766e">🎒 AE — DISTRIBUCIÓN POR ÁREA</div><div class="chart-container"><canvas id="gen-ae-chart"></canvas></div></div>
             <div class="grafico-card" style="border-left:4px solid #f59e0b;"><div class="grafico-card-title" style="color:#b45309">🚫 AIP — DOCENTES QUE NO INGRESARON (RANKING)</div><div class="chart-container"><canvas id="gen-no-ingreso-chart"></canvas></div></div>
         </div>
 
@@ -1520,6 +1533,7 @@ function generarReporteGeneral() {
                     <tr style="border-bottom:1px solid #f1f5f9"><td style="padding:12px 10px"><span style="background:#edfbf2;color:#155724;padding:4px 12px;border-radius:20px;font-weight:800;font-size:11px">🖥️ CRT</span></td><td style="padding:12px 10px;text-align:center;font-weight:800;font-size:16px;color:#155724">${crtR.length}</td><td style="padding:12px 10px;text-align:center"><span style="background:#edfbf2;color:#155724;padding:3px 10px;border-radius:20px;font-weight:800;font-size:11px">${pctCRT}%</span></td><td style="padding:12px 10px;text-align:center;font-weight:700">${new Set(crtR.map(r=>r.docente)).size}</td><td style="padding:12px 10px;text-align:center;font-weight:700">${new Set(crtR.map(r=>r.fecha)).size}</td><td style="padding:12px 10px;text-align:center"><span style="background:#edfbf2;color:#155724;padding:3px 10px;border-radius:20px;font-weight:800;font-size:11px">${crtR.length>0?(crtR.length/Math.max(1,new Set(crtR.map(r=>r.fecha)).size)).toFixed(1):0} reg/día</span></td></tr>
                     <tr style="border-bottom:1px solid #f1f5f9"><td style="padding:12px 10px"><span style="background:#faf5ff;color:#6b21a8;padding:4px 12px;border-radius:20px;font-weight:800;font-size:11px">🧑‍🏫 ATP</span></td><td style="padding:12px 10px;text-align:center;font-weight:800;font-size:16px;color:#6b21a8">${atpR.length}</td><td style="padding:12px 10px;text-align:center"><span style="background:#faf5ff;color:#6b21a8;padding:3px 10px;border-radius:20px;font-weight:800;font-size:11px">${pctATP}%</span></td><td style="padding:12px 10px;text-align:center;font-weight:700">${new Set(atpR.map(r=>r.nombre)).size}</td><td style="padding:12px 10px;text-align:center;font-weight:700">${new Set(atpR.map(r=>r.fecha)).size}</td><td style="padding:12px 10px;text-align:center"><span style="background:#faf5ff;color:#6b21a8;padding:3px 10px;border-radius:20px;font-weight:800;font-size:11px">${atpR.length>0?(atpMin/atpR.length).toFixed(0):0} min prom</span></td></tr>
                     <tr><td style="padding:12px 10px"><span style="background:#fff5f6;color:#831843;padding:4px 12px;border-radius:20px;font-weight:800;font-size:11px">🔧 AIT</span></td><td style="padding:12px 10px;text-align:center;font-weight:800;font-size:16px;color:#831843">${aitR.length}</td><td style="padding:12px 10px;text-align:center"><span style="background:#fff5f6;color:#831843;padding:3px 10px;border-radius:20px;font-weight:800;font-size:11px">${pctAIT}%</span></td><td style="padding:12px 10px;text-align:center;font-weight:700">${new Set(aitR.map(r=>r.docente)).size}</td><td style="padding:12px 10px;text-align:center;font-weight:700">${new Set(aitR.map(r=>r.fecha)).size}</td><td style="padding:12px 10px;text-align:center"><span style="background:${+pctAitSol>=70?'#dcfce7':'#fee2e2'};color:${+pctAitSol>=70?'#15803d':'#b91c1c'};padding:3px 10px;border-radius:20px;font-weight:800;font-size:11px">${pctAitSol}% solucionados</span></td></tr>
+                    <tr><td style="padding:12px 10px"><span style="background:#f0fdfa;color:#0f766e;padding:4px 12px;border-radius:20px;font-weight:800;font-size:11px">🎒 AE</span></td><td style="padding:12px 10px;text-align:center;font-weight:800;font-size:16px;color:#0f766e">${aeR.length}</td><td style="padding:12px 10px;text-align:center"><span style="background:#f0fdfa;color:#0f766e;padding:3px 10px;border-radius:20px;font-weight:800;font-size:11px">${pctAE}%</span></td><td style="padding:12px 10px;text-align:center;font-weight:700">${seccionesAtendidasAE}</td><td style="padding:12px 10px;text-align:center;font-weight:700">${new Set(aeR.map(r=>r.fecha)).size}</td><td style="padding:12px 10px;text-align:center"><span style="background:#f0fdfa;color:#0f766e;padding:3px 10px;border-radius:20px;font-weight:800;font-size:11px">${new Set(aeR.map(r=>r.tema)).size} temas</span></td></tr>
                 </tbody>
             </table>
             </div>
@@ -1532,7 +1546,7 @@ function generarReporteGeneral() {
 
         /* ── GRÁFICO: DÍAS DE SEMANA CONSOLIDADO ── */
         const diasConsolidados=[0,0,0,0,0];
-        const diasAIP=[0,0,0,0,0]; const diasCRT=[0,0,0,0,0]; const diasATP=[0,0,0,0,0]; const diasAIT=[0,0,0,0,0];
+        const diasAIP=[0,0,0,0,0]; const diasCRT=[0,0,0,0,0]; const diasATP=[0,0,0,0,0]; const diasAIT=[0,0,0,0,0]; const diasAE=[0,0,0,0,0];
         // Helper: obtiene diaSemana desde el campo o lo calcula desde la fecha (para datos antiguos sin ese campo)
         function getDiaSemana(r){
             if(r.diaSemana>=1&&r.diaSemana<=5) return r.diaSemana;
@@ -1549,7 +1563,8 @@ function generarReporteGeneral() {
         crtR.forEach(r=>{const ds=getDiaSemana(r);if(ds){diasConsolidados[ds-1]++;diasCRT[ds-1]++;}});
         atpR.forEach(r=>{const ds=getDiaSemana(r);if(ds){diasConsolidados[ds-1]++;diasATP[ds-1]++;}});
         aitR.forEach(r=>{const ds=getDiaSemana(r);if(ds){diasConsolidados[ds-1]++;diasAIT[ds-1]++;}});
-        new Chart(document.getElementById('gen-diasem-chart').getContext('2d'),{type:'bar',data:{labels:['LUN','MAR','MIÉ','JUE','VIE'],datasets:[{label:'AIP',data:diasAIP,backgroundColor:'#2348c0',borderRadius:4},{label:'CRT',data:diasCRT,backgroundColor:'#22c55e',borderRadius:4},{label:'ATP',data:diasATP,backgroundColor:'#9333ea',borderRadius:4},{label:'AIT',data:diasAIT,backgroundColor:'#db2777',borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,scales:{x:{stacked:true},y:{stacked:true,beginAtZero:true}},plugins:{legend:{position:'bottom',labels:{font:{size:10}}}}}});
+        aeR.forEach(r=>{const ds=getDiaSemana(r);if(ds){diasConsolidados[ds-1]++;diasAE[ds-1]++;}});
+        new Chart(document.getElementById('gen-diasem-chart').getContext('2d'),{type:'bar',data:{labels:['LUN','MAR','MIÉ','JUE','VIE'],datasets:[{label:'AIP',data:diasAIP,backgroundColor:'#2348c0',borderRadius:4},{label:'CRT',data:diasCRT,backgroundColor:'#22c55e',borderRadius:4},{label:'ATP',data:diasATP,backgroundColor:'#9333ea',borderRadius:4},{label:'AIT',data:diasAIT,backgroundColor:'#db2777',borderRadius:4},{label:'AE',data:diasAE,backgroundColor:'#0d9488',borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,scales:{x:{stacked:true},y:{stacked:true,beginAtZero:true}},plugins:{legend:{position:'bottom',labels:{font:{size:10}}}}}});
 
         /* ── GRÁFICO AIP ── */
         const aipDiasSemana=[0,0,0,0,0]; const aipNoIngDS=[0,0,0,0,0];
@@ -1567,6 +1582,10 @@ function generarReporteGeneral() {
         /* ── GRÁFICO AIT ── */
         const aitPend=aitR.filter(r=>r.solucionCodigo==='NO').length; const aitBaja=aitR.filter(r=>r.solucionCodigo==='BAJA').length;
         new Chart(document.getElementById('gen-ait-chart').getContext('2d'),{type:'doughnut',data:{labels:['✅ Solucionados','⚠️ Pendientes','❌ Dados de Baja'],datasets:[{data:[aitSol,aitPend,aitBaja],backgroundColor:['#22c55e','#ef4444','#f59e0b'],borderWidth:3,borderColor:'#fff'}]},options:{responsive:true,maintainAspectRatio:false,cutout:'50%',plugins:{legend:{position:'bottom',labels:{font:{size:9}}},tooltip:{callbacks:{label:ctx=>`${ctx.label}: ${ctx.parsed} (${aitR.length?((ctx.parsed/aitR.length)*100).toFixed(1):0}%)`}},datalabels:dlPct('#fff')}}});
+
+        /* ── GRÁFICO AE ── */
+        const areaCountGen={}; aeR.forEach(r=>{ areaCountGen[r.area||'—']=(areaCountGen[r.area||'—']||0)+1; });
+        new Chart(document.getElementById('gen-ae-chart').getContext('2d'),{type:'doughnut',data:{labels:Object.keys(areaCountGen),datasets:[{data:Object.values(areaCountGen),backgroundColor:['#0d9488','#14b8a6','#2dd4bf','#5eead4','#99f6e4','#0f766e','#134e4a']}]},options:{responsive:true,maintainAspectRatio:false,cutout:'50%',plugins:{legend:{position:'bottom',labels:{font:{size:9}}},datalabels:dlPct('#fff')}}});
 
         /* ── GRÁFICO + TABLA: DOCENTES QUE NO INGRESARON AIP ── */
         const genNoIngRegs=aipR.filter(r=>r.estado==='NO_INGRESO');
@@ -1611,18 +1630,19 @@ function generarReporteGeneral() {
 
         /* ── DÍAS DE SEMANA CARDS ── */
         const totalConsolidado=diasConsolidados.reduce((a,b)=>a+b,0);
-        document.getElementById('gen-dias-grid').innerHTML=['LUN','MAR','MIÉ','JUE','VIE'].map((d,i)=>`<div class="dia-card" style="min-width:100px"><div class="dia-nombre">${d}</div><div class="dia-cantidad">${diasConsolidados[i]}</div><div class="dia-porcentaje">${totalConsolidado?((diasConsolidados[i]/totalConsolidado)*100).toFixed(0):0}%</div><div style="font-size:9px;color:#64748b;margin-top:4px">AIP:${diasAIP[i]} CRT:${diasCRT[i]}<br>ATP:${diasATP[i]} AIT:${diasAIT[i]}</div></div>`).join('');
+        document.getElementById('gen-dias-grid').innerHTML=['LUN','MAR','MIÉ','JUE','VIE'].map((d,i)=>`<div class="dia-card" style="min-width:100px"><div class="dia-nombre">${d}</div><div class="dia-cantidad">${diasConsolidados[i]}</div><div class="dia-porcentaje">${totalConsolidado?((diasConsolidados[i]/totalConsolidado)*100).toFixed(0):0}%</div><div style="font-size:9px;color:#64748b;margin-top:4px">AIP:${diasAIP[i]} CRT:${diasCRT[i]}<br>ATP:${diasATP[i]} AIT:${diasAIT[i]} AE:${diasAE[i]}</div></div>`).join('');
 
         /* ── SEMANAS DEL MES CONSOLIDADO ── */
-        const semanasGen={1:{aip:0,crt:0,atp:0,ait:0},2:{aip:0,crt:0,atp:0,ait:0},3:{aip:0,crt:0,atp:0,ait:0},4:{aip:0,crt:0,atp:0,ait:0},5:{aip:0,crt:0,atp:0,ait:0}};
+        const semanasGen={1:{aip:0,crt:0,atp:0,ait:0,ae:0},2:{aip:0,crt:0,atp:0,ait:0,ae:0},3:{aip:0,crt:0,atp:0,ait:0,ae:0},4:{aip:0,crt:0,atp:0,ait:0,ae:0},5:{aip:0,crt:0,atp:0,ait:0,ae:0}};
         aipR.forEach(r=>{const s=getSemanaMes(r);if(s&&semanasGen[s])semanasGen[s].aip++;});
         crtR.forEach(r=>{const s=getSemanaMes(r);if(s&&semanasGen[s])semanasGen[s].crt++;});
         atpR.forEach(r=>{const s=getSemanaMes(r);if(s&&semanasGen[s])semanasGen[s].atp++;});
         aitR.forEach(r=>{const s=getSemanaMes(r);if(s&&semanasGen[s])semanasGen[s].ait++;});
+        aeR.forEach(r=>{const s=getSemanaMes(r);if(s&&semanasGen[s])semanasGen[s].ae++;});
         document.getElementById('gen-semanas-grid').innerHTML=Object.entries(semanasGen).map(([sem,v])=>{
-            const tot=v.aip+v.crt+v.atp+v.ait;
+            const tot=v.aip+v.crt+v.atp+v.ait+v.ae;
             if(!tot) return '';
-            return `<div class="semana-card" style="min-width:160px"><div class="semana-nombre">Semana ${sem}</div><div class="semana-cantidad">${tot}</div><div style="font-size:10px;margin-top:6px;display:flex;flex-direction:column;gap:3px"><span style="color:#2348c0;font-weight:700">💻 AIP: ${v.aip}</span><span style="color:#155724;font-weight:700">🖥️ CRT: ${v.crt}</span><span style="color:#6b21a8;font-weight:700">🧑‍🏫 ATP: ${v.atp}</span><span style="color:#831843;font-weight:700">🔧 AIT: ${v.ait}</span></div></div>`;
+            return `<div class="semana-card" style="min-width:160px"><div class="semana-nombre">Semana ${sem}</div><div class="semana-cantidad">${tot}</div><div style="font-size:10px;margin-top:6px;display:flex;flex-direction:column;gap:3px"><span style="color:#2348c0;font-weight:700">💻 AIP: ${v.aip}</span><span style="color:#155724;font-weight:700">🖥️ CRT: ${v.crt}</span><span style="color:#6b21a8;font-weight:700">🧑‍🏫 ATP: ${v.atp}</span><span style="color:#831843;font-weight:700">🔧 AIT: ${v.ait}</span><span style="color:#0f766e;font-weight:700">🎒 AE: ${v.ae}</span></div></div>`;
         }).join('');
     });
 }
@@ -1863,23 +1883,25 @@ async function descargarPDFGeneral() {
     if (!mes || !mes.startsWith("2026")) { toast("Seleccione un mes de 2026 en el filtro"); return; }
     toast("\ud83d\udcc4 Preparando informe general...");
 
-    const [aipS, crtS, atpS, aitS] = await Promise.all([
+    const [aipS, crtS, atpS, aitS, aeS] = await Promise.all([
         db.ref('atenciones_aip').once('value'),
         db.ref('atenciones_crt').once('value'),
         db.ref('atenciones_atp').once('value'),
-        db.ref('atenciones_ait').once('value')
+        db.ref('atenciones_ait').once('value'),
+        db.ref('atenciones_ae').once('value')
     ]);
     const ordFecha = (a,b) => (b.timestamp||0)-(a.timestamp||0);
     const aipR = filtrarPorMes(Object.values(aipS.val()||{}).map(r=>parseFechaReg({...r})), mes).sort(ordFecha);
     const crtR = filtrarPorMes(Object.values(crtS.val()||{}).map(r=>parseFechaReg({...r})), mes).sort(ordFecha);
     const atpR = filtrarPorMes(Object.values(atpS.val()||{}).map(r=>parseFechaReg({...r})), mes).sort(ordFecha);
     const aitR = filtrarPorMes(Object.values(aitS.val()||{}).map(r=>parseFechaReg({...r})), mes).sort(ordFecha);
+    const aeR = filtrarPorMes(Object.values(aeS.val()||{}).map(r=>parseFechaReg({...r})), mes).sort(ordFecha);
 
     const mesLabel = new Date(mes+'-15T12:00:00').toLocaleDateString('es-PE',{year:'numeric',month:'long'}).toUpperCase();
     let html = _buildHeaderHTML('INFORME EJECUTIVO GENERAL CONSOLIDADO 2026', `IE N\u00b0 0148 \u2014 Todas las secciones \u2014 ${mesLabel}`);
 
     /* \u2500\u2500 RESUMEN GENERAL (calculado desde Firebase, no desde pantalla) \u2500\u2500 */
-    const grandTotal = aipR.length + crtR.length + atpR.length + aitR.length;
+    const grandTotal = aipR.length + crtR.length + atpR.length + aitR.length + aeR.length;
     const personasTotal = new Set([...aipR.map(r=>r.docente),...crtR.map(r=>r.docente),...atpR.map(r=>r.nombre),...aitR.map(r=>r.docente)].filter(Boolean)).size;
     const aipAsist = aipR.filter(r=>r.estado==='ASISTIO').length;
     const aitSol = aitR.filter(r=>r.solucionCodigo==='SI').length;
@@ -1888,8 +1910,10 @@ async function descargarPDFGeneral() {
     const pctCRT = grandTotal?((crtR.length/grandTotal)*100).toFixed(1):0;
     const pctATP = grandTotal?((atpR.length/grandTotal)*100).toFixed(1):0;
     const pctAIT = grandTotal?((aitR.length/grandTotal)*100).toFixed(1):0;
+    const pctAE = grandTotal?((aeR.length/grandTotal)*100).toFixed(1):0;
     const pctAipAsist = aipR.length?((aipAsist/aipR.length)*100).toFixed(1):0;
     const pctAitSol = aitR.length?((aitSol/aitR.length)*100).toFixed(1):0;
+    const seccionesAtendidasAE = new Set(aeR.map(r=>`${r.grado} ${r.seccion}`)).size;
     const resumen = [
         [grandTotal,'Registros Totales'],
         [personasTotal,'Personas Atendidas'],
@@ -1902,20 +1926,21 @@ async function descargarPDFGeneral() {
     /* \u2500\u2500 GR\u00c1FICOS GENERALES \u2500\u2500 */
     const diasSemNombres = ['LUN','MAR','MI\u00c9','JUE','VIE','S\u00c1B','DOM'];
     const diasConsolidados = [0,0,0,0,0,0,0];
-    [...aipR,...crtR,...atpR,...aitR].forEach(r => { if (r.diaSemana) diasConsolidados[r.diaSemana-1]++; });
+    [...aipR,...crtR,...atpR,...aitR,...aeR].forEach(r => { if (r.diaSemana) diasConsolidados[r.diaSemana-1]++; });
     toast("\ud83d\udcca Generando gr\u00e1ficos...");
     html += _buildGraficosHTML([
-        { titulo: '\ud83d\udcca Distribuci\u00f3n por M\u00f3dulo', config: { type:'doughnut', data:{ labels:['AIP','CRT','ATP','AIT'], datasets:[{ data:[aipR.length,crtR.length,atpR.length,aitR.length], backgroundColor:['#2348c0','#1e7a3a','#9333ea','#db2777'] }] }, options:{ cutout:'55%', plugins:{ legend:{ position:'bottom' }, datalabels:dlPct() } } } },
+        { titulo: '\ud83d\udcca Distribuci\u00f3n por M\u00f3dulo', config: { type:'doughnut', data:{ labels:['AIP','CRT','ATP','AIT','AE'], datasets:[{ data:[aipR.length,crtR.length,atpR.length,aitR.length,aeR.length], backgroundColor:['#2348c0','#1e7a3a','#9333ea','#db2777','#0d9488'] }] }, options:{ cutout:'55%', plugins:{ legend:{ position:'bottom' }, datalabels:dlPct() } } } },
         { titulo: '\ud83d\udcc5 Registros por D\u00eda de Semana', config: { type:'bar', data:{ labels:diasSemNombres.slice(0,5), datasets:[{ data:diasConsolidados.slice(0,5), backgroundColor:'#1a3080', borderRadius:6 }] }, options:{ plugins:{ legend:{ display:false }, datalabels:dlVal() } } } }
     ]);
 
     /* \u2500\u2500 CUADRO RESUMEN COMPARATIVO (igual que en pantalla) \u2500\u2500 */
-    const diasActAIP = new Set(aipR.map(r=>r.fecha)).size, diasActCRT = new Set(crtR.map(r=>r.fecha)).size, diasActATP = new Set(atpR.map(r=>r.fecha)).size, diasActAIT = new Set(aitR.map(r=>r.fecha)).size;
+    const diasActAIP = new Set(aipR.map(r=>r.fecha)).size, diasActCRT = new Set(crtR.map(r=>r.fecha)).size, diasActATP = new Set(atpR.map(r=>r.fecha)).size, diasActAIT = new Set(aitR.map(r=>r.fecha)).size, diasActAE = new Set(aeR.map(r=>r.fecha)).size;
     const filasComparativo = [
         ['\ud83d\udcbb AIP', aipR.length, pctAIP+'%', new Set(aipR.map(r=>r.docente)).size, diasActAIP, pctAipAsist+'% asistencia'],
         ['\ud83d\udda5\ufe0f CRT', crtR.length, pctCRT+'%', new Set(crtR.map(r=>r.docente)).size, diasActCRT, (crtR.length?(crtR.length/Math.max(1,diasActCRT)).toFixed(1):0)+' reg/d\u00eda'],
         ['\ud83e\uddd1\u200d\ud83c\udfeb ATP', atpR.length, pctATP+'%', new Set(atpR.map(r=>r.nombre)).size, new Set(atpR.map(r=>r.fecha)).size, (atpR.length?(atpMin/atpR.length).toFixed(0):0)+' min prom'],
-        ['\ud83d\udd27 AIT', aitR.length, pctAIT+'%', new Set(aitR.map(r=>r.docente)).size, diasActAIT, pctAitSol+'% solucionados']
+        ['\ud83d\udd27 AIT', aitR.length, pctAIT+'%', new Set(aitR.map(r=>r.docente)).size, diasActAIT, pctAitSol+'% solucionados'],
+        ['\ud83c\udf92 AE', aeR.length, pctAE+'%', seccionesAtendidasAE, diasActAE, new Set(aeR.map(r=>r.tema)).size+' temas']
     ];
     html += `<div class="seccion"><div class="seccion-titulo"><span class="dot" style="background:#fbbf24"></span> CUADRO RESUMEN COMPARATIVO</div>`;
     html += _buildTablaHTML(['M\u00d3DULO','TOTAL','% DEL TOTAL','PERSONAS','D\u00cdAS ACTIVOS','INDICADOR CLAVE'], filasComparativo);
@@ -1986,10 +2011,25 @@ async function descargarPDFGeneral() {
                     { titulo: '\u2705 Estado de Soluci\u00f3n', config: { type:'doughnut', data:{ labels:['\u2705 Solucionadas','\u26a0\ufe0f Pendientes','\u274c Dadas de Baja'], datasets:[{ data:[aitSol, pendientes, bajas], backgroundColor:['#22c55e','#ef4444','#f59e0b'] }] }, options:{ cutout:'55%', plugins:{ legend:{ position:'bottom' }, datalabels:dlPct() } } } }
                 ];
             }
+        },
+        ae: {
+            etiqueta: 'AE \u2014 Atenci\u00f3n a Estudiantes', color: '#0d9488', regs: aeR,
+            stats: () => [[aeR.length,`Total Registros (${pctAE}% del total)`],[seccionesAtendidasAE,'Secciones Atendidas'],[new Set(aeR.map(r=>r.tema)).size,'Temas Distintos'],[diasActAE,'D\u00edas con Actividad']],
+            headers: ['FECHA','HORA','\u00c1REA','GRADO/SECC','TEMA','RECURSOS USADOS'],
+            fila: r => [r.fecha, r.hora, r.area||'\u2014', `${r.grado||''} ${r.seccion||''}`.trim()||'\u2014', r.tema||'\u2014', r.observaciones||'\u2014'],
+            graficos: () => {
+                const areaCount = {}; aeR.forEach(r => { areaCount[r.area||'\u2014'] = (areaCount[r.area||'\u2014']||0)+1; });
+                const gradosLabAE = ['1\u00b0','2\u00b0','3\u00b0','4\u00b0','5\u00b0'];
+                const gradoCountAE = gradosLabAE.map(g => aeR.filter(r=>r.grado===g).length);
+                return [
+                    { titulo: '\ud83d\udcda Distribuci\u00f3n por \u00c1rea', config: { type:'doughnut', data:{ labels:Object.keys(areaCount), datasets:[{ data:Object.values(areaCount), backgroundColor:['#0d9488','#14b8a6','#2dd4bf','#5eead4','#99f6e4','#0f766e','#134e4a'] }] }, options:{ cutout:'55%', plugins:{ legend:{ position:'bottom' }, datalabels:dlPct() } } } },
+                    { titulo: '\ud83c\udfeb Distribuci\u00f3n por Grado', config: { type:'bar', data:{ labels:gradosLabAE, datasets:[{ data:gradoCountAE, backgroundColor:'#0d9488', borderRadius:6 }] }, options:{ plugins:{ legend:{ display:false }, datalabels:dlVal() } } } }
+                ];
+            }
         }
     };
 
-    for (const key of ['aip','crt','atp','ait']) {
+    for (const key of ['aip','crt','atp','ait','ae']) {
         const m = modulos[key];
         const dot = `<span class="dot" style="background:${m.color}"></span>`;
         html += `<div class="modulo-break"></div>`;
@@ -2028,19 +2068,21 @@ async function descargarInformeGestion() {
     if (!mes || !mes.startsWith("2026")) { toast("Seleccione un mes de 2026 en el filtro"); return; }
     toast("\ud83d\udcdd Analizando informaci\u00f3n del mes...");
 
-    const [aipS, crtS, atpS, aitS] = await Promise.all([
+    const [aipS, crtS, atpS, aitS, aeS] = await Promise.all([
         db.ref('atenciones_aip').once('value'),
         db.ref('atenciones_crt').once('value'),
         db.ref('atenciones_atp').once('value'),
-        db.ref('atenciones_ait').once('value')
+        db.ref('atenciones_ait').once('value'),
+        db.ref('atenciones_ae').once('value')
     ]);
     const aipR = filtrarPorMes(Object.values(aipS.val()||{}).map(r=>parseFechaReg({...r})), mes);
     const crtR = filtrarPorMes(Object.values(crtS.val()||{}).map(r=>parseFechaReg({...r})), mes);
     const atpR = filtrarPorMes(Object.values(atpS.val()||{}).map(r=>parseFechaReg({...r})), mes);
     const aitR = filtrarPorMes(Object.values(aitS.val()||{}).map(r=>parseFechaReg({...r})), mes);
+    const aeR = filtrarPorMes(Object.values(aeS.val()||{}).map(r=>parseFechaReg({...r})), mes);
 
     const mesLabel = new Date(mes+'-15T12:00:00').toLocaleDateString('es-PE',{year:'numeric',month:'long'}).toUpperCase();
-    const grandTotal = aipR.length + crtR.length + atpR.length + aitR.length;
+    const grandTotal = aipR.length + crtR.length + atpR.length + aitR.length + aeR.length;
     const personasTotal = new Set([...aipR.map(r=>r.docente),...crtR.map(r=>r.docente),...atpR.map(r=>r.nombre),...aitR.map(r=>r.docente)].filter(Boolean)).size;
     const aipAsist = aipR.filter(r=>r.estado==='ASISTIO').length;
     const aitSol = aitR.filter(r=>r.solucionCodigo==='SI').length;
@@ -2049,10 +2091,11 @@ async function descargarInformeGestion() {
     const atpMin = atpR.reduce((s,r)=>s+(r.tiempo||0),0);
     const pctAipAsist = aipR.length ? ((aipAsist/aipR.length)*100).toFixed(1) : null;
     const pctAitSol = aitR.length ? ((aitSol/aitR.length)*100).toFixed(1) : null;
+    const seccionesAtendidasAE = new Set(aeR.map(r=>`${r.grado} ${r.seccion}`)).size;
 
     if (grandTotal === 0) {
         let htmlVacio = _buildHeaderHTML('INFORME DE GESTI\u00d3N \u2014 LOGROS, DIFICULTADES Y ACCIONES', `IE N\u00b0 0148 \u2014 ${mesLabel}`);
-        htmlVacio += `<div class="resumen-ejecutivo">No se registraron atenciones en ning\u00fan m\u00f3dulo (AIP, CRT, ATP, AIT) durante ${mesLabel}. No es posible generar un an\u00e1lisis de logros y dificultades para este periodo.</div>`;
+        htmlVacio += `<div class="resumen-ejecutivo">No se registraron atenciones en ning\u00fan m\u00f3dulo (AIP, CRT, ATP, AIT, AE) durante ${mesLabel}. No es posible generar un an\u00e1lisis de logros y dificultades para este periodo.</div>`;
         _abrirVentanaImpresion('Informe de Gesti\u00f3n', htmlVacio);
         return;
     }
@@ -2096,11 +2139,12 @@ async function descargarInformeGestion() {
 
     const diasSemNombres = ['LUN','MAR','MI\u00c9','JUE','VIE'];
     const diasConsolidados = [0,0,0,0,0];
-    const diasAIPc=[0,0,0,0,0], diasCRTc=[0,0,0,0,0], diasATPc=[0,0,0,0,0], diasAITc=[0,0,0,0,0];
+    const diasAIPc=[0,0,0,0,0], diasCRTc=[0,0,0,0,0], diasATPc=[0,0,0,0,0], diasAITc=[0,0,0,0,0], diasAEc=[0,0,0,0,0];
     aipR.forEach(r=>{ if(r.diaSemana>=1&&r.diaSemana<=5){diasConsolidados[r.diaSemana-1]++;diasAIPc[r.diaSemana-1]++;} });
     crtR.forEach(r=>{ if(r.diaSemana>=1&&r.diaSemana<=5){diasConsolidados[r.diaSemana-1]++;diasCRTc[r.diaSemana-1]++;} });
     atpR.forEach(r=>{ if(r.diaSemana>=1&&r.diaSemana<=5){diasConsolidados[r.diaSemana-1]++;diasATPc[r.diaSemana-1]++;} });
     aitR.forEach(r=>{ if(r.diaSemana>=1&&r.diaSemana<=5){diasConsolidados[r.diaSemana-1]++;diasAITc[r.diaSemana-1]++;} });
+    aeR.forEach(r=>{ if(r.diaSemana>=1&&r.diaSemana<=5){diasConsolidados[r.diaSemana-1]++;diasAEc[r.diaSemana-1]++;} });
     const totalDiasSem = diasConsolidados.reduce((a,b)=>a+b,0);
     const diaMax = totalDiasSem ? diasConsolidados.indexOf(Math.max(...diasConsolidados)) : -1;
     const diaMin = totalDiasSem ? diasConsolidados.indexOf(Math.min(...diasConsolidados.filter(v=>v>=0))) : -1;
@@ -2112,7 +2156,7 @@ async function descargarInformeGestion() {
     const pctSemanaTop = grandTotal ? ((semanaTop[1]/grandTotal)*100).toFixed(1) : 0;
 
     // Servicio con menor uso relativo (para diagnosticar brecha de adopci\u00f3n)
-    const usoModulos = [['AIP',aipR.length],['CRT',crtR.length],['ATP',atpR.length],['AIT',aitR.length]];
+    const usoModulos = [['AIP',aipR.length],['CRT',crtR.length],['ATP',atpR.length],['AIT',aitR.length],['AE',aeR.length]];
     const modulosActivos = usoModulos.filter(m=>m[1]>0);
     const moduloMenor = usoModulos.reduce((min,m)=> m[1]<min[1] ? m : min, usoModulos[0]);
 
@@ -2180,6 +2224,24 @@ async function descargarInformeGestion() {
         hallazgos.push({ tipo:'dificultad', texto:'No se registraron atenciones personalizadas (ATP) durante el mes, lo que podr\u00eda indicar que este servicio de acompa\u00f1amiento no est\u00e1 llegando a la comunidad educativa que podr\u00eda necesitarlo.', accion:['Evaluar si existe demanda de acompa\u00f1amiento pedag\u00f3gico o socioemocional no atendida mediante una consulta breve a tutores y docentes.','Habilitar y difundir horarios visibles para solicitar atenci\u00f3n personalizada.'] });
     }
 
+    // AE \u2014 atenci\u00f3n a estudiantes
+    if (aeR.length > 0) {
+        const areaCountAE = {}; aeR.forEach(r => { areaCountAE[r.area||'\u2014'] = (areaCountAE[r.area||'\u2014']||0)+1; });
+        const topAreaAE = Object.entries(areaCountAE).sort((a,b)=>b[1]-a[1])[0];
+        const pctTopAreaAE = topAreaAE && aeR.length ? ((topAreaAE[1]/aeR.length)*100).toFixed(1) : 0;
+        const gradosLabAE = ['1\u00b0','2\u00b0','3\u00b0','4\u00b0','5\u00b0'];
+        const gradoSinAtenderAE = gradosLabAE.filter(g => !aeR.some(r=>r.grado===g));
+        hallazgos.push({ tipo:'logro', texto:`Se registraron ${aeR.length} atenciones a estudiantes (AE) en ${seccionesAtendidasAE} secci\u00f3n(es) distinta(s), abarcando ${new Set(aeR.map(r=>r.tema)).size} tema(s) de trabajo diferentes durante el mes.${topAreaAE ? ` El \u00e1rea con mayor atenci\u00f3n fue "${topAreaAE[0]}" con ${topAreaAE[1]} registros (${pctTopAreaAE}% del total).` : ''}` });
+        if (gradoSinAtenderAE.length > 0) {
+            hallazgos.push({ tipo:'dificultad', texto:`El/los grado(s) ${gradoSinAtenderAE.join(', ')} no registr\u00f3(aron) ninguna atenci\u00f3n a estudiantes (AE) durante el mes, lo que representa una brecha de cobertura entre grados.`, accion:['Revisar la planificaci\u00f3n de atenci\u00f3n a estudiantes para asegurar cobertura equitativa entre todos los grados y secciones.'] });
+        }
+        if (topAreaAE && +pctTopAreaAE >= 60 && Object.keys(areaCountAE).length > 1) {
+            hallazgos.push({ tipo:'dificultad', texto:`El \u00e1rea "${topAreaAE[0]}" concentra el ${pctTopAreaAE}% de las atenciones a estudiantes, lo que sugiere una oferta poco diversificada entre \u00e1reas curriculares.`, accion:['Promover que otras \u00e1reas curriculares tambi\u00e9n programen atenciones a estudiantes para diversificar el acompa\u00f1amiento ofrecido.'] });
+        }
+    } else {
+        hallazgos.push({ tipo:'dificultad', texto:'No se registraron atenciones a estudiantes (AE) durante el mes, lo que podr\u00eda indicar que este servicio a\u00fan no se est\u00e1 utilizando o que falta difusi\u00f3n entre los docentes.', accion:['Difundir entre los docentes el nuevo m\u00f3dulo de Atenci\u00f3n a Estudiantes y su prop\u00f3sito.','Coordinar con coordinaci\u00f3n acad\u00e9mica el registro peri\u00f3dico de las atenciones brindadas por grado y secci\u00f3n.'] });
+    }
+
     // AIT \u2014 soluci\u00f3n de incidencias
     if (aitR.length > 0) {
         if (+pctAitSol >= 85) {
@@ -2219,7 +2281,7 @@ async function descargarInformeGestion() {
     const dificultades = hallazgos.filter(h => h.tipo === 'dificultad');
 
     /* \u2500\u2500 RESUMEN EJECUTIVO NARRATIVO \u2500\u2500 */
-    let resumenTexto = `Durante ${mesLabel}, la instituci\u00f3n educativa registr\u00f3 ${grandTotal} atenciones consolidadas entre los cuatro servicios (AIP, CRT, ATP y AIT), atendiendo a ${personasTotal} persona(s) distinta(s). `;
+    let resumenTexto = `Durante ${mesLabel}, la instituci\u00f3n educativa registr\u00f3 ${grandTotal} atenciones consolidadas entre los cinco servicios (AIP, CRT, ATP, AIT y AE), atendiendo a ${personasTotal} persona(s) distinta(s) y ${seccionesAtendidasAE} secci\u00f3n(es) a trav\u00e9s del m\u00f3dulo de Atenci\u00f3n a Estudiantes. `;
     if (pctAipAsist !== null) resumenTexto += `La asistencia al Aula de Innovaci\u00f3n Pedag\u00f3gica (AIP) fue de ${pctAipAsist}%. `;
     if (pctAitSol !== null) resumenTexto += `El \u00edndice de soluci\u00f3n de incidencias tecnol\u00f3gicas (AIT) fue de ${pctAitSol}%. `;
     resumenTexto += `En total se identificaron ${logros.length} logro(s) y ${dificultades.length} dificultad(es), con sus respectivas acciones de mejora recomendadas a continuaci\u00f3n.`;
@@ -2236,7 +2298,7 @@ async function descargarInformeGestion() {
     html += `<div class="stats-grid">${resumen.map(([n,l]) => `<div class="stat-card"><div class="stat-num">${n}</div><div class="stat-label">${l}</div></div>`).join('')}</div>`;
 
     html += _buildGraficosHTML([
-        { titulo: '\ud83d\udcca Distribuci\u00f3n por M\u00f3dulo', config: { type:'doughnut', data:{ labels:['AIP','CRT','ATP','AIT'], datasets:[{ data:[aipR.length,crtR.length,atpR.length,aitR.length], backgroundColor:['#2348c0','#1e7a3a','#9333ea','#db2777'] }] }, options:{ cutout:'55%', plugins:{ legend:{ position:'bottom' }, datalabels:dlPct() } } } },
+        { titulo: '\ud83d\udcca Distribuci\u00f3n por M\u00f3dulo', config: { type:'doughnut', data:{ labels:['AIP','CRT','ATP','AIT','AE'], datasets:[{ data:[aipR.length,crtR.length,atpR.length,aitR.length,aeR.length], backgroundColor:['#2348c0','#1e7a3a','#9333ea','#db2777','#0d9488'] }] }, options:{ cutout:'55%', plugins:{ legend:{ position:'bottom' }, datalabels:dlPct() } } } },
         { titulo: '\ud83d\udcc5 Registros por D\u00eda de Semana', config: { type:'bar', data:{ labels:diasSemNombres, datasets:[{ data:diasConsolidados, backgroundColor:'#1a3080', borderRadius:6 }] }, options:{ plugins:{ legend:{ display:false }, datalabels:dlVal() } } } }
     ]);
 
