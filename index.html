@@ -678,7 +678,7 @@
             <div id="panelAdminGEN" class="panel-admin" style="border-color:var(--gen-border);margin-top:20px;">
                 <div class="panel-admin-header gen">📋 INFORME EJECUTIVO GENERAL CONSOLIDADO 2026</div>
                 <div class="panel-admin-body">
-                    <div class="filtro-mensual gen"><label>📅 SELECCIONAR MES:</label><input type="month" id="mesFiltroGEN" onchange="generarReporteGeneral()"><button class="btn-imprimir gen" onclick="descargarPDFGeneral()">⬇ DESCARGAR PDF</button></div>
+                    <div class="filtro-mensual gen"><label>📅 SELECCIONAR MES:</label><input type="month" id="mesFiltroGEN" onchange="generarReporteGeneral()"><button class="btn-imprimir gen" onclick="descargarPDFGeneral()">⬇ DESCARGAR PDF</button><button class="btn-imprimir gen" style="background:#0d1b4b" onclick="descargarInformeGestion()">📝 INFORME DE GESTIÓN</button></div>
                     <div id="genContenido"><div class="empty-state">📭 Seleccione un mes para generar el informe ejecutivo</div></div>
                     <button class="btn-cerrar gen" onclick="document.getElementById('panelAdminGEN').style.display='none'">✕ CERRAR</button>
                 </div>
@@ -1516,6 +1516,14 @@ function _abrirVentanaImpresion(tituloDoc, htmlContenido) {
   .alerta-card { background: #fff8f0; border: 1.5px solid #fdd8a0; border-radius: 8px; padding: 10px 14px; margin-bottom: 12px; page-break-inside: avoid; }
   .alerta-card-titulo { font-size: 9px; font-weight: 800; color: #b45309; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
 
+  /* INFORME DE GESTIÓN — LOGROS / DIFICULTADES / ACCIONES */
+  .resumen-ejecutivo { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 16px 18px; margin-bottom: 16px; font-size: 11.5px; line-height: 1.65; color: #334155; }
+  .hallazgo-item { padding: 10px 14px; border-radius: 8px; margin-bottom: 8px; font-size: 11px; line-height: 1.55; page-break-inside: avoid; }
+  .hallazgo-logro { background: #f0fdf4; border-left: 4px solid #22c55e; color: #14532d; }
+  .hallazgo-dificultad { background: #fff7ed; border-left: 4px solid #f59e0b; color: #7c2d12; }
+  .accion-item { background: #eff6ff; border-left: 4px solid #2348c0; color: #1e3a5f; padding: 10px 14px; border-radius: 8px; margin-bottom: 8px; font-size: 11px; line-height: 1.55; page-break-inside: avoid; display: flex; gap: 8px; }
+  .accion-num { font-family: 'Space Mono', monospace; font-weight: 800; color: #2348c0; flex-shrink: 0; }
+
   /* SEPARADOR ENTRE MÓDULOS (sin forzar salto de página) */
   .modulo-break { margin-top: 22px; }
 
@@ -1840,6 +1848,162 @@ async function descargarPDFGeneral() {
     }
 
     _abrirVentanaImpresion('Informe General Consolidado 2026', html);
+    setTimeout(() => toast("\u2705 Listo \u2014 guarda como PDF desde el di\u00e1logo de impresi\u00f3n"), 400);
+}
+
+async function descargarInformeGestion() {
+    const mes = document.getElementById('mesFiltroGEN').value;
+    if (!mes || !mes.startsWith("2026")) { toast("Seleccione un mes de 2026 en el filtro"); return; }
+    toast("\ud83d\udcdd Analizando informaci\u00f3n del mes...");
+
+    const [aipS, crtS, atpS, aitS] = await Promise.all([
+        db.ref('atenciones_aip').once('value'),
+        db.ref('atenciones_crt').once('value'),
+        db.ref('atenciones_atp').once('value'),
+        db.ref('atenciones_ait').once('value')
+    ]);
+    const aipR = filtrarPorMes(Object.values(aipS.val()||{}).map(r=>parseFechaReg({...r})), mes);
+    const crtR = filtrarPorMes(Object.values(crtS.val()||{}).map(r=>parseFechaReg({...r})), mes);
+    const atpR = filtrarPorMes(Object.values(atpS.val()||{}).map(r=>parseFechaReg({...r})), mes);
+    const aitR = filtrarPorMes(Object.values(aitS.val()||{}).map(r=>parseFechaReg({...r})), mes);
+
+    const mesLabel = new Date(mes+'-15T12:00:00').toLocaleDateString('es-PE',{year:'numeric',month:'long'}).toUpperCase();
+    const grandTotal = aipR.length + crtR.length + atpR.length + aitR.length;
+    const personasTotal = new Set([...aipR.map(r=>r.docente),...crtR.map(r=>r.docente),...atpR.map(r=>r.nombre),...aitR.map(r=>r.docente)].filter(Boolean)).size;
+    const aipAsist = aipR.filter(r=>r.estado==='ASISTIO').length;
+    const aitSol = aitR.filter(r=>r.solucionCodigo==='SI').length;
+    const aitPend = aitR.filter(r=>r.solucionCodigo==='NO').length;
+    const aitBaja = aitR.filter(r=>r.solucionCodigo==='BAJA').length;
+    const atpMin = atpR.reduce((s,r)=>s+(r.tiempo||0),0);
+    const pctAipAsist = aipR.length ? ((aipAsist/aipR.length)*100).toFixed(1) : null;
+    const pctAitSol = aitR.length ? ((aitSol/aitR.length)*100).toFixed(1) : null;
+
+    if (grandTotal === 0) {
+        let htmlVacio = _buildHeaderHTML('INFORME DE GESTI\u00d3N \u2014 LOGROS, DIFICULTADES Y ACCIONES', `IE N\u00b0 0148 \u2014 ${mesLabel}`);
+        htmlVacio += `<div class="resumen-ejecutivo">No se registraron atenciones en ning\u00fan m\u00f3dulo (AIP, CRT, ATP, AIT) durante ${mesLabel}. No es posible generar un an\u00e1lisis de logros y dificultades para este periodo.</div>`;
+        _abrirVentanaImpresion('Informe de Gesti\u00f3n', htmlVacio);
+        return;
+    }
+
+    /* \u2500\u2500 AN\u00c1LISIS AUTOM\u00c1TICO \u2500\u2500 */
+    const noIngMap = {};
+    aipR.filter(r=>r.estado==='NO_INGRESO').forEach(r => {
+        const k = r.nombre || r.docente || 'Sin nombre';
+        if (!noIngMap[k]) noIngMap[k] = 0;
+        noIngMap[k]++;
+    });
+    const recurrentes = Object.entries(noIngMap).filter(([k,c])=>c>=3).sort((a,b)=>b[1]-a[1]);
+
+    const tipoCountAIT = {}; aitR.forEach(r => { const t = r.tipoAtencion||'\u2014'; tipoCountAIT[t] = (tipoCountAIT[t]||0)+1; });
+    const topTipoAIT = Object.entries(tipoCountAIT).sort((a,b)=>b[1]-a[1])[0];
+    const pctTopTipoAIT = topTipoAIT && aitR.length ? ((topTipoAIT[1]/aitR.length)*100).toFixed(1) : 0;
+
+    const diasSemNombres = ['LUN','MAR','MI\u00c9','JUE','VIE'];
+    const diasConsolidados = [0,0,0,0,0];
+    [...aipR,...crtR,...atpR,...aitR].forEach(r => { if (r.diaSemana>=1 && r.diaSemana<=5) diasConsolidados[r.diaSemana-1]++; });
+    const totalDiasSem = diasConsolidados.reduce((a,b)=>a+b,0);
+    const diaMax = diasConsolidados.indexOf(Math.max(...diasConsolidados));
+    const pctDiaMax = totalDiasSem ? ((diasConsolidados[diaMax]/totalDiasSem)*100).toFixed(1) : 0;
+
+    const hallazgos = [];
+
+    // AIP \u2014 asistencia
+    if (aipR.length > 0) {
+        if (+pctAipAsist >= 85) {
+            hallazgos.push({ tipo:'logro', texto:`El AIP registr\u00f3 una asistencia docente del ${pctAipAsist}% (${aipAsist} de ${aipR.length} sesiones), evidenciando un uso constante del aula de innovaci\u00f3n pedag\u00f3gica.` });
+        } else if (+pctAipAsist < 70) {
+            hallazgos.push({ tipo:'dificultad', texto:`La asistencia al AIP fue baja: solo ${pctAipAsist}% (${aipR.length-aipAsist} de ${aipR.length} sesiones programadas no se registr\u00f3 ingreso).`, accion:'Reforzar la comunicaci\u00f3n de horarios asignados al AIP mediante recordatorios semanales y dar seguimiento directo a los docentes con mayor n\u00famero de inasistencias.' });
+        } else {
+            hallazgos.push({ tipo:'dificultad', texto:`La asistencia al AIP fue moderada (${pctAipAsist}%), con margen de mejora respecto al uso pleno del aula.`, accion:'Verificar la disponibilidad de equipos y horarios del AIP, y sensibilizar a los docentes sobre la importancia del uso peri\u00f3dico del aula.' });
+        }
+    }
+
+    // AIP \u2014 docentes recurrentes sin ingreso
+    if (recurrentes.length > 0) {
+        const nombres = recurrentes.map(([k,c])=>`${k} (${c} veces)`).join(', ');
+        hallazgos.push({ tipo:'dificultad', texto:`${recurrentes.length} docente(s) no ingresaron al AIP en 3 o m\u00e1s oportunidades durante el mes: ${nombres}.`, accion:'Coordinar una reuni\u00f3n individual con los docentes de inasistencia reiterada para identificar causas y establecer compromisos de mejora, con seguimiento del pr\u00f3ximo mes.' });
+    } else if (aipR.length > 0) {
+        hallazgos.push({ tipo:'logro', texto:'Ning\u00fan docente registr\u00f3 3 o m\u00e1s inasistencias al AIP durante el mes, lo que indica un uso regular y sostenido del aula por parte de la plana docente.' });
+    }
+
+    // CRT \u2014 uso del centro de recursos
+    if (crtR.length > 0) {
+        hallazgos.push({ tipo:'logro', texto:`El CRT registr\u00f3 ${crtR.length} atenciones a ${new Set(crtR.map(r=>r.docente)).size} personas distintas en ${new Set(crtR.map(r=>r.fecha)).size} d\u00edas del mes, mostrando un uso activo del centro de recursos tecnol\u00f3gicos.` });
+    } else {
+        hallazgos.push({ tipo:'dificultad', texto:'El CRT no registr\u00f3 ninguna atenci\u00f3n durante el mes.', accion:'Difundir entre los docentes los recursos y equipos disponibles en el CRT, y promover su uso activo en la planificaci\u00f3n de clases.' });
+    }
+
+    // ATP \u2014 atenci\u00f3n personalizada
+    if (atpR.length > 0) {
+        hallazgos.push({ tipo:'logro', texto:`Se brindaron ${atpR.length} atenciones personalizadas (ATP) a ${new Set(atpR.map(r=>r.nombre)).size} persona(s), totalizando ${atpMin} minutos de acompa\u00f1amiento durante el mes.` });
+    } else {
+        hallazgos.push({ tipo:'dificultad', texto:'No se registraron atenciones personalizadas (ATP) durante el mes.', accion:'Evaluar si existe demanda de acompa\u00f1amiento pedag\u00f3gico o socioemocional no atendida, y habilitar horarios visibles para solicitar atenci\u00f3n personalizada.' });
+    }
+
+    // AIT \u2014 soluci\u00f3n de incidencias
+    if (aitR.length > 0) {
+        if (+pctAitSol >= 85) {
+            hallazgos.push({ tipo:'logro', texto:`El ${pctAitSol}% de las incidencias tecnol\u00f3gicas reportadas fueron solucionadas durante el mes (${aitSol} de ${aitR.length}).` });
+        } else {
+            hallazgos.push({ tipo:'dificultad', texto:`Solo el ${pctAitSol}% de las incidencias tecnol\u00f3gicas fueron solucionadas; quedan ${aitPend} incidencia(s) pendiente(s) de atenci\u00f3n.`, accion:'Priorizar la atenci\u00f3n de las incidencias tecnol\u00f3gicas pendientes y evaluar si se requiere soporte t\u00e9cnico externo o reposici\u00f3n de equipos.' });
+        }
+        if (aitBaja > 0) {
+            hallazgos.push({ tipo:'dificultad', texto:`${aitBaja} equipo(s) fueron dados de baja durante el mes por incidencias no solucionables.`, accion:'Gestionar ante la instancia correspondiente (UGEL/Direcci\u00f3n) la reposici\u00f3n de los equipos dados de baja para no afectar la continuidad pedag\u00f3gica.' });
+        }
+        if (topTipoAIT && +pctTopTipoAIT >= 40 && Object.keys(tipoCountAIT).length > 1) {
+            hallazgos.push({ tipo:'dificultad', texto:`El ${pctTopTipoAIT}% de las incidencias tecnol\u00f3gicas corresponden al tipo "${topTipoAIT[0]}", lo que sugiere un problema recurrente.`, accion:`Investigar la causa ra\u00edz de las incidencias de tipo "${topTipoAIT[0]}" y aplicar una soluci\u00f3n preventiva o mantenimiento espec\u00edfico.` });
+        }
+    } else {
+        hallazgos.push({ tipo:'logro', texto:'No se reportaron incidencias tecnol\u00f3gicas durante el mes, lo que indica un funcionamiento estable de los equipos.' });
+    }
+
+    // Concentraci\u00f3n de actividad en un solo d\u00eda
+    if (totalDiasSem > 0 && +pctDiaMax >= 40) {
+        hallazgos.push({ tipo:'dificultad', texto:`Existe una fuerte concentraci\u00f3n de actividad el d\u00eda ${diasSemNombres[diaMax]} (${pctDiaMax}% del total de registros de la semana), lo que puede generar saturaci\u00f3n de los servicios ese d\u00eda.`, accion:'Redistribuir la programaci\u00f3n de horarios de AIP, CRT y ATP a lo largo de la semana para equilibrar la demanda diaria.' });
+    }
+
+    const logros = hallazgos.filter(h => h.tipo === 'logro');
+    const dificultades = hallazgos.filter(h => h.tipo === 'dificultad');
+
+    /* \u2500\u2500 RESUMEN EJECUTIVO NARRATIVO \u2500\u2500 */
+    let resumenTexto = `Durante ${mesLabel}, la instituci\u00f3n educativa registr\u00f3 ${grandTotal} atenciones consolidadas entre los cuatro servicios (AIP, CRT, ATP y AIT), atendiendo a ${personasTotal} persona(s) distinta(s). `;
+    if (pctAipAsist !== null) resumenTexto += `La asistencia al Aula de Innovaci\u00f3n Pedag\u00f3gica (AIP) fue de ${pctAipAsist}%. `;
+    if (pctAitSol !== null) resumenTexto += `El \u00edndice de soluci\u00f3n de incidencias tecnol\u00f3gicas (AIT) fue de ${pctAitSol}%. `;
+    resumenTexto += `En total se identificaron ${logros.length} logro(s) y ${dificultades.length} dificultad(es), con sus respectivas acciones de mejora recomendadas a continuaci\u00f3n.`;
+
+    let html = _buildHeaderHTML('INFORME DE GESTI\u00d3N \u2014 LOGROS, DIFICULTADES Y ACCIONES', `IE N\u00b0 0148 \u2014 Todas las secciones \u2014 ${mesLabel}`);
+    html += `<div class="seccion"><div class="seccion-titulo"><span class="dot" style="background:#0d1b4b"></span> RESUMEN EJECUTIVO</div><div class="resumen-ejecutivo">${resumenTexto}</div></div>`;
+
+    const resumen = [
+        [grandTotal,'Registros Totales'],
+        [personasTotal,'Personas Atendidas'],
+        [logros.length,'Logros Identificados'],
+        [dificultades.length,'Dificultades Identificadas']
+    ];
+    html += `<div class="stats-grid">${resumen.map(([n,l]) => `<div class="stat-card"><div class="stat-num">${n}</div><div class="stat-label">${l}</div></div>`).join('')}</div>`;
+
+    html += _buildGraficosHTML([
+        { titulo: '\ud83d\udcca Distribuci\u00f3n por M\u00f3dulo', config: { type:'doughnut', data:{ labels:['AIP','CRT','ATP','AIT'], datasets:[{ data:[aipR.length,crtR.length,atpR.length,aitR.length], backgroundColor:['#2348c0','#1e7a3a','#9333ea','#db2777'] }] }, options:{ cutout:'55%', plugins:{ legend:{ position:'bottom' } } } } },
+        { titulo: '\ud83d\udcc5 Registros por D\u00eda de Semana', config: { type:'bar', data:{ labels:diasSemNombres, datasets:[{ data:diasConsolidados, backgroundColor:'#1a3080', borderRadius:6 }] }, options:{ plugins:{ legend:{ display:false } } } } }
+    ]);
+
+    html += `<div class="modulo-break"></div>`;
+    html += `<div class="seccion"><div class="seccion-titulo"><span class="dot" style="background:#22c55e"></span> LOGROS (${logros.length})</div>`;
+    html += logros.length ? logros.map(l => `<div class="hallazgo-item hallazgo-logro">\u2705 ${l.texto}</div>`).join('') : `<div class="hallazgo-item hallazgo-dificultad">No se identificaron logros destacados este mes.</div>`;
+    html += `</div>`;
+
+    html += `<div class="seccion"><div class="seccion-titulo"><span class="dot" style="background:#f59e0b"></span> DIFICULTADES IDENTIFICADAS (${dificultades.length})</div>`;
+    html += dificultades.length ? dificultades.map(d => `<div class="hallazgo-item hallazgo-dificultad">\u26a0\ufe0f ${d.texto}</div>`).join('') : `<div class="hallazgo-item hallazgo-logro">No se identificaron dificultades relevantes este mes.</div>`;
+    html += `</div>`;
+
+    const acciones = dificultades.filter(d => d.accion);
+    html += `<div class="seccion"><div class="seccion-titulo"><span class="dot" style="background:#2348c0"></span> ACCIONES DE MEJORA RECOMENDADAS (${acciones.length})</div>`;
+    html += acciones.length ? acciones.map((a,i) => `<div class="accion-item"><span class="accion-num">${i+1}.</span><span>${a.accion}</span></div>`).join('') : `<div class="hallazgo-item hallazgo-logro">No se requieren acciones correctivas adicionales este mes; se recomienda mantener las pr\u00e1cticas actuales.</div>`;
+    html += `</div>`;
+
+    html += `<div class="resumen-ejecutivo" style="font-size:9.5px;color:#94a3b8;margin-top:10px;">Este an\u00e1lisis fue generado autom\u00e1ticamente a partir de los registros del sistema (umbrales de asistencia, soluci\u00f3n de incidencias y frecuencia de uso). Se recomienda validar los hallazgos con el equipo directivo antes de su difusi\u00f3n oficial.</div>`;
+
+    _abrirVentanaImpresion('Informe de Gesti\u00f3n \u2014 Logros y Mejoras 2026', html);
     setTimeout(() => toast("\u2705 Listo \u2014 guarda como PDF desde el di\u00e1logo de impresi\u00f3n"), 400);
 }
 
