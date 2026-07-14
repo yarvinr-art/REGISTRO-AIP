@@ -206,6 +206,16 @@
             transform:translateY(-2px);
         }
 
+        /* AE chips — turquesa */
+        .ae-chip span.chip-label { background:var(--ae-bg); color:var(--ae-mid); border-color:var(--ae-border); }
+        .ae-chip:hover span.chip-label { background:#ccfbf1; border-color:var(--ae-light); }
+        .ae-chip.selected span.chip-label {
+            background:linear-gradient(135deg,var(--ae-mid),var(--ae-light));
+            border-color:var(--ae-accent); color:#fff;
+            box-shadow:0 4px 16px rgba(13,148,136,0.5), 0 0 0 3px rgba(94,234,212,0.3);
+            transform:translateY(-2px);
+        }
+
         /* Tipo chips (DOCENTE, DIRECTIVO...) */
         .crt-tipo-row { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:14px; }
         .tipo-chip {
