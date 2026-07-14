@@ -464,6 +464,13 @@
         <!-- ======== SECCIÓN AIP ======== -->
         <div id="seccionAIP">
             <div class="panel-asistencia panel-aip">
+                <label style="display:flex;align-items:center;gap:8px;background:#fff8f0;border:1.5px dashed #fdd8a0;border-radius:8px;padding:10px 14px;margin-bottom:14px;cursor:pointer;font-size:12px;font-weight:700;color:#92400e;">
+                    <input type="checkbox" id="aip-fecha-atrasada-check" onchange="toggleFechaAtrasada('aip')" style="width:16px;height:16px;flex-shrink:0;">
+                    🕓 ¿Olvidaste registrar? Marca aquí para elegir una fecha anterior
+                </label>
+                <div id="aip-fecha-atrasada-wrap" style="display:none;margin-bottom:14px;">
+                    <input type="date" id="aip-fecha-atrasada" class="aip-input" min="2026-01-01" max="2026-12-31" style="max-width:220px;">
+                </div>
                 <label class="no-ingreso-wrap" id="noIngresoWrap" onclick="toggleNoIngreso()">
                     <input type="checkbox" id="aip-no-ingreso" onclick="event.stopPropagation();toggleNoIngreso()">
                     <div class="no-ingreso-label">
@@ -595,6 +602,13 @@
         <!-- ======== SECCIÓN CRT (con informe profesional) ======== -->
         <div id="seccionCRT" style="display:none;">
             <div class="panel-asistencia panel-crt">
+                <label style="display:flex;align-items:center;gap:8px;background:#fff8f0;border:1.5px dashed #fdd8a0;border-radius:8px;padding:10px 14px;margin-bottom:14px;cursor:pointer;font-size:12px;font-weight:700;color:#92400e;">
+                    <input type="checkbox" id="crt-fecha-atrasada-check" onchange="toggleFechaAtrasada('crt')" style="width:16px;height:16px;flex-shrink:0;">
+                    🕓 ¿Olvidaste registrar? Marca aquí para elegir una fecha anterior
+                </label>
+                <div id="crt-fecha-atrasada-wrap" style="display:none;margin-bottom:14px;">
+                    <input type="date" id="crt-fecha-atrasada" class="crt-input" min="2026-01-01" max="2026-12-31" style="max-width:220px;">
+                </div>
                 <div style="margin-bottom:10px;"><label style="font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--crt-mid);display:block;margin-bottom:8px;">👤 Tipo de persona</label>
                     <div class="crt-tipo-row" id="crt-tipo-row">
                         <label class="tipo-chip crt-tipo selected" onclick="selectTipoCRT(this,'DOCENTE')"><input type="radio" name="crt-tipo" value="DOCENTE" checked>DOCENTE</label>
@@ -641,6 +655,13 @@
         <!-- ======== SECCIÓN ATP ======== -->
         <div id="seccionATP" style="display:none;">
             <div class="panel-asistencia panel-atp">
+                <label style="display:flex;align-items:center;gap:8px;background:#fff8f0;border:1.5px dashed #fdd8a0;border-radius:8px;padding:10px 14px;margin-bottom:14px;cursor:pointer;font-size:12px;font-weight:700;color:#92400e;">
+                    <input type="checkbox" id="atp-fecha-atrasada-check" onchange="toggleFechaAtrasada('atp')" style="width:16px;height:16px;flex-shrink:0;">
+                    🕓 ¿Olvidaste registrar? Marca aquí para elegir una fecha anterior
+                </label>
+                <div id="atp-fecha-atrasada-wrap" style="display:none;margin-bottom:14px;">
+                    <input type="date" id="atp-fecha-atrasada" class="atp-input" min="2026-01-01" max="2026-12-31" style="max-width:220px;">
+                </div>
                 <div class="form-grid"><select id="atp-tipo" class="atp-input"><option value="">Tipo de persona *</option><option>DIRECTIVO</option><option>DOCENTE</option><option>AUXILIAR</option><option>UGEL</option><option>OTROS</option></select><select id="atp-area" class="atp-input"><option value="">Área / Cargo...</option><option>COMUNICACIÓN</option><option>MATEMÁTICA</option><option>CIENCIA Y TECNOLOGÍA</option><option>CIENCIAS SOCIALES</option><option>INGLÉS</option><option>EDUCACIÓN FÍSICA</option><option>ARTE Y CULTURA</option><option>EDUCACIÓN RELIGIOSA</option><option>DESARROLLO PERSONAL, CIUDADANÍA Y CÍVICA</option><option>EDUCACIÓN PARA EL TRABAJO</option><option>TUTORÍA</option><option>DIRECCIÓN</option><option>SUBDIRECCIÓN</option><option>AUXILIAR DE EDUCACIÓN</option><option>UGEL / EXTERNO</option><option>OTRO</option></select><input type="text" id="atp-nombre" class="atp-input" placeholder="Nombre completo *" maxlength="120"><input type="text" id="atp-tema" class="atp-input" placeholder="Tema tratado *" maxlength="250"><input type="number" id="atp-tiempo" class="atp-input" placeholder="Tiempo de atención (min) *" min="1" max="480"></div>
                 <div class="form-grid" style="grid-template-columns:1fr;"><input type="text" id="atp-recursos" class="atp-input" placeholder="Recursos usados / Observaciones" maxlength="300"></div>
                 <button class="btn-main btn-atp" id="btnATP" onclick="registrarATP()">✔ Registrar Atención Personalizada</button>
@@ -665,6 +686,13 @@
         <!-- ======== SECCIÓN AIT ======== -->
         <div id="seccionAIT" style="display:none;">
             <div class="panel-asistencia panel-ait">
+                <label style="display:flex;align-items:center;gap:8px;background:#fff8f0;border:1.5px dashed #fdd8a0;border-radius:8px;padding:10px 14px;margin-bottom:14px;cursor:pointer;font-size:12px;font-weight:700;color:#92400e;">
+                    <input type="checkbox" id="ait-fecha-atrasada-check" onchange="toggleFechaAtrasada('ait')" style="width:16px;height:16px;flex-shrink:0;">
+                    🕓 ¿Olvidaste registrar? Marca aquí para elegir una fecha anterior
+                </label>
+                <div id="ait-fecha-atrasada-wrap" style="display:none;margin-bottom:14px;">
+                    <input type="date" id="ait-fecha-atrasada" class="ait-input" min="2026-01-01" max="2026-12-31" style="max-width:220px;">
+                </div>
                 <div class="form-grid"><input type="text" id="ait-aula" class="ait-input" placeholder="N° de Aula *" maxlength="10"><input type="text" id="ait-docente" class="ait-input" placeholder="Nombre del Docente *" maxlength="120"><select id="ait-tipo-atencion" class="ait-input"><option value="">Tipo de Atención *</option><option>Proyector / Multimedia</option><option>Computadora / Laptop</option><option>Impresora</option><option>Internet / Red</option><option>Software / Aplicación</option><option>Sonido / Audio</option><option>Tablet / Dispositivo móvil</option><option>Otro equipo tecnológico</option></select></div>
                 <div class="form-grid"><select id="ait-solucion" class="ait-input"><option value="">¿Tuvo solución? *</option><option value="SI">✅ SÍ — Solucionado</option><option value="NO">⚠️ NO — Pendiente</option><option value="BAJA">❌ NO — Dado de Baja</option></select><textarea id="ait-recomendacion" class="ait-input" rows="3" placeholder="Recomendación / Observaciones *" maxlength="500"></textarea></div>
                 <div class="horas-selector" style="background:var(--ait-bg);border:1.5px solid var(--ait-border);border-radius:10px;padding:14px 16px;margin-bottom:14px;">
@@ -701,6 +729,13 @@
         <!-- ======== SECCIÓN AE — ATENCIÓN A ESTUDIANTES ======== -->
         <div id="seccionAE" style="display:none;">
             <div class="panel-asistencia panel-ae">
+                <label style="display:flex;align-items:center;gap:8px;background:#fff8f0;border:1.5px dashed #fdd8a0;border-radius:8px;padding:10px 14px;margin-bottom:14px;cursor:pointer;font-size:12px;font-weight:700;color:#92400e;">
+                    <input type="checkbox" id="ae-fecha-atrasada-check" onchange="toggleFechaAtrasada('ae')" style="width:16px;height:16px;flex-shrink:0;">
+                    🕓 ¿Olvidaste registrar? Marca aquí para elegir una fecha anterior
+                </label>
+                <div id="ae-fecha-atrasada-wrap" style="display:none;margin-bottom:14px;">
+                    <input type="date" id="ae-fecha-atrasada" class="ae-input" min="2026-01-01" max="2026-12-31" style="max-width:220px;">
+                </div>
                 <div class="form-grid"><select id="ae-area" class="ae-input"><option value="">Área *</option><option>COMUNICACIÓN</option><option>MATEMÁTICA</option><option>CIENCIA Y TECNOLOGÍA</option><option>CIENCIAS SOCIALES</option><option>INGLÉS</option><option>EDUCACIÓN FÍSICA</option><option>ARTE Y CULTURA</option><option>EDUCACIÓN RELIGIOSA</option><option>DESARROLLO PERSONAL, CIUDADANÍA Y CÍVICA</option><option>EDUCACIÓN PARA EL TRABAJO</option><option>TUTORÍA</option><option>OTRO</option></select></div>
                 <div class="form-grid" style="grid-template-columns:1fr 1fr;">
                     <select id="ae-grado" class="ae-input"><option value="">Grado *</option><option>1°</option><option>2°</option><option>3°</option><option>4°</option><option>5°</option></select>
@@ -816,8 +851,8 @@ let chartATP, chartATPArea, chartATPTiempo, chartAITTipo, chartAITSolucion;
 const TOTAL_DOCENTES = 33;
 
 // ===== HELPERS =====
-function getFechaHoy() {
-    const d = new Date();
+function getFechaHoy(fechaOverride) {
+    const d = fechaOverride ? new Date(fechaOverride+'T12:00:00') : new Date();
     // Usar hora LOCAL (Lima, UTC-5) — NO toISOString que da UTC y puede cambiar el día/mes
     const anio  = d.getFullYear();
     const mes2  = String(d.getMonth()+1).padStart(2,'0');
@@ -827,8 +862,8 @@ function getFechaHoy() {
     return {
         mes: `${anio}-${mes2}`,                   // local: "2026-04"
         fecha: `${dia2}-${mes2}-${anio}`,          // local: "28-04-2026"
-        hora: d.toLocaleTimeString('es-PE',{hour:'2-digit',minute:'2-digit'}),
-        timestamp: Date.now(),
+        hora: new Date().toLocaleTimeString('es-PE',{hour:'2-digit',minute:'2-digit'}), // hora real en que se registra
+        timestamp: fechaOverride ? d.getTime() : Date.now(),
         diaSemana: diaSemana,
         fechaNumero: d.getDate(),
         semanaMes: Math.ceil(d.getDate() / 7)
@@ -839,6 +874,12 @@ function toast(msg) { const t=document.getElementById("toast"); t.textContent=ms
 // ===== TOGGLES =====
 function toggleNoIngreso() { const cb=document.getElementById('aip-no-ingreso'); const activo=cb.checked; document.getElementById('noIngresoWrap').classList.toggle('activo',activo); document.getElementById('aip-campos-asistencia').classList.toggle('oculto',activo); document.getElementById('aip-hora-programada-wrap').classList.toggle('visible',activo); const sesionRow=document.getElementById('aip-sesion-row'); if(sesionRow) sesionRow.style.display=activo?'none':'flex'; if(!activo) document.querySelectorAll('#aip-hora-programada-grid .hora-chip').forEach(c=>{c.classList.remove('selected');c.querySelector('input').checked=false;}); const btn=document.getElementById('btnAIP'); if(activo){btn.innerHTML='⚠️ Registrar No Ingresó — AIP';btn.style.background='linear-gradient(135deg,#b45309,#92400e)';}else{btn.innerHTML='✔ Registrar Asistencia — AIP';btn.style.background='';} }
 function toggleHoraProg(label) { document.querySelectorAll('#aip-hora-programada-grid .hora-chip').forEach(c=>{c.classList.remove('selected');c.querySelector('input').checked=false;}); label.querySelector('input').checked=true; label.classList.add('selected'); }
+function toggleFechaAtrasada(modulo) {
+    const check = document.getElementById(modulo+'-fecha-atrasada-check');
+    const wrap = document.getElementById(modulo+'-fecha-atrasada-wrap');
+    wrap.style.display = check.checked ? 'block' : 'none';
+    if (!check.checked) document.getElementById(modulo+'-fecha-atrasada').value = '';
+}
 function toggleAreaEspecialista() {
     const val = document.getElementById('aip-area').value;
     const wrapEspecialista = document.getElementById('aip-area-especialista-wrap');
@@ -914,11 +955,13 @@ function registrarAIP() {
     if(!esEspecialista && (!gra||!sec)){toast("Complete los campos básicos");return;}
     if(!noIngreso){const tem=document.getElementById("aip-tema").value.trim(); const horas=[...document.querySelectorAll('#aip-horas-grid input:checked')].map(c=>c.value); if(!tem){toast("Ingrese el tema");return;} if(horas.length===0){toast("Seleccione al menos una hora");return;}}
     if(noIngreso){const horaProg=[...document.querySelectorAll('#aip-hora-programada-grid input:checked')].map(c=>c.value); if(horaProg.length===0){toast("Seleccione la hora programada");return;}}
+    const fechaAtrasCheck=document.getElementById('aip-fecha-atrasada-check').checked; const fechaAtrasVal=document.getElementById('aip-fecha-atrasada').value;
+    if(fechaAtrasCheck && !fechaAtrasVal){toast("Seleccione la fecha anterior");return;}
     const rec=noIngreso?"—":(document.getElementById("aip-recursos").value.trim()||"—"); const tem=noIngreso?"NO INGRESÓ":document.getElementById("aip-tema").value.trim(); const horas=noIngreso?[]:[...document.querySelectorAll('#aip-horas-grid input:checked')].map(c=>c.value); const horaProgramada=noIngreso?([...document.querySelectorAll('#aip-hora-programada-grid input:checked')].map(c=>c.value).join(', ')||"—"):"—";
     const btn=document.getElementById("btnAIP"); btn.disabled=true; btn.innerHTML='<span class="spinner"></span> Guardando...';
-    const {mes,fecha,hora,timestamp,diaSemana,fechaNumero,semanaMes}=getFechaHoy();
+    const {mes,fecha,hora,timestamp,diaSemana,fechaNumero,semanaMes}=getFechaHoy(fechaAtrasCheck?fechaAtrasVal:null);
     db.ref('atenciones_aip').push({ docente:area, areaEspecialista:areaEspecialista||"—", nombre:nom, grado:gra, seccion:sec, tema:tem, horas:horas.join(', ')||"—", observaciones:rec, fecha, hora, mes, timestamp, estado: noIngreso?"NO_INGRESO":"ASISTIO", horaProgramada, sesionPresentada: noIngreso?"—":getSesion('aip'), diaSemana, fechaNumero, semanaMes })
-    .then(()=>{toast(noIngreso?"⚠️ No ingresó registrado":"✓ Asistencia AIP registrada"); document.getElementById("aip-nombre").value=""; document.getElementById("aip-tema").value=""; document.getElementById("aip-recursos").value=""; document.getElementById("aip-area-especialista").value=""; document.querySelectorAll('#aip-horas-grid .hora-chip').forEach(c=>{c.classList.remove('selected');c.querySelector('input').checked=false;}); resetSesion('aip'); document.getElementById('aip-no-ingreso').checked=false; toggleNoIngreso();})
+    .then(()=>{toast(noIngreso?"⚠️ No ingresó registrado":"✓ Asistencia AIP registrada"); document.getElementById("aip-nombre").value=""; document.getElementById("aip-tema").value=""; document.getElementById("aip-recursos").value=""; document.getElementById("aip-area-especialista").value=""; document.querySelectorAll('#aip-horas-grid .hora-chip').forEach(c=>{c.classList.remove('selected');c.querySelector('input').checked=false;}); resetSesion('aip'); document.getElementById('aip-no-ingreso').checked=false; toggleNoIngreso(); document.getElementById('aip-fecha-atrasada-check').checked=false; toggleFechaAtrasada('aip');})
     .finally(()=>{ btn.disabled=false; btn.innerHTML="✔ Registrar Asistencia — AIP"; btn.style.background=''; });
 }
 function registrarCRT() {
@@ -939,8 +982,10 @@ function registrarCRT() {
     if(esDocente && !gra){toast("Seleccione el grado");return;}
     if(esDocente && !sec){toast("Seleccione la sección");return;}
     const sesion=esDocente?getSesion('crt'):'—';
+    const fechaAtrasCheck=document.getElementById('crt-fecha-atrasada-check').checked; const fechaAtrasVal=document.getElementById('crt-fecha-atrasada').value;
+    if(fechaAtrasCheck && !fechaAtrasVal){toast("Seleccione la fecha anterior");return;}
     const btn=document.getElementById("btnCRT"); btn.disabled=true; btn.innerHTML='<span class="spinner"></span> Guardando...';
-    const {mes,fecha,hora,timestamp,diaSemana,fechaNumero,semanaMes}=getFechaHoy();
+    const {mes,fecha,hora,timestamp,diaSemana,fechaNumero,semanaMes}=getFechaHoy(fechaAtrasCheck?fechaAtrasVal:null);
     db.ref('atenciones_crt').push({ tipo, docente:nom, area, grado:gra, seccion:sec, actividad:act, tema:tem, horas:horasCRT.join(', '), observaciones:document.getElementById("crt-recursos").value.trim()||"—", fecha, hora, mes, timestamp, sesionPresentada:sesion, diaSemana, fechaNumero, semanaMes })
     .then(()=>{
         toast("✓ Registro CRT guardado");
@@ -952,16 +997,19 @@ function registrarCRT() {
         if(esDocente){document.getElementById("crt-grado").value="";document.getElementById("crt-seccion").value="";}
         document.querySelectorAll('#crt-horas-grid .hora-chip').forEach(c=>{c.classList.remove('selected');c.querySelector('input').checked=false;});
         resetSesion('crt');
+        document.getElementById('crt-fecha-atrasada-check').checked=false; toggleFechaAtrasada('crt');
     })
     .finally(()=>{ btn.disabled=false; btn.innerHTML="✔ Registrar Asistencia — CRT"; });
 }
 function registrarATP() {
     const tipo=document.getElementById("atp-tipo").value.trim(); const nom=document.getElementById("atp-nombre").value.trim(); const tem=document.getElementById("atp-tema").value.trim(); const tpo=document.getElementById("atp-tiempo").value.trim();
     if(!tipo||!nom||!tem||!tpo||isNaN(tpo)){ toast("Complete todos los campos"); return; }
+    const fechaAtrasCheck=document.getElementById('atp-fecha-atrasada-check').checked; const fechaAtrasVal=document.getElementById('atp-fecha-atrasada').value;
+    if(fechaAtrasCheck && !fechaAtrasVal){toast("Seleccione la fecha anterior");return;}
     const btn=document.getElementById("btnATP"); btn.disabled=true; btn.innerHTML='<span class="spinner"></span> Guardando...';
-    const {mes,fecha,hora,timestamp,diaSemana,fechaNumero,semanaMes}=getFechaHoy();
+    const {mes,fecha,hora,timestamp,diaSemana,fechaNumero,semanaMes}=getFechaHoy(fechaAtrasCheck?fechaAtrasVal:null);
     db.ref('atenciones_atp').push({ tipo, area:document.getElementById("atp-area").value.trim()||'—', nombre:nom, tema:tem, tiempo:parseInt(tpo), observaciones:document.getElementById("atp-recursos").value.trim()||"—", fecha, hora, mes, timestamp, diaSemana, fechaNumero, semanaMes })
-    .then(()=>{ toast("✓ Atención registrada"); document.getElementById("atp-nombre").value=""; document.getElementById("atp-tema").value=""; document.getElementById("atp-tiempo").value=""; document.getElementById("atp-recursos").value=""; document.getElementById("atp-tipo").value=""; document.getElementById("atp-area").value=""; })
+    .then(()=>{ toast("✓ Atención registrada"); document.getElementById("atp-nombre").value=""; document.getElementById("atp-tema").value=""; document.getElementById("atp-tiempo").value=""; document.getElementById("atp-recursos").value=""; document.getElementById("atp-tipo").value=""; document.getElementById("atp-area").value=""; document.getElementById('atp-fecha-atrasada-check').checked=false; toggleFechaAtrasada('atp'); })
     .finally(()=>{ btn.disabled=false; btn.innerHTML="✔ Registrar Atención Personalizada"; });
 }
 function registrarAE() {
@@ -969,22 +1017,26 @@ function registrarAE() {
     const horasAE=[...document.querySelectorAll('#ae-horas-grid input:checked')].map(c=>c.value);
     if(!area||!grado||!seccion||!tema){ toast("Complete los campos obligatorios (Área, Grado, Sección y Tema)"); return; }
     if(horasAE.length===0){ toast("Seleccione al menos una hora de atención"); return; }
+    const fechaAtrasCheck=document.getElementById('ae-fecha-atrasada-check').checked; const fechaAtrasVal=document.getElementById('ae-fecha-atrasada').value;
+    if(fechaAtrasCheck && !fechaAtrasVal){toast("Seleccione la fecha anterior");return;}
     const btn=document.getElementById("btnAE"); btn.disabled=true; btn.innerHTML='<span class="spinner"></span> Guardando...';
-    const {mes,fecha,hora,timestamp,diaSemana,fechaNumero,semanaMes}=getFechaHoy();
+    const {mes,fecha,hora,timestamp,diaSemana,fechaNumero,semanaMes}=getFechaHoy(fechaAtrasCheck?fechaAtrasVal:null);
     db.ref('atenciones_ae').push({ area, grado, seccion, tema, horas:horasAE.join(', '), observaciones:document.getElementById("ae-recursos").value.trim()||"—", fecha, hora, mes, timestamp, diaSemana, fechaNumero, semanaMes })
-    .then(()=>{ toast("✓ Atención a estudiantes registrada"); document.getElementById("ae-area").value=""; document.getElementById("ae-grado").value=""; document.getElementById("ae-seccion").value=""; document.getElementById("ae-tema").value=""; document.getElementById("ae-recursos").value=""; document.querySelectorAll('#ae-horas-grid .hora-chip').forEach(c=>{c.classList.remove('selected');c.querySelector('input').checked=false;}); })
+    .then(()=>{ toast("✓ Atención a estudiantes registrada"); document.getElementById("ae-area").value=""; document.getElementById("ae-grado").value=""; document.getElementById("ae-seccion").value=""; document.getElementById("ae-tema").value=""; document.getElementById("ae-recursos").value=""; document.querySelectorAll('#ae-horas-grid .hora-chip').forEach(c=>{c.classList.remove('selected');c.querySelector('input').checked=false;}); document.getElementById('ae-fecha-atrasada-check').checked=false; toggleFechaAtrasada('ae'); })
     .finally(()=>{ btn.disabled=false; btn.innerHTML="✔ Registrar Atención a Estudiantes"; });
 }
 function registrarAIT() {
     const aula=document.getElementById("ait-aula").value.trim(); const docente=document.getElementById("ait-docente").value.trim(); const tipoAtencion=document.getElementById("ait-tipo-atencion").value.trim(); const solucion=document.getElementById("ait-solucion").value.trim(); const recomendacion=document.getElementById("ait-recomendacion").value.trim();
     const horasAIT=[...document.querySelectorAll('#ait-horas-grid input:checked')].map(c=>c.value);
     if(!aula||!docente||!tipoAtencion||!solucion||!recomendacion){ toast("Complete todos los campos del AIT"); return; }
+    const fechaAtrasCheck=document.getElementById('ait-fecha-atrasada-check').checked; const fechaAtrasVal=document.getElementById('ait-fecha-atrasada').value;
+    if(fechaAtrasCheck && !fechaAtrasVal){toast("Seleccione la fecha anterior");return;}
     const btn=document.getElementById("btnAIT"); btn.disabled=true; btn.innerHTML='<span class="spinner"></span> Guardando...';
-    const {mes,fecha,hora,timestamp,diaSemana,fechaNumero,semanaMes}=getFechaHoy();
+    const {mes,fecha,hora,timestamp,diaSemana,fechaNumero,semanaMes}=getFechaHoy(fechaAtrasCheck?fechaAtrasVal:null);
     const solucionTexto = solucion === 'SI' ? '✅ SÍ - Solucionado' : (solucion === 'NO' ? '⚠️ NO - Pendiente' : '❌ NO - Dado de Baja');
     const newRef = db.ref('atenciones_ait').push();
     newRef.set({ aula, docente, tipoAtencion, solucion: solucionTexto, solucionCodigo: solucion, recomendacion, fecha, hora, horaAtencion: horasAIT.join(', ')||'—', mes, timestamp, diaSemana, fechaNumero, semanaMes })
-    .then(()=>{ toast("✓ Incidencia registrada"); document.getElementById("ait-aula").value=""; document.getElementById("ait-docente").value=""; document.getElementById("ait-tipo-atencion").value=""; document.getElementById("ait-solucion").value=""; document.getElementById("ait-recomendacion").value=""; document.querySelectorAll('#ait-horas-grid .hora-chip').forEach(c=>{c.classList.remove('selected');c.querySelector('input').checked=false;}); const downloadDiv=document.getElementById('ait-download-area'); downloadDiv.innerHTML=`<button class="btn-download-ait" style="background:#be185d;color:white;padding:10px;border-radius:8px;width:100%;font-weight:700;" onclick="descargarComprobanteAIT('${newRef.key}', ${JSON.stringify({aula,docente,tipoAtencion,solucion:solucionTexto,recomendacion,fecha,hora}).replace(/"/g, '&quot;')})">📄 DESCARGAR COMPROBANTE PARA FIRMA DEL DOCENTE</button>`; setTimeout(()=>{downloadDiv.innerHTML='';},10000); })
+    .then(()=>{ toast("✓ Incidencia registrada"); document.getElementById("ait-aula").value=""; document.getElementById("ait-docente").value=""; document.getElementById("ait-tipo-atencion").value=""; document.getElementById("ait-solucion").value=""; document.getElementById("ait-recomendacion").value=""; document.querySelectorAll('#ait-horas-grid .hora-chip').forEach(c=>{c.classList.remove('selected');c.querySelector('input').checked=false;}); document.getElementById('ait-fecha-atrasada-check').checked=false; toggleFechaAtrasada('ait'); const downloadDiv=document.getElementById('ait-download-area'); downloadDiv.innerHTML=`<button class="btn-download-ait" style="background:#be185d;color:white;padding:10px;border-radius:8px;width:100%;font-weight:700;" onclick="descargarComprobanteAIT('${newRef.key}', ${JSON.stringify({aula,docente,tipoAtencion,solucion:solucionTexto,recomendacion,fecha,hora}).replace(/"/g, '&quot;')})">📄 DESCARGAR COMPROBANTE PARA FIRMA DEL DOCENTE</button>`; setTimeout(()=>{downloadDiv.innerHTML='';},10000); })
     .finally(()=>{ btn.disabled=false; btn.innerHTML="🔧 Registrar Incidencia Tecnológica"; });
 }
 function eliminarRegistro(modulo,key,desc) { if(!confirm(`¿Eliminar este registro?\n\n${desc||''}`)) return; const refs={aip:'atenciones_aip',crt:'atenciones_crt',atp:'atenciones_atp',ait:'atenciones_ait',ae:'atenciones_ae'}; db.ref(`${refs[modulo]}/${key}`).remove().then(()=>{ toast("Eliminado"); if(modulo==='aip') generarReporteAIP(); else if(modulo==='crt') generarReporteCRT(); else if(modulo==='atp') generarReporteATP(); else if(modulo==='ait') generarReporteAIT(); else if(modulo==='ae') generarReporteAE(); }); }
