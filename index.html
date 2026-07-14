@@ -486,10 +486,15 @@
                     </div>
                 </div>
                 <div class="form-grid">
-                    <select id="aip-area" class="aip-input"><option value="">Seleccione el área...</option><option>COMUNICACIÓN</option><option>MATEMÁTICA</option><option>CIENCIA Y TECNOLOGÍA</option><option>CIENCIAS SOCIALES</option><option>INGLÉS</option><option>EDUCACIÓN FÍSICA</option><option>ARTE Y CULTURA</option><option>EDUCACIÓN RELIGIOSA</option><option>DESARROLLO PERSONAL, CIUDADANÍA Y CÍVICA</option><option>EDUCACIÓN PARA EL TRABAJO</option><option>TUTORÍA</option><option>DIRECTIVOS</option><option>PSICÓLOGO (A)</option><option>VISITA / PERSONAL EXTERNO</option></select>
+                    <select id="aip-area" class="aip-input" onchange="toggleAreaEspecialista()"><option value="">Seleccione el área...</option><option>COMUNICACIÓN</option><option>MATEMÁTICA</option><option>CIENCIA Y TECNOLOGÍA</option><option>CIENCIAS SOCIALES</option><option>INGLÉS</option><option>EDUCACIÓN FÍSICA</option><option>ARTE Y CULTURA</option><option>EDUCACIÓN RELIGIOSA</option><option>DESARROLLO PERSONAL, CIUDADANÍA Y CÍVICA</option><option>EDUCACIÓN PARA EL TRABAJO</option><option>TUTORÍA</option><option>DIRECTIVOS</option><option>PSICÓLOGO (A)</option><option>ESPECIALISTA</option><option>VISITA / PERSONAL EXTERNO</option></select>
                     <input type="text" id="aip-nombre" class="aip-input" placeholder="Nombre del docente *" maxlength="100">
+                </div>
+                <div class="form-grid" id="aip-grado-seccion-wrap">
                     <select id="aip-grado" class="aip-input"><option value="">Grado...</option><option>1°</option><option>2°</option><option>3°</option><option>4°</option><option>5°</option></select>
                     <select id="aip-seccion" class="aip-input"><option value="">Sección...</option><option>A</option><option>B</option><option>C</option><option>D</option><option>E</option><option>A, B y C</option><option>D y E</option></select>
+                </div>
+                <div class="form-grid" id="aip-area-especialista-wrap" style="display:none;">
+                    <select id="aip-area-especialista" class="aip-input"><option value="">Área curricular *</option><option>COMUNICACIÓN</option><option>MATEMÁTICA</option><option>CIENCIA Y TECNOLOGÍA</option><option>CIENCIAS SOCIALES</option><option>INGLÉS</option><option>EDUCACIÓN FÍSICA</option><option>ARTE Y CULTURA</option><option>EDUCACIÓN RELIGIOSA</option><option>DESARROLLO PERSONAL, CIUDADANÍA Y CÍVICA</option><option>EDUCACIÓN PARA EL TRABAJO</option><option>TUTORÍA</option></select>
                 </div>
                 <div id="aip-campos-asistencia" class="campo-aip-condicional">
                     <div class="form-grid" style="grid-template-columns:1fr 1fr;">
@@ -701,6 +706,18 @@
                     <select id="ae-grado" class="ae-input"><option value="">Grado *</option><option>1°</option><option>2°</option><option>3°</option><option>4°</option><option>5°</option></select>
                     <select id="ae-seccion" class="ae-input"><option value="">Sección *</option><option>A</option><option>B</option><option>C</option><option>D</option><option>E</option></select>
                 </div>
+                <div class="horas-selector ae">
+                    <label class="horas-title">🕐 Horario de atención <span style="font-weight:500;color:#9aa0b8;font-size:10px">(seleccione hasta 3 horas)</span></label>
+                    <div class="horas-grid" id="ae-horas-grid">
+                        <label class="hora-chip ae-chip" onclick="toggleHoraAE(this)"><input type="checkbox" value="1ERA"><span class="chip-label">1ERA</span></label>
+                        <label class="hora-chip ae-chip" onclick="toggleHoraAE(this)"><input type="checkbox" value="2DA"><span class="chip-label">2DA</span></label>
+                        <label class="hora-chip ae-chip" onclick="toggleHoraAE(this)"><input type="checkbox" value="3ERA"><span class="chip-label">3ERA</span></label>
+                        <label class="hora-chip ae-chip" onclick="toggleHoraAE(this)"><input type="checkbox" value="4TA"><span class="chip-label">4TA</span></label>
+                        <label class="hora-chip ae-chip" onclick="toggleHoraAE(this)"><input type="checkbox" value="5TA"><span class="chip-label">5TA</span></label>
+                        <label class="hora-chip ae-chip" onclick="toggleHoraAE(this)"><input type="checkbox" value="6TA"><span class="chip-label">6TA</span></label>
+                        <label class="hora-chip ae-chip" onclick="toggleHoraAE(this)"><input type="checkbox" value="7MA"><span class="chip-label">7MA</span></label>
+                    </div>
+                </div>
                 <div class="form-grid" style="grid-template-columns:1fr 1fr;"><input type="text" id="ae-tema" class="ae-input" placeholder="Tema trabajado *" maxlength="200"><input type="text" id="ae-recursos" class="ae-input" placeholder="Recursos usados" maxlength="200"></div>
                 <button class="btn-main btn-ae" id="btnAE" onclick="registrarAE()">✔ Registrar Atención a Estudiantes</button>
             </div>
@@ -718,7 +735,7 @@
                         <div class="grafico-card"><div class="grafico-card-title ae">🏫 DISTRIBUCIÓN POR GRADO</div><div class="chart-container"><canvas id="ae-grafico-grado"></canvas></div></div>
                         <div class="grafico-card" style="border-left:4px solid #0d9488;"><div class="grafico-card-title" style="color:#0f766e">🏆 SECCIONES MÁS ATENDIDAS</div><div class="chart-container"><canvas id="ae-grafico-seccion"></canvas></div></div>
                     </div>
-                    <div class="tabla-container"><table><thead class="ae"><tr><th>FECHA</th><th>HORA</th><th>ÁREA</th><th>GRADO/SECC.</th><th>TEMA</th><th>RECURSOS USADOS</th><th>ACCIÓN</th></tr></thead><tbody id="ae-tablaCuerpo"></tbody></table></div>
+                    <div class="tabla-container"><table><thead class="ae"><tr><th>FECHA</th><th>HORA</th><th>ÁREA</th><th>GRADO/SECC.</th><th>HORARIO</th><th>TEMA</th><th>RECURSOS USADOS</th><th>ACCIÓN</th></tr></thead><tbody id="ae-tablaCuerpo"></tbody></table></div>
                     <button class="btn-cerrar ae" onclick="cerrarAdmin('ae')">✕ CERRAR INFORME</button>
                 </div>
             </div>
@@ -822,9 +839,27 @@ function toast(msg) { const t=document.getElementById("toast"); t.textContent=ms
 // ===== TOGGLES =====
 function toggleNoIngreso() { const cb=document.getElementById('aip-no-ingreso'); const activo=cb.checked; document.getElementById('noIngresoWrap').classList.toggle('activo',activo); document.getElementById('aip-campos-asistencia').classList.toggle('oculto',activo); document.getElementById('aip-hora-programada-wrap').classList.toggle('visible',activo); const sesionRow=document.getElementById('aip-sesion-row'); if(sesionRow) sesionRow.style.display=activo?'none':'flex'; if(!activo) document.querySelectorAll('#aip-hora-programada-grid .hora-chip').forEach(c=>{c.classList.remove('selected');c.querySelector('input').checked=false;}); const btn=document.getElementById('btnAIP'); if(activo){btn.innerHTML='⚠️ Registrar No Ingresó — AIP';btn.style.background='linear-gradient(135deg,#b45309,#92400e)';}else{btn.innerHTML='✔ Registrar Asistencia — AIP';btn.style.background='';} }
 function toggleHoraProg(label) { document.querySelectorAll('#aip-hora-programada-grid .hora-chip').forEach(c=>{c.classList.remove('selected');c.querySelector('input').checked=false;}); label.querySelector('input').checked=true; label.classList.add('selected'); }
+function toggleAreaEspecialista() {
+    const val = document.getElementById('aip-area').value;
+    const wrapEspecialista = document.getElementById('aip-area-especialista-wrap');
+    const wrapGradoSeccion = document.getElementById('aip-grado-seccion-wrap');
+    const esEspecialista = (val === 'PSICÓLOGO (A)' || val === 'ESPECIALISTA');
+    wrapEspecialista.style.display = esEspecialista ? 'grid' : 'none';
+    wrapGradoSeccion.style.display = esEspecialista ? 'none' : 'grid';
+    if (esEspecialista) { document.getElementById('aip-grado').value = ''; document.getElementById('aip-seccion').value = ''; }
+    else { document.getElementById('aip-area-especialista').value = ''; }
+}
 function toggleHora(label) { const cb=label.querySelector('input'); label.classList.toggle('selected',cb.checked); }
 function toggleHoraCRT(label) { const cb=label.querySelector('input'); label.classList.toggle('selected',cb.checked); }
 function toggleHoraAIT(label) { const cb=label.querySelector('input'); label.classList.toggle('selected',cb.checked); }
+function toggleHoraAE(label) {
+    const cb = label.querySelector('input');
+    if (cb.checked) {
+        const total = document.querySelectorAll('#ae-horas-grid input:checked').length;
+        if (total > 3) { cb.checked = false; toast("Solo puede seleccionar hasta 3 horas"); return; }
+    }
+    label.classList.toggle('selected', cb.checked);
+}
 function selectSesion(mod,val) { ['SI','NO'].forEach(v=>{const el=document.getElementById(`${mod}-sesion-${v.toLowerCase()}`);if(el)el.classList.toggle('selected',v===val);}); document.querySelector(`input[name="${mod}-sesion"][value="${val}"]`).checked=true; }
 function getSesion(mod) { const el=document.querySelector(`input[name="${mod}-sesion"]:checked`); return el?el.value:'—'; }
 function resetSesion(mod) { ['si','no'].forEach(v=>{const el=document.getElementById(`${mod}-sesion-${v}`);if(el)el.classList.remove('selected');}); document.querySelectorAll(`input[name="${mod}-sesion"]`).forEach(r=>r.checked=false); }
@@ -870,15 +905,20 @@ function selectTipoCRT(label,tipo) {
 // ===== REGISTROS =====
 function registrarAIP() {
     const noIngreso=document.getElementById('aip-no-ingreso').checked;
-    const area=document.getElementById("aip-area").value.trim(); const nom=document.getElementById("aip-nombre").value.trim(); const gra=document.getElementById("aip-grado").value.trim(); const sec=document.getElementById("aip-seccion").value.trim();
-    if(!area||!nom||!gra||!sec){toast("Complete los campos básicos");return;}
+    const area=document.getElementById("aip-area").value.trim(); const nom=document.getElementById("aip-nombre").value.trim();
+    const esEspecialista=(area==='PSICÓLOGO (A)'||area==='ESPECIALISTA');
+    const gra=esEspecialista?'—':document.getElementById("aip-grado").value.trim(); const sec=esEspecialista?'—':document.getElementById("aip-seccion").value.trim();
+    const areaEspecialista=esEspecialista?document.getElementById("aip-area-especialista").value.trim():"";
+    if(!area||!nom){toast("Complete los campos básicos");return;}
+    if(esEspecialista && !areaEspecialista){toast("Seleccione el área curricular");return;}
+    if(!esEspecialista && (!gra||!sec)){toast("Complete los campos básicos");return;}
     if(!noIngreso){const tem=document.getElementById("aip-tema").value.trim(); const horas=[...document.querySelectorAll('#aip-horas-grid input:checked')].map(c=>c.value); if(!tem){toast("Ingrese el tema");return;} if(horas.length===0){toast("Seleccione al menos una hora");return;}}
     if(noIngreso){const horaProg=[...document.querySelectorAll('#aip-hora-programada-grid input:checked')].map(c=>c.value); if(horaProg.length===0){toast("Seleccione la hora programada");return;}}
     const rec=noIngreso?"—":(document.getElementById("aip-recursos").value.trim()||"—"); const tem=noIngreso?"NO INGRESÓ":document.getElementById("aip-tema").value.trim(); const horas=noIngreso?[]:[...document.querySelectorAll('#aip-horas-grid input:checked')].map(c=>c.value); const horaProgramada=noIngreso?([...document.querySelectorAll('#aip-hora-programada-grid input:checked')].map(c=>c.value).join(', ')||"—"):"—";
     const btn=document.getElementById("btnAIP"); btn.disabled=true; btn.innerHTML='<span class="spinner"></span> Guardando...';
     const {mes,fecha,hora,timestamp,diaSemana,fechaNumero,semanaMes}=getFechaHoy();
-    db.ref('atenciones_aip').push({ docente:area, nombre:nom, grado:gra, seccion:sec, tema:tem, horas:horas.join(', ')||"—", observaciones:rec, fecha, hora, mes, timestamp, estado: noIngreso?"NO_INGRESO":"ASISTIO", horaProgramada, sesionPresentada: noIngreso?"—":getSesion('aip'), diaSemana, fechaNumero, semanaMes })
-    .then(()=>{toast(noIngreso?"⚠️ No ingresó registrado":"✓ Asistencia AIP registrada"); document.getElementById("aip-nombre").value=""; document.getElementById("aip-tema").value=""; document.getElementById("aip-recursos").value=""; document.querySelectorAll('#aip-horas-grid .hora-chip').forEach(c=>{c.classList.remove('selected');c.querySelector('input').checked=false;}); resetSesion('aip'); document.getElementById('aip-no-ingreso').checked=false; toggleNoIngreso();})
+    db.ref('atenciones_aip').push({ docente:area, areaEspecialista:areaEspecialista||"—", nombre:nom, grado:gra, seccion:sec, tema:tem, horas:horas.join(', ')||"—", observaciones:rec, fecha, hora, mes, timestamp, estado: noIngreso?"NO_INGRESO":"ASISTIO", horaProgramada, sesionPresentada: noIngreso?"—":getSesion('aip'), diaSemana, fechaNumero, semanaMes })
+    .then(()=>{toast(noIngreso?"⚠️ No ingresó registrado":"✓ Asistencia AIP registrada"); document.getElementById("aip-nombre").value=""; document.getElementById("aip-tema").value=""; document.getElementById("aip-recursos").value=""; document.getElementById("aip-area-especialista").value=""; document.querySelectorAll('#aip-horas-grid .hora-chip').forEach(c=>{c.classList.remove('selected');c.querySelector('input').checked=false;}); resetSesion('aip'); document.getElementById('aip-no-ingreso').checked=false; toggleNoIngreso();})
     .finally(()=>{ btn.disabled=false; btn.innerHTML="✔ Registrar Asistencia — AIP"; btn.style.background=''; });
 }
 function registrarCRT() {
@@ -926,11 +966,13 @@ function registrarATP() {
 }
 function registrarAE() {
     const area=document.getElementById("ae-area").value.trim(); const grado=document.getElementById("ae-grado").value.trim(); const seccion=document.getElementById("ae-seccion").value.trim(); const tema=document.getElementById("ae-tema").value.trim();
+    const horasAE=[...document.querySelectorAll('#ae-horas-grid input:checked')].map(c=>c.value);
     if(!area||!grado||!seccion||!tema){ toast("Complete los campos obligatorios (Área, Grado, Sección y Tema)"); return; }
+    if(horasAE.length===0){ toast("Seleccione al menos una hora de atención"); return; }
     const btn=document.getElementById("btnAE"); btn.disabled=true; btn.innerHTML='<span class="spinner"></span> Guardando...';
     const {mes,fecha,hora,timestamp,diaSemana,fechaNumero,semanaMes}=getFechaHoy();
-    db.ref('atenciones_ae').push({ area, grado, seccion, tema, observaciones:document.getElementById("ae-recursos").value.trim()||"—", fecha, hora, mes, timestamp, diaSemana, fechaNumero, semanaMes })
-    .then(()=>{ toast("✓ Atención a estudiantes registrada"); document.getElementById("ae-area").value=""; document.getElementById("ae-grado").value=""; document.getElementById("ae-seccion").value=""; document.getElementById("ae-tema").value=""; document.getElementById("ae-recursos").value=""; })
+    db.ref('atenciones_ae').push({ area, grado, seccion, tema, horas:horasAE.join(', '), observaciones:document.getElementById("ae-recursos").value.trim()||"—", fecha, hora, mes, timestamp, diaSemana, fechaNumero, semanaMes })
+    .then(()=>{ toast("✓ Atención a estudiantes registrada"); document.getElementById("ae-area").value=""; document.getElementById("ae-grado").value=""; document.getElementById("ae-seccion").value=""; document.getElementById("ae-tema").value=""; document.getElementById("ae-recursos").value=""; document.querySelectorAll('#ae-horas-grid .hora-chip').forEach(c=>{c.classList.remove('selected');c.querySelector('input').checked=false;}); })
     .finally(()=>{ btn.disabled=false; btn.innerHTML="✔ Registrar Atención a Estudiantes"; });
 }
 function registrarAIT() {
@@ -1091,7 +1133,7 @@ function generarReporteAIP() {
         /* ── TOP PERSONAS ── */
         const porPersona={}; registros.forEach(r=>{ const lbl=`${r.nombre||r.docente} (${r.grado} ${r.seccion})`; porPersona[lbl]=(porPersona[lbl]||0)+1; });
         document.getElementById('aip-statsPersonal').innerHTML=Object.entries(porPersona).sort((a,b)=>b[1]-a[1]).slice(0,10).map(([lbl,cnt])=>`<div class="stat-persona-badge">${lbl}<span class="cnt aip">${cnt}</span></div>`).join('');
-        document.getElementById('aip-tablaCuerpo').innerHTML=registros.sort((a,b)=>b.timestamp-a.timestamp).map(r=>`<tr style="${r.estado==='NO_INGRESO'?'background:#fffbeb':''}"><td><b>${r.fecha}</b><br><small>${r.hora}</small></td><td>${r.docente}</td><td>${r.nombre||'—'}</td><td>${r.grado} ${r.seccion}</td><td>${r.horas||'—'}</td><td>${r.estado==='NO_INGRESO'?'<span class="badge-no-ingreso">⚠️ NO INGRESÓ</span>':'✅ ASISTIÓ'}</td><td>${r.tema}</td><td><button class="btn-eliminar" onclick="eliminarRegistro(\'aip\',\'${r._key}\',\'${r.docente.replace(/'/g,"\\'")}\')">Eliminar</button></td></tr>`).join('');
+        document.getElementById('aip-tablaCuerpo').innerHTML=registros.sort((a,b)=>b.timestamp-a.timestamp).map(r=>`<tr style="${r.estado==='NO_INGRESO'?'background:#fffbeb':''}"><td><b>${r.fecha}</b><br><small>${r.hora}</small></td><td>${r.docente}${r.areaEspecialista&&r.areaEspecialista!=='—'?` <small style="color:#7c3aed">(🎓 ${r.areaEspecialista})</small>`:''}</td><td>${r.nombre||'—'}</td><td>${(r.grado==='—'&&r.seccion==='—')?'—':`${r.grado} ${r.seccion}`}</td><td>${r.horas||'—'}</td><td>${r.estado==='NO_INGRESO'?'<span class="badge-no-ingreso">⚠️ NO INGRESÓ</span>':'✅ ASISTIÓ'}</td><td>${r.tema}</td><td><button class="btn-eliminar" onclick="eliminarRegistro(\'aip\',\'${r._key}\',\'${r.docente.replace(/'/g,"\\'")}\')">Eliminar</button></td></tr>`).join('');
 
         /* ── GRÁFICO DÍAS DEL MES ── */
         const diasLabels=diasOrdenados.map(([dn])=>dn);
@@ -1374,7 +1416,7 @@ function generarReporteAE() {
         const semanas={1:0,2:0,3:0,4:0,5:0}; registros.forEach(r=>{ if(r.semanaMes && semanas[r.semanaMes]!==undefined) semanas[r.semanaMes]++; });
         document.getElementById('ae-semanas-grid').innerHTML=Object.entries(semanas).filter(([_,v])=>v>0).map(([sem,v])=>`<div class="semana-card" style="min-width:130px"><div class="semana-nombre">Semana ${sem}</div><div class="semana-cantidad">${v}</div><div class="semana-porcentaje">${total?((v/total)*100).toFixed(0):0}% del mes</div></div>`).join('');
 
-        document.getElementById('ae-tablaCuerpo').innerHTML=registros.sort((a,b)=>b.timestamp-a.timestamp).map(r=>`<tr><td><b>${r.fecha}</b></td><td>${r.hora}</td><td>${r.area||'—'}</td><td>${r.grado} ${r.seccion}</td><td>${r.tema}</td><td>${r.observaciones||'—'}</td><td><button class="btn-eliminar" onclick="eliminarRegistro('ae','${r._key}','${(r.area||'registro').replace(/'/g,"\\'")}')">Eliminar</button></td></tr>`).join('');
+        document.getElementById('ae-tablaCuerpo').innerHTML=registros.sort((a,b)=>b.timestamp-a.timestamp).map(r=>`<tr><td><b>${r.fecha}</b></td><td>${r.hora}</td><td>${r.area||'—'}</td><td>${r.grado} ${r.seccion}</td><td>${r.horas||'—'}</td><td>${r.tema}</td><td>${r.observaciones||'—'}</td><td><button class="btn-eliminar" onclick="eliminarRegistro('ae','${r._key}','${(r.area||'registro').replace(/'/g,"\\'")}')">Eliminar</button></td></tr>`).join('');
 
         /* ── GRÁFICO POR ÁREA ── */
         const areaCount={}; registros.forEach(r=>{ areaCount[r.area||'—']=(areaCount[r.area||'—']||0)+1; });
@@ -1821,7 +1863,7 @@ async function descargarPDF(modulo) {
         crt: ['FECHA', 'DOCENTE', 'ÁREA', 'GRADO/SECC', 'HORA', 'MOTIVO'],
         atp: ['FECHA', 'TIPO', 'NOMBRE', 'TEMA', 'TIEMPO'],
         ait: ['FECHA/HORA', 'AULA', 'DOCENTE', 'TIPO', 'HORA ATENCIÓN', 'SOLUCIÓN', 'RECOMENDACIÓN'],
-        ae: ['FECHA', 'HORA', 'ÁREA', 'GRADO/SECC', 'TEMA', 'RECURSOS USADOS']
+        ae: ['FECHA', 'HORA', 'ÁREA', 'GRADO/SECC', 'HORARIO', 'TEMA', 'RECURSOS USADOS']
     };
 
     if (tbodyIds[modulo]) {
@@ -1955,7 +1997,7 @@ async function descargarPDFGeneral() {
                 return [[aipR.length,`Total Registros (${pctAIP}% del total)`],[aipAsist,`\u2705 Ingresaron (${pctAipAsist}%)`],[new Set(aipR.map(r=>r.docente)).size,'Docentes \u00fanicos'],[khanCount,`\ud83c\udf93 Sesiones Khan Academy (${aipR.length?((khanCount/aipR.length)*100).toFixed(1):0}%)`]];
             },
             headers: ['FECHA','HORA','DOCENTE','NOMBRE','GRADO/SECC','HORAS','ESTADO','TEMA'],
-            fila: r => [r.fecha, r.hora, r.docente, r.nombre||'\u2014', `${r.grado||''} ${r.seccion||''}`.trim()||'\u2014', r.horas||'\u2014', r.estado==='NO_INGRESO'?'\ud83d\udeab NO INGRES\u00d3':'\u2705 ASISTI\u00d3', r.tema||'\u2014'],
+            fila: r => [r.fecha, r.hora, r.docente + (r.areaEspecialista && r.areaEspecialista!=='\u2014' ? ` (\ud83c\udf93 ${r.areaEspecialista})` : ''), r.nombre||'\u2014', (r.grado==='\u2014'&&r.seccion==='\u2014')?'\u2014':`${r.grado||''} ${r.seccion||''}`.trim()||'\u2014', r.horas||'\u2014', r.estado==='NO_INGRESO'?'\ud83d\udeab NO INGRES\u00d3':'\u2705 ASISTI\u00d3', r.tema||'\u2014'],
             graficos: () => {
                 const porPersona = {}; aipR.forEach(r => { const lbl = r.docente||'\u2014'; porPersona[lbl] = (porPersona[lbl]||0)+1; });
                 const top = Object.entries(porPersona).sort((a,b)=>b[1]-a[1]).slice(0,6);
@@ -2015,8 +2057,8 @@ async function descargarPDFGeneral() {
         ae: {
             etiqueta: 'AE \u2014 Atenci\u00f3n a Estudiantes', color: '#0d9488', regs: aeR,
             stats: () => [[aeR.length,`Total Registros (${pctAE}% del total)`],[seccionesAtendidasAE,'Secciones Atendidas'],[new Set(aeR.map(r=>r.tema)).size,'Temas Distintos'],[diasActAE,'D\u00edas con Actividad']],
-            headers: ['FECHA','HORA','\u00c1REA','GRADO/SECC','TEMA','RECURSOS USADOS'],
-            fila: r => [r.fecha, r.hora, r.area||'\u2014', `${r.grado||''} ${r.seccion||''}`.trim()||'\u2014', r.tema||'\u2014', r.observaciones||'\u2014'],
+            headers: ['FECHA','HORA','\u00c1REA','GRADO/SECC','HORARIO','TEMA','RECURSOS USADOS'],
+            fila: r => [r.fecha, r.hora, r.area||'\u2014', `${r.grado||''} ${r.seccion||''}`.trim()||'\u2014', r.horas||'\u2014', r.tema||'\u2014', r.observaciones||'\u2014'],
             graficos: () => {
                 const areaCount = {}; aeR.forEach(r => { areaCount[r.area||'\u2014'] = (areaCount[r.area||'\u2014']||0)+1; });
                 const gradosLabAE = ['1\u00b0','2\u00b0','3\u00b0','4\u00b0','5\u00b0'];
