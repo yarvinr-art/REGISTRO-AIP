@@ -704,7 +704,8 @@
                     <input type="date" id="ait-fecha-atrasada" class="ait-input" min="2026-01-01" max="2026-12-31" style="max-width:220px;">
                 </div>
                 <div class="form-grid"><input type="text" id="ait-aula" class="ait-input" placeholder="N° de Aula *" maxlength="10"><input type="text" id="ait-docente" class="ait-input" placeholder="Nombre del Docente *" maxlength="120"><select id="ait-tipo-atencion" class="ait-input"><option value="">Tipo de Atención *</option><option>Proyector / Multimedia</option><option>Computadora / Laptop</option><option>Impresora</option><option>Internet / Red</option><option>Software / Aplicación</option><option>Sonido / Audio</option><option>Tablet / Dispositivo móvil</option><option>Otro equipo tecnológico</option></select></div>
-                <div class="form-grid"><select id="ait-solucion" class="ait-input"><option value="">¿Tuvo solución? *</option><option value="SI">✅ SÍ — Solucionado</option><option value="NO">⚠️ NO — Pendiente</option><option value="BAJA">❌ NO — Dado de Baja</option></select><textarea id="ait-recomendacion" class="ait-input" rows="3" placeholder="Recomendación / Observaciones *" maxlength="500"></textarea></div>
+                <div class="form-grid"><select id="ait-solucion" class="ait-input" onchange="document.getElementById('ait-baja-campos').style.display=this.value==='BAJA'?'':'none'"><option value="">¿Tuvo solución? *</option><option value="SI">✅ SÍ — Solucionado</option><option value="NO">⚠️ NO — Pendiente</option><option value="BAJA">❌ NO — Dado de Baja</option></select><textarea id="ait-recomendacion" class="ait-input" rows="3" placeholder="Recomendación / Observaciones *" maxlength="500"></textarea></div>
+                <div id="ait-baja-campos" class="form-grid" style="display:none;background:#fffbeb;border:1.5px dashed #f59e0b;border-radius:10px;padding:12px;"><input type="text" id="ait-baja-codigo" class="ait-input" placeholder="Código patrimonial (opcional)" maxlength="40"><input type="text" id="ait-baja-marca" class="ait-input" placeholder="Marca / Modelo (opcional)" maxlength="80"><input type="text" id="ait-baja-serie" class="ait-input" placeholder="N° de serie (opcional)" maxlength="60"></div>
                 <div class="horas-selector" style="background:var(--ait-bg);border:1.5px solid var(--ait-border);border-radius:10px;padding:14px 16px;margin-bottom:14px;">
                     <label class="horas-title" style="color:var(--ait-mid);">🕐 Hora en que se realizó la atención <span style="font-weight:500;color:#9aa0b8;font-size:10px;text-transform:none;letter-spacing:0">(seleccione la hora)</span></label>
                     <div class="horas-grid" id="ait-horas-grid">
@@ -1044,13 +1045,58 @@ function registrarAIT() {
     const btn=document.getElementById("btnAIT"); btn.disabled=true; btn.innerHTML='<span class="spinner"></span> Guardando...';
     const {mes,fecha,hora,timestamp,diaSemana,fechaNumero,semanaMes}=getFechaHoy(fechaAtrasCheck?fechaAtrasVal:null);
     const solucionTexto = solucion === 'SI' ? '✅ SÍ - Solucionado' : (solucion === 'NO' ? '⚠️ NO - Pendiente' : '❌ NO - Dado de Baja');
+    const datosBaja = solucion==='BAJA' ? { equipoCodigo:document.getElementById('ait-baja-codigo').value.trim(), equipoMarca:document.getElementById('ait-baja-marca').value.trim(), equipoSerie:document.getElementById('ait-baja-serie').value.trim() } : {};
     const newRef = db.ref('atenciones_ait').push();
-    newRef.set({ aula, docente, tipoAtencion, solucion: solucionTexto, solucionCodigo: solucion, recomendacion, fecha, hora, horaAtencion: horasAIT.join(', ')||'—', mes, timestamp, diaSemana, fechaNumero, semanaMes })
-    .then(()=>{ toast("✓ Incidencia registrada"); document.getElementById("ait-aula").value=""; document.getElementById("ait-docente").value=""; document.getElementById("ait-tipo-atencion").value=""; document.getElementById("ait-solucion").value=""; document.getElementById("ait-recomendacion").value=""; document.querySelectorAll('#ait-horas-grid .hora-chip').forEach(c=>{c.classList.remove('selected');c.querySelector('input').checked=false;}); document.getElementById('ait-fecha-atrasada-check').checked=false; toggleFechaAtrasada('ait'); const downloadDiv=document.getElementById('ait-download-area'); downloadDiv.innerHTML=`<button class="btn-download-ait" style="background:#be185d;color:white;padding:10px;border-radius:8px;width:100%;font-weight:700;" onclick="descargarComprobanteAIT('${newRef.key}', ${JSON.stringify({aula,docente,tipoAtencion,solucion:solucionTexto,recomendacion,fecha,hora}).replace(/"/g, '&quot;')})">📄 DESCARGAR COMPROBANTE PARA FIRMA DEL DOCENTE</button>`; setTimeout(()=>{downloadDiv.innerHTML='';},10000); })
+    newRef.set({ aula, docente, tipoAtencion, solucion: solucionTexto, solucionCodigo: solucion, recomendacion, fecha, hora, horaAtencion: horasAIT.join(', ')||'—', mes, timestamp, diaSemana, fechaNumero, semanaMes, ...datosBaja })
+    .then(()=>{ toast("✓ Incidencia registrada"); document.getElementById("ait-aula").value=""; document.getElementById("ait-docente").value=""; document.getElementById("ait-tipo-atencion").value=""; document.getElementById("ait-solucion").value=""; document.getElementById("ait-recomendacion").value=""; ['ait-baja-codigo','ait-baja-marca','ait-baja-serie'].forEach(id=>document.getElementById(id).value=''); document.getElementById('ait-baja-campos').style.display='none'; document.querySelectorAll('#ait-horas-grid .hora-chip').forEach(c=>{c.classList.remove('selected');c.querySelector('input').checked=false;}); document.getElementById('ait-fecha-atrasada-check').checked=false; toggleFechaAtrasada('ait'); const downloadDiv=document.getElementById('ait-download-area'); downloadDiv.innerHTML=`<button class="btn-download-ait" style="background:#be185d;color:white;padding:10px;border-radius:8px;width:100%;font-weight:700;" onclick="descargarComprobanteAIT('${newRef.key}', ${JSON.stringify({aula,docente,tipoAtencion,solucion:solucionTexto,recomendacion,fecha,hora}).replace(/"/g, '&quot;')})">📄 DESCARGAR COMPROBANTE PARA FIRMA DEL DOCENTE</button>`; if(solucion==='BAJA'){ const regBaja={aula,docente,tipoAtencion,solucion:solucionTexto,recomendacion,fecha,hora,horaAtencion:horasAIT.join(', ')||'—',...datosBaja}; window._aitUltimoBaja=regBaja; downloadDiv.innerHTML+=`<button style="background:#b45309;color:white;padding:10px;border-radius:8px;width:100%;font-weight:700;margin-top:8px;" onclick="descargarInformeBajaAIT(null,window._aitUltimoBaja)">📋 DESCARGAR INFORME DE BAJA</button>`; descargarInformeBajaAIT(null,regBaja); } setTimeout(()=>{downloadDiv.innerHTML='';},10000); })
     .finally(()=>{ btn.disabled=false; btn.innerHTML="🔧 Registrar Incidencia Tecnológica"; });
 }
 function eliminarRegistro(modulo,key,desc) { if(!confirm(`¿Eliminar este registro?\n\n${desc||''}`)) return; const refs={aip:'atenciones_aip',crt:'atenciones_crt',atp:'atenciones_atp',ait:'atenciones_ait',ae:'atenciones_ae'}; db.ref(`${refs[modulo]}/${key}`).remove().then(()=>{ toast("Eliminado"); if(modulo==='aip') generarReporteAIP(); else if(modulo==='crt') generarReporteCRT(); else if(modulo==='atp') generarReporteATP(); else if(modulo==='ait') generarReporteAIT(); else if(modulo==='ae') generarReporteAE(); }); }
 function descargarComprobanteAIT(key, reg) { const {jsPDF}=window.jspdf; const pdf=new jsPDF(); pdf.setFontSize(16); pdf.text("INSTITUCIÓN EDUCATIVA N° 0148",20,20); pdf.setFontSize(12); pdf.text("AIT - Atención de Incidencia Tecnológica",20,35); pdf.text(`Fecha: ${reg.fecha} ${reg.hora}`,20,50); pdf.text(`Docente: ${reg.docente}`,20,60); pdf.text(`Aula: ${reg.aula}`,20,70); pdf.text(`Tipo: ${reg.tipoAtencion}`,20,80); pdf.text(`Hora de atención: ${reg.horaAtencion||'—'}`,20,90); pdf.text(`Solución: ${reg.solucion}`,20,100); pdf.text("Recomendación:",20,115); const lines=pdf.splitTextToSize(reg.recomendacion,170); pdf.text(lines,20,125); pdf.line(20,165,120,165); pdf.text("Firma del Docente",20,175); pdf.line(140,165,190,165); pdf.text("Fecha",150,175); pdf.save(`Comprobante_AIT_${reg.docente.replace(/\s/g,'_')}.pdf`); toast("Comprobante generado"); }
+
+function descargarInformeBajaAIT(key, regDirecto) {
+    const reg = regDirecto || (window._aitRegs||{})[key];
+    if(!reg){ toast("No se encontró el registro"); return; }
+    const {jsPDF}=window.jspdf; const pdf=new jsPDF({unit:'mm',format:'a4'}); const W=210, M=20, AN=W-2*M; let y=0;
+    const hoy=new Date(); const fEmision=String(hoy.getDate()).padStart(2,'0')+'/'+String(hoy.getMonth()+1).padStart(2,'0')+'/'+hoy.getFullYear();
+    // Encabezado
+    pdf.setFont('helvetica','bold'); pdf.setFontSize(13); pdf.text('INSTITUCIÓN EDUCATIVA N° 0148',W/2,20,{align:'center'});
+    pdf.setFont('helvetica','normal'); pdf.setFontSize(10); pdf.text('Atención de Incidencias Tecnológicas (AIT)',W/2,26,{align:'center'});
+    pdf.setLineWidth(0.6); pdf.line(M,30,W-M,30);
+    pdf.setFont('helvetica','bold'); pdf.setFontSize(14); pdf.text('INFORME TÉCNICO DE BAJA DE EQUIPO TECNOLÓGICO',W/2,42,{align:'center'});
+    pdf.setFont('helvetica','normal'); pdf.setFontSize(10); pdf.text('Informe N° ______ - 2026 - AIT - I.E. N° 0148',W/2,49,{align:'center'});
+    pdf.text('Fecha de emisión: '+fEmision,W-M,58,{align:'right'});
+    y=68;
+    const seccion=(t)=>{ pdf.setFillColor(254,243,199); pdf.rect(M,y-5,AN,7,'F'); pdf.setFont('helvetica','bold'); pdf.setFontSize(10.5); pdf.text(t,M+2,y); y+=8; };
+    const campo=(lbl,val)=>{ pdf.setFont('helvetica','bold'); pdf.setFontSize(10); pdf.text(lbl+':',M+2,y); pdf.setFont('helvetica','normal');
+        if(val && String(val).trim() && val!=='—'){ const ls=pdf.splitTextToSize(String(val),AN-58); pdf.text(ls,M+58,y); y+=ls.length*5+2; }
+        else { pdf.setLineWidth(0.2); pdf.line(M+58,y+0.8,W-M,y+0.8); y+=7; } };
+    seccion('I. DATOS DE LA INCIDENCIA');
+    campo('Fecha y hora de registro', `${reg.fecha||''} ${reg.hora||''}`);
+    campo('Aula / Ubicación', reg.aula);
+    campo('Docente usuario', reg.docente);
+    campo('Tipo de equipo', reg.tipoAtencion);
+    campo('Hora de atención', reg.horaAtencion);
+    y+=3;
+    seccion('II. IDENTIFICACIÓN DEL EQUIPO');
+    campo('Código patrimonial', reg.equipoCodigo);
+    campo('Marca / Modelo', reg.equipoMarca);
+    campo('N° de serie', reg.equipoSerie);
+    campo('Estado final', 'Inoperativo — sin solución técnica (dado de baja)');
+    y+=3;
+    seccion('III. DIAGNÓSTICO Y OBSERVACIONES TÉCNICAS');
+    pdf.setFont('helvetica','normal'); pdf.setFontSize(10);
+    const obs=pdf.splitTextToSize(reg.recomendacion||'—',AN-4); pdf.text(obs,M+2,y,{align:'left'}); y+=obs.length*5+6;
+    seccion('IV. CONCLUSIÓN Y RECOMENDACIÓN');
+    const concl=pdf.splitTextToSize('Luego de la atención técnica realizada, el equipo descrito no cuenta con solución técnica viable. Se recomienda su baja del inventario de la institución y gestionar el trámite correspondiente ante la instancia superior (UGEL), así como la reposición del equipo para no afectar la continuidad pedagógica.',AN-4);
+    pdf.setFont('helvetica','normal'); pdf.setFontSize(10); pdf.text(concl,M+2,y); y+=concl.length*5+6;
+    // Firmas
+    const yF=Math.max(y+30,235); pdf.setLineWidth(0.3);
+    const cols=[{x:M,t:'Responsable del AIT'},{x:M+AN/3+2,t:'Docente usuario',n:reg.docente},{x:M+2*AN/3+4,t:'Director(a)'}]; const aw=AN/3-6;
+    cols.forEach(c=>{ pdf.line(c.x,yF,c.x+aw,yF); pdf.setFont('helvetica','bold'); pdf.setFontSize(9); pdf.text(c.t,c.x+aw/2,yF+5,{align:'center'}); if(c.n){ pdf.setFont('helvetica','normal'); pdf.setFontSize(8); pdf.text(pdf.splitTextToSize(c.n,aw),c.x+aw/2,yF+10,{align:'center'}); } });
+    const nombre=`Informe_Baja_${(reg.tipoAtencion||'equipo').replace(/[^A-Za-z0-9]+/g,'_')}_Aula${(reg.aula||'').replace(/[^A-Za-z0-9]+/g,'')}_${reg.fecha||fEmision.replace(/\//g,'-')}.pdf`;
+    pdf.save(nombre); toast("Informe de baja generado");
+}
 
 // ===== ADMIN =====
 function checkAdmin() {
@@ -1400,6 +1446,7 @@ function generarReporteAIT() {
     const mes=document.getElementById('mesFiltroAIT').value; if(!mes||!mes.startsWith("2026")){toast("Seleccione un mes");return;}
     db.ref('atenciones_ait').once('value', snap=>{
         const registros=filtrarPorMes(Object.entries(snap.val()||{}).map(([k,r])=>parseFechaReg({...r,_key:k})), mes);
+        window._aitRegs={}; registros.forEach(r=>{window._aitRegs[r._key]=r;});
         const total=registros.length; const solucionadas=registros.filter(r=>r.solucionCodigo==='SI').length; const pendientes=registros.filter(r=>r.solucionCodigo==='NO').length; const bajas=registros.filter(r=>r.solucionCodigo==='BAJA').length;
         const pctSol=total?((solucionadas/total)*100).toFixed(1):0;
         document.getElementById('ait-statTotal').textContent=total; document.getElementById('ait-statSolucionadas').textContent=solucionadas; document.getElementById('ait-statPendientes').textContent=pendientes; document.getElementById('ait-statBaja').textContent=bajas;
@@ -1434,7 +1481,7 @@ function generarReporteAIT() {
         registros.forEach(r=>{ if(r.semanaMes && semanas[r.semanaMes]){ semanas[r.semanaMes].total++; if(r.solucionCodigo==='SI') semanas[r.semanaMes].sol++; else if(r.solucionCodigo==='NO') semanas[r.semanaMes].pend++; } });
         document.getElementById('ait-semanas-grid').innerHTML=Object.entries(semanas).filter(([_,v])=>v.total>0).map(([sem,v])=>`<div class="semana-card" style="min-width:140px"><div class="semana-nombre">Semana ${sem}</div><div class="semana-cantidad">${v.total}</div><div style="font-size:11px;color:#15803d;font-weight:700;margin-top:4px">✅ Solucionadas: ${v.sol} (${v.total?((v.sol/v.total)*100).toFixed(0):0}%)</div><div style="font-size:11px;color:#b91c1c;font-weight:700;margin-top:2px">⚠️ Pendientes: ${v.pend} (${v.total?((v.pend/v.total)*100).toFixed(0):0}%)</div></div>`).join('');
 
-        document.getElementById('ait-tablaCuerpo').innerHTML=registros.sort((a,b)=>b.timestamp-a.timestamp).map(r=>{let bc=r.solucionCodigo==='SI'?'solucionado':(r.solucionCodigo==='NO'?'pendiente':'dadobaja');return `<tr><td><b>${r.fecha}</b><br><small>${r.hora}</small></td><td>${r.aula}</td><td>${r.docente}</td><td>${r.tipoAtencion}</td><td><span style="background:var(--ait-bg);color:var(--ait-mid);padding:3px 10px;border-radius:20px;font-size:11px;font-weight:800;border:1px solid var(--ait-border);">${r.horaAtencion||'—'}</span></td><td><span class="badge-tipo ${bc}">${r.solucion}</span></td><td>${r.recomendacion.substring(0,50)}</td><td><button class="btn-eliminar" onclick="eliminarRegistro('ait','${r._key}','${r.docente.replace(/'/g,"\\'")}')">Eliminar</button></td><td><button class="btn-descargar" onclick="descargarComprobanteAIT('${r._key}',${JSON.stringify(r).replace(/"/g, '&quot;')})">📄 Firmar</button></td></tr>`;}).join('');
+        document.getElementById('ait-tablaCuerpo').innerHTML=registros.sort((a,b)=>b.timestamp-a.timestamp).map(r=>{let bc=r.solucionCodigo==='SI'?'solucionado':(r.solucionCodigo==='NO'?'pendiente':'dadobaja');return `<tr><td><b>${r.fecha}</b><br><small>${r.hora}</small></td><td>${r.aula}</td><td>${r.docente}</td><td>${r.tipoAtencion}</td><td><span style="background:var(--ait-bg);color:var(--ait-mid);padding:3px 10px;border-radius:20px;font-size:11px;font-weight:800;border:1px solid var(--ait-border);">${r.horaAtencion||'—'}</span></td><td><span class="badge-tipo ${bc}">${r.solucion}</span></td><td>${r.recomendacion.substring(0,50)}</td><td><button class="btn-eliminar" onclick="eliminarRegistro('ait','${r._key}','${r.docente.replace(/'/g,"\\'")}')">Eliminar</button></td><td><button class="btn-descargar" onclick="descargarComprobanteAIT('${r._key}',${JSON.stringify(r).replace(/"/g, '&quot;')})">📄 Firmar</button>${r.solucionCodigo==='BAJA'?`<br><button class="btn-descargar" style="background:#b45309;margin:5px 0 0 5px;" onclick="descargarInformeBajaAIT('${r._key}')">📋 Informe de Baja</button>`:''}</td></tr>`;}).join('');
         const tipoCount={}; registros.forEach(r=>{ tipoCount[r.tipoAtencion]=(tipoCount[r.tipoAtencion]||0)+1; });
         const ctx=document.getElementById('ait-grafico-tipo').getContext('2d'); if(chartAITTipo)chartAITTipo.destroy(); chartAITTipo=new Chart(ctx,{type:'pie',data:{labels:Object.keys(tipoCount),datasets:[{data:Object.values(tipoCount),backgroundColor:['#be185d','#db2777','#f43f5e','#fda4af','#831843']}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'},datalabels:dlPct()}}});
         const ctx2=document.getElementById('ait-grafico-solucion').getContext('2d'); if(chartAITSolucion)chartAITSolucion.destroy(); chartAITSolucion=new Chart(ctx2,{type:'doughnut',data:{labels:['✅ Solucionados','⚠️ Pendientes','❌ Dados de Baja'],datasets:[{data:[solucionadas,pendientes,bajas],backgroundColor:['#22c55e','#ef4444','#f59e0b']}]},options:{responsive:true,maintainAspectRatio:false,cutout:'55%',plugins:{legend:{position:'bottom'},datalabels:dlPct()}}});
