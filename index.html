@@ -1054,17 +1054,25 @@ function registrarAIT() {
 function eliminarRegistro(modulo,key,desc) { if(!confirm(`¿Eliminar este registro?\n\n${desc||''}`)) return; const refs={aip:'atenciones_aip',crt:'atenciones_crt',atp:'atenciones_atp',ait:'atenciones_ait',ae:'atenciones_ae'}; db.ref(`${refs[modulo]}/${key}`).remove().then(()=>{ toast("Eliminado"); if(modulo==='aip') generarReporteAIP(); else if(modulo==='crt') generarReporteCRT(); else if(modulo==='atp') generarReporteATP(); else if(modulo==='ait') generarReporteAIT(); else if(modulo==='ae') generarReporteAE(); }); }
 function descargarComprobanteAIT(key, reg) { const {jsPDF}=window.jspdf; const pdf=new jsPDF(); pdf.setFontSize(16); pdf.text("INSTITUCIÓN EDUCATIVA N° 0148",20,20); pdf.setFontSize(12); pdf.text("AIT - Atención de Incidencia Tecnológica",20,35); pdf.text(`Fecha: ${reg.fecha} ${reg.hora}`,20,50); pdf.text(`Docente: ${reg.docente}`,20,60); pdf.text(`Aula: ${reg.aula}`,20,70); pdf.text(`Tipo: ${reg.tipoAtencion}`,20,80); pdf.text(`Hora de atención: ${reg.horaAtencion||'—'}`,20,90); pdf.text(`Solución: ${reg.solucion}`,20,100); pdf.text("Recomendación:",20,115); const lines=pdf.splitTextToSize(reg.recomendacion,170); pdf.text(lines,20,125); pdf.line(20,165,120,165); pdf.text("Firma del Docente",20,175); pdf.line(140,165,190,165); pdf.text("Fecha",150,175); pdf.save(`Comprobante_AIT_${reg.docente.replace(/\s/g,'_')}.pdf`); toast("Comprobante generado"); }
 
+function cargarLogoPDF() {
+    return new Promise(res=>{ const im=new Image(); im.onload=()=>{ try{ const c=document.createElement('canvas'); c.width=im.naturalWidth; c.height=im.naturalHeight; c.getContext('2d').drawImage(im,0,0); res({data:c.toDataURL('image/jpeg',0.92),w:im.naturalWidth,h:im.naturalHeight}); }catch(e){ res(null); } }; im.onerror=()=>res(null); im.src='logo.jpeg'; });
+}
 function descargarInformeBajaAIT(key, regDirecto) {
     const reg = regDirecto || (window._aitRegs||{})[key];
     if(!reg){ toast("No se encontró el registro"); return; }
+    cargarLogoPDF().then(logo=>generarPDFBajaAIT(reg,logo));
+}
+function generarPDFBajaAIT(reg, logo) {
     const {jsPDF}=window.jspdf; const pdf=new jsPDF({unit:'mm',format:'a4'}); const W=210, M=20, AN=W-2*M; let y=0;
     const hoy=new Date(); const fEmision=String(hoy.getDate()).padStart(2,'0')+'/'+String(hoy.getMonth()+1).padStart(2,'0')+'/'+hoy.getFullYear();
     // Encabezado
-    pdf.setFont('helvetica','bold'); pdf.setFontSize(13); pdf.text('INSTITUCIÓN EDUCATIVA N° 0148',W/2,20,{align:'center'});
-    pdf.setFont('helvetica','normal'); pdf.setFontSize(10); pdf.text('Atención de Incidencias Tecnológicas (AIT)',W/2,26,{align:'center'});
-    pdf.setLineWidth(0.6); pdf.line(M,30,W-M,30);
-    pdf.setFont('helvetica','bold'); pdf.setFontSize(14); pdf.text('INFORME TÉCNICO DE BAJA DE EQUIPO TECNOLÓGICO',W/2,42,{align:'center'});
-    pdf.setFont('helvetica','normal'); pdf.setFontSize(10); pdf.text('Informe N° ______ - 2026 - AIT - I.E. N° 0148',W/2,49,{align:'center'});
+    pdf.setFont('helvetica','bold'); pdf.setFontSize(13); pdf.text('INSTITUCIÓN EDUCATIVA N° 0148',W/2,17,{align:'center'});
+    pdf.setFontSize(12); pdf.text('MAESTRO VÍCTOR RAÚL HAYA DE LA TORRE',W/2,23.5,{align:'center'});
+    pdf.setFont('helvetica','normal'); pdf.setFontSize(10); pdf.text('Atención de Incidencias Tecnológicas (AIT)',W/2,29.5,{align:'center'});
+    pdf.setLineWidth(0.6); pdf.line(M,34,W-M,34);
+    if(logo){ let lw=20, lh=20*logo.h/logo.w; if(lh>20){ lh=20; lw=20*logo.w/logo.h; } pdf.addImage(logo.data,'JPEG',M,10,lw,lh); }
+    pdf.setFont('helvetica','bold'); pdf.setFontSize(14); pdf.text('INFORME TÉCNICO DE BAJA DE EQUIPO TECNOLÓGICO',W/2,44,{align:'center'});
+    pdf.setFont('helvetica','normal'); pdf.setFontSize(10); pdf.text('Informe N° ______ - 2026 - AIT - I.E. N° 0148',W/2,51,{align:'center'});
     pdf.text('Fecha de emisión: '+fEmision,W-M,58,{align:'right'});
     y=68;
     const seccion=(t)=>{ pdf.setFillColor(254,243,199); pdf.rect(M,y-5,AN,7,'F'); pdf.setFont('helvetica','bold'); pdf.setFontSize(10.5); pdf.text(t,M+2,y); y+=8; };
@@ -1092,8 +1100,8 @@ function descargarInformeBajaAIT(key, regDirecto) {
     pdf.setFont('helvetica','normal'); pdf.setFontSize(10); pdf.text(concl,M+2,y); y+=concl.length*5+6;
     // Firmas
     const yF=Math.max(y+30,235); pdf.setLineWidth(0.3);
-    const cols=[{x:M,t:'Responsable del AIT'},{x:M+AN/3+2,t:'Docente usuario',n:reg.docente},{x:M+2*AN/3+4,t:'Director(a)'}]; const aw=AN/3-6;
-    cols.forEach(c=>{ pdf.line(c.x,yF,c.x+aw,yF); pdf.setFont('helvetica','bold'); pdf.setFontSize(9); pdf.text(c.t,c.x+aw/2,yF+5,{align:'center'}); if(c.n){ pdf.setFont('helvetica','normal'); pdf.setFontSize(8); pdf.text(pdf.splitTextToSize(c.n,aw),c.x+aw/2,yF+10,{align:'center'}); } });
+    const cols=[{x:M,t:'Profesor de Innovación Pedagógica - Nivel Secundaria',n:'Yarvin Ramos Soto'},{x:M+AN/3+2,t:'Docente usuario',n:reg.docente},{x:M+2*AN/3+4,t:'Director(a)'}]; const aw=AN/3-6;
+    cols.forEach(c=>{ pdf.line(c.x,yF,c.x+aw,yF); pdf.setFont('helvetica','bold'); pdf.setFontSize(9); const tl=pdf.splitTextToSize(c.t,aw); pdf.text(tl,c.x+aw/2,yF+5,{align:'center'}); if(c.n){ pdf.setFont('helvetica','normal'); pdf.setFontSize(8); pdf.text(pdf.splitTextToSize(c.n,aw),c.x+aw/2,yF+5+tl.length*4+1,{align:'center'}); } });
     const nombre=`Informe_Baja_${(reg.tipoAtencion||'equipo').replace(/[^A-Za-z0-9]+/g,'_')}_Aula${(reg.aula||'').replace(/[^A-Za-z0-9]+/g,'')}_${reg.fecha||fEmision.replace(/\//g,'-')}.pdf`;
     pdf.save(nombre); toast("Informe de baja generado");
 }
